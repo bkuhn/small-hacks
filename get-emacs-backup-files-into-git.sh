@@ -1,8 +1,10 @@
 #!/bin/sh
 
-for i in `ls -r1t $1.~*~ $1`; do
-    date=`stat -c '%y' $i|perl -pe 's/^(\S+)\s+.*$/$1/;'`
+for i in `ls -r1t $1.~*~`; do
+    date=`stat -c '%y' $i`
+    logdate=`stat -c '%y' $i|perl -pe 's/^(\S+)\s+.*$/$1/;'`
     echo $date $i
     cp -pa $i $2
-    svn commit -m "  * file as it stood on $date" $2
+    export GIT_AUTHOR_DATE="$date"
+    git commit -m "Brought in file from ~ backup files, as it was on $logdate" $2
 done
