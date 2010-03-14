@@ -20,17 +20,19 @@ use strict;
 use warnings;
 
 my %history;
+my $time;
 while (my $line = <>) {
   chomp $line;
   if ($line =~ /^#\s*(\d+)/) {
-    my $key = $1;
-    my $cmd;
-    $cmd = <>;
-    chomp $cmd;
-    $history{$key} = $cmd;
+    $time = $1;
+  } else {
+    $history{$time} = {} if not defined $history{$time};
+    $history{$time}{$line} = 1;
   }
 }
 
 foreach my $key (sort { $a cmp $b } keys %history) {
-  print "#$key\n$history{$key}\n";
+  foreach my $cmd (keys %{$history{$key}}) {
+    print "#$key\n$cmd\n";
+  }
 }
