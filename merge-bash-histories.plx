@@ -31,8 +31,8 @@ while (my $line = <>) {
   }
 }
 
-foreach my $key (sort { $a cmp $b } keys %history) {
-  foreach my $cmd (keys %{$history{$key}}) {
+foreach my $key (sort { $a <=> $b } keys %history) {
+  foreach my $cmd (sort {$a cmp $b } keys %{$history{$key}}) {
     print "#$key\n$cmd\n";
   }
 }
