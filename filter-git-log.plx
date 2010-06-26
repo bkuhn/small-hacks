@@ -32,7 +32,7 @@ my($GIT_CMD) = @ARGV;
 
 $GIT_CMD .= " --date=rfc" unless $GIT_CMD =~ /--date/;
 
-open(GIT_OUTPUT, "-|", $GIT_CMD) or die "unable to run \"$GIT_CMD\": $!";
+open(GIT_OUTPUT, "|-", $GIT_CMD) or die "unable to run \"$GIT_CMD\": $!";
 
 my $currentCommit = "";
 my $skipThisOne = 1;
