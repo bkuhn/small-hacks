@@ -25,10 +25,14 @@
 use strict;
 use warnings;
 
-if (@ARGV != 1) {
-  print STDERR "usage: $0 <GIT_COMMAND_STRING>\n";
+if (@ARGV != 2) {
+  print STDERR "usage: $0 <GIT_COMMAND_STRING> <DATE_RANGE_CODE_FILE>\n";
+  exit 1;
 }
-my($GIT_CMD) = @ARGV;
+my($GIT_CMD, $DATE_RANGE_CODE_FILE) = @ARGV;
+
+# DATE_RANGE_CODE_FILE must define a one-arg function called DateIsInRange()
+require "$DATE_RANGE_CODE_FILE";
 
 $GIT_CMD .= " --no-color";
 $GIT_CMD .= " --date=rfc" unless $GIT_CMD =~ /--date/;
@@ -38,16 +42,16 @@ open(GIT_OUTPUT, "-|", $GIT_CMD) or die "unable to run \"$GIT_CMD\": $!";
 my $currentCommit = "";
 my $skipThisOne = 1;
 while (my $line = <GIT_OUTPUT>) {
-  if ($line =~ /^\s*commit\s+/i) {
+  if ($line =~ /^\s*commit\s+([\dA-F]+)\s*$/i) {
     print $currentCommit unless $skipThisOne;
     $skipThisOne = 0;
     $currentCommit = "";
   } elsif ($line =~ /^\s*Date\s*:\s*(\S+)\s*,/i) {  #Warning: assumes --date=rfc
-    my $day = $1;
-    $skipThisOne = ($day !~ /(Sat|Sun)/i);
+    $skipThisOne = not DateIsInRange($1);
   }
   $currentCommit .= $line;
 }
+print $currentCommit unless $skipThisOne;
 close GIT_OUTPUT;
 die "non-zero exit code on \"$GIT_CMD\": $!" unless $? == 0;
 ###############################################################################
