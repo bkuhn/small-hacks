@@ -25,11 +25,11 @@
 use strict;
 use warnings;
 
-if (@ARGV != 2) {
-  print STDERR "usage: $0 <GIT_COMMAND_STRING> <DATE_RANGE_CODE_FILE>\n";
+if (@ARGV < 2 or @ARGV > 3) {
+  print STDERR "usage: $0 <GIT_COMMAND_STRING> <DATE_RANGE_CODE_FILE> [<SKIP_AUTHOR_REGEX>]\n";
   exit 1;
 }
-my($GIT_CMD, $DATE_RANGE_CODE_FILE) = @ARGV;
+my($GIT_CMD, $DATE_RANGE_CODE_FILE, $SKIP_AUTHOR_REGEX) = @ARGV;
 
 # DATE_RANGE_CODE_FILE must define a one-arg function called DateIsInRange()
 require "$DATE_RANGE_CODE_FILE";
@@ -46,7 +46,10 @@ while (my $line = <GIT_OUTPUT>) {
     $skipThisOne = 0;
     $currentCommit = "";
   } elsif ($line =~ /^\s*Date\s*:\s*(.+)$/i) {
-    $skipThisOne = not DateIsInRange($1);
+    $skipThisOne = not DateIsInRange($1) if not $skipThisOne;
+  } elsif ($line =~ /^\s*Author\s*:\s*(.+)$/i) {
+    my $author = $1;
+    $skipThisOne = 1 if $author =~ /$SKIP_AUTHOR_REGEX/;
   }
   $currentCommit .= $line;
 }
