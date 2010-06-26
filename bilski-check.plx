@@ -29,7 +29,7 @@ my @SCOTUS_URLS = ('http://www.supremecourt.gov/', 'http://www.supremecourt.gov/
 #my $DATE_STR_TO_SEEK = '6/07/10';
 #my $CASE_TO_SEEK = 'Krupski';
 
-my $DATE_STR_TO_SEEK = '6/14/10';
+my $DATE_STR_TO_SEEK = '6/24/10';
 my $CASE_TO_SEEK = 'Bilski';
 
 if (@ARGV != 0) {
