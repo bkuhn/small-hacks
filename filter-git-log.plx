@@ -25,29 +25,40 @@
 use strict;
 use warnings;
 
-if (@ARGV < 2 or @ARGV > 3) {
-  print STDERR "usage: $0 <GIT_COMMAND_STRING> <DATE_RANGE_CODE_FILE> [<SKIP_AUTHOR_REGEX>]\n";
+if (@ARGV < 2 or @ARGV > 4) {
+  print STDERR "usage: $0 <GIT_COMMAND_STRING> <DATE_RANGE_CODE_FILE> [<SKIP_COMMITS_FILE>] [<SKIP_AUTHOR_REGEX>]\n";
   exit 1;
 }
-my($GIT_CMD, $DATE_RANGE_CODE_FILE, $SKIP_AUTHOR_REGEX) = @ARGV;
+my($GIT_CMD, $DATE_RANGE_CODE_FILE, $SKIP_COMMITS_FILE, $SKIP_AUTHOR_REGEX) = @ARGV;
 
 # DATE_RANGE_CODE_FILE must define a one-arg function called DateIsInRange()
 require "$DATE_RANGE_CODE_FILE";
 
 $GIT_CMD .= " --no-color";
 
+open(COMMIT_LIST, "<", $SKIP_COMMITS_FILE)
+  or die "unable to read file $SKIP_COMMITS_FILE: $!";
+
+my %skipCommits;
+while (my $line = <COMMIT_LIST>) {
+  chomp $line;
+  die "entry in $SKIP_COMMITS_FILE that does not appear to be a commit id"
+    unless $line =~ /^[\dA-F]+$/i;
+  $skipCommits{$line} = 1;
+}
 open(GIT_OUTPUT, "-|", $GIT_CMD) or die "unable to run \"$GIT_CMD\": $!";
 
 my $currentCommit = "";
 my $skipThisOne = 1;
 while (my $line = <GIT_OUTPUT>) {
   if ($line =~ /^\s*commit\s+([\dA-F]+)\s*$/i) {
+    my $commitID = $1;
     print $currentCommit unless $skipThisOne;
-    $skipThisOne = 0;
+    $skipThisOne = defined $skipCommits{$commitID};
     $currentCommit = "";
   } elsif ($line =~ /^\s*Date\s*:\s*(.+)$/i) {
     $skipThisOne = not DateIsInRange($1) if not $skipThisOne;
-  } elsif ($line =~ /^\s*Author\s*:\s*(.+)$/i) {
+  } elsif (defined $SKIP_AUTHOR_REGEX and $line =~ /^\s*Author\s*:\s*(.+)$/i) {
     my $author = $1;
     $skipThisOne = 1 if $author =~ /$SKIP_AUTHOR_REGEX/;
   }
