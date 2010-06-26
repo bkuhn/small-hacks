@@ -30,20 +30,21 @@ if (@ARGV != 1) {
 }
 my($GIT_CMD) = @ARGV;
 
+$GIT_CMD .= " --no-color";
 $GIT_CMD .= " --date=rfc" unless $GIT_CMD =~ /--date/;
 
-open(GIT_OUTPUT, "|-", $GIT_CMD) or die "unable to run \"$GIT_CMD\": $!";
+open(GIT_OUTPUT, "-|", $GIT_CMD) or die "unable to run \"$GIT_CMD\": $!";
 
 my $currentCommit = "";
 my $skipThisOne = 1;
 while (my $line = <GIT_OUTPUT>) {
-  if ($line =~ /^\s*commit\s+/) {
+  if ($line =~ /^\s*commit\s+/i) {
     print $currentCommit unless $skipThisOne;
     $skipThisOne = 0;
     $currentCommit = "";
-  } elsif ($line = /^\s*Date:\s*(\S+)\,/) {  #Warning: assumes --date=rfc
+  } elsif ($line =~ /^\s*Date\s*:\s*(\S+)\s*,/i) {  #Warning: assumes --date=rfc
     my $day = $1;
-    $skipThisOne = ($day !~ /(Sat|Sun)/);
+    $skipThisOne = ($day !~ /(Sat|Sun)/i);
   }
   $currentCommit .= $line;
 }
