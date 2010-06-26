@@ -35,7 +35,6 @@ my($GIT_CMD, $DATE_RANGE_CODE_FILE) = @ARGV;
 require "$DATE_RANGE_CODE_FILE";
 
 $GIT_CMD .= " --no-color";
-$GIT_CMD .= " --date=rfc" unless $GIT_CMD =~ /--date/;
 
 open(GIT_OUTPUT, "-|", $GIT_CMD) or die "unable to run \"$GIT_CMD\": $!";
 
@@ -46,7 +45,7 @@ while (my $line = <GIT_OUTPUT>) {
     print $currentCommit unless $skipThisOne;
     $skipThisOne = 0;
     $currentCommit = "";
-  } elsif ($line =~ /^\s*Date\s*:\s*(\S+)\s*,/i) {  #Warning: assumes --date=rfc
+  } elsif ($line =~ /^\s*Date\s*:\s*(.+)$/i) {
     $skipThisOne = not DateIsInRange($1);
   }
   $currentCommit .= $line;
