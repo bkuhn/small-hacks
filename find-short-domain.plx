@@ -23,6 +23,7 @@ use Net::WhoisNG;
 
 if (@ARGV != 3) {
   print STDERR "usage: $0 <TLD> <LEN> <CACHE_FILE>\n";
+  exit 1;
 }
 my($TLD, $LENGTH, $CACHE_FILE) = @ARGV;
 
@@ -39,10 +40,10 @@ while (my $line = <CACHE>) {
 close CACHE;
 
 sub CheckDomain ($$$) {
-  my($let1, $let2, $let3) = @ARGV;
+  my($let1, $let2, $let3) = @_;
 
   my $domain = "$let1$let2$let3" . "." . $TLD;
-  next if defined $cache{$domain};
+  return if defined $cache{$domain};
 
   my $w = new Net::WhoisNG($domain);
   if(!$w->lookUp()){
