@@ -21,26 +21,40 @@ use warnings;
 
 use Net::WhoisNG;
 
+if (@ARGV != 2) {
+  print STDERR "usage: $0 <TLD> <CACHE_FILE>\n";
+}
+my($TLD, $CACHE_FILE) = @ARGV;
+
+my %cache;
+
+open(CACHE, "<", $CACHE_FILE) or die "Unable to open $CACHE_FILE for reading: $!";
+
+while (my $line = <CACHE>) {
+  chomp $line;
+  die "maleformed line, \"$line\" in $CACHE_FILE"
+    unless $line =~ /^\s*(\S+)\s*\:\s*((?:available|expires:\s*\S+))/;
+  $cache{$1} = $2;
+}
+
 foreach my $let1 ('a' .. 'z', '0' .. '9') {
-  foreach my $let2 ('a' .. 'z', '0' .. '9') {
+  foreach my $let2 ('a' .. 'z', '0' .. '9', '-') {
     foreach my $let3 ('a' .. 'z', '0' .. '9') {
-      my $domain = "$let1$let2$let3" . ".us";
+      my $domain = "$let1$let2$let3" . "." . $TLD;
+      next if defined $cache{$domain};
+
       my $w = new Net::WhoisNG($domain);
       if(!$w->lookUp()){
         print "$domain is not in use\n";
       } else {
         my $exp_date=$w->getExpirationDate();
         if (not defined $exp_date) {
-          print "$domain is not in use\n";
+          print "$domain: available\n";
         }
         else {
-          print STDERR "taken domain, $domain, $exp_date...\n";
+          print "$domain: expires: $exp_date\n";
         }
       }
     }
   }
 }
-
-
-
-
