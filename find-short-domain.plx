@@ -21,10 +21,10 @@ use warnings;
 
 use Net::WhoisNG;
 
-if (@ARGV != 2) {
-  print STDERR "usage: $0 <TLD> <CACHE_FILE>\n";
+if (@ARGV != 3) {
+  print STDERR "usage: $0 <TLD> <LEN> <CACHE_FILE>\n";
 }
-my($TLD, $CACHE_FILE) = @ARGV;
+my($TLD, $LENGTH, $CACHE_FILE) = @ARGV;
 
 my %cache;
 
@@ -36,25 +36,43 @@ while (my $line = <CACHE>) {
     unless $line =~ /^\s*(\S+)\s*\:\s*((?:available|expires:\s*\S+))/;
   $cache{$1} = $2;
 }
+close CACHE;
 
-foreach my $let1 ('a' .. 'z', '0' .. '9') {
-  foreach my $let2 ('a' .. 'z', '0' .. '9', '-') {
-    foreach my $let3 ('a' .. 'z', '0' .. '9') {
-      my $domain = "$let1$let2$let3" . "." . $TLD;
-      next if defined $cache{$domain};
+sub CheckDomain ($$$) {
+  my($let1, $let2, $let3) = @ARGV;
 
-      my $w = new Net::WhoisNG($domain);
-      if(!$w->lookUp()){
-        print "$domain is not in use\n";
-      } else {
-        my $exp_date=$w->getExpirationDate();
-        if (not defined $exp_date) {
-          print "$domain: available\n";
-        }
-        else {
-          print "$domain: expires: $exp_date\n";
-        }
+  my $domain = "$let1$let2$let3" . "." . $TLD;
+  next if defined $cache{$domain};
+
+  my $w = new Net::WhoisNG($domain);
+  if(!$w->lookUp()){
+    print "$domain is not in use\n";
+  } else {
+    my $exp_date=$w->getExpirationDate();
+    if (not defined $exp_date) {
+      print "$domain: available\n";
+    }
+    else {
+      print "$domain: expires: $exp_date\n";
+    }
+  }
+}
+
+if ($LENGTH == 3) {
+  foreach my $let1 ('a' .. 'z', '0' .. '9') {
+    foreach my $let2 ('a' .. 'z', '0' .. '9', '-') {
+      foreach my $let3 ('a' .. 'z', '0' .. '9') {
+        CheckDomain($let1, $let2, $let3);
       }
     }
+  }
+} elsif ($LENGTH == 2) {
+  foreach my $let1 ('a' .. 'z', '0' .. '9') {
+    foreach my $let2 ('a' .. 'z', '0' .. '9') {
+      CheckDomain("", $let1, $let2);
+    }
+  } else {
+    print STDERR "domain length of $LENGTH is unsupported\n";
+    exit 1;
   }
 }
