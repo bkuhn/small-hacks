@@ -23,11 +23,20 @@ use Net::WhoisNG;
 
 foreach my $let1 ('a' .. 'z', '0' .. '9') {
   foreach my $let2 ('a' .. 'z', '0' .. '9') {
-    my $domain = "$let1$let2" . ".us";
-    my $w = new Net::WhoisNG($domain);
-    print STDERR "trying domain, $domain...\n";
-    if(!$w->lookUp()){
-      print "$domain is not in use\n";
+    foreach my $let3 ('a' .. 'z', '0' .. '9') {
+      my $domain = "$let1$let2$let3" . ".us";
+      my $w = new Net::WhoisNG($domain);
+      if(!$w->lookUp()){
+        print "$domain is not in use\n";
+      } else {
+        my $exp_date=$w->getExpirationDate();
+        if (not defined $exp_date) {
+          print "$domain is not in use\n";
+        }
+        else {
+          print STDERR "taken domain, $domain, $exp_date...\n";
+        }
+      }
     }
   }
 }
