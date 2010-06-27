@@ -71,8 +71,14 @@ if ($LENGTH == 3) {
     foreach my $let2 ('a' .. 'z', '0' .. '9') {
       CheckDomain("", $let1, $let2);
     }
-  } else {
-    print STDERR "domain length of $LENGTH is unsupported\n";
-    exit 1;
   }
+} else {
+  print STDERR "domain length of $LENGTH is unsupported\n";
+  exit 1;
 }
+###############################################################################
+#
+# Local variables:
+# compile-command: "perl -c find-short-domain.plx"
+# End:
+
