@@ -29,7 +29,7 @@ my @SCOTUS_URLS = ('http://www.supremecourt.gov/', 'http://www.supremecourt.gov/
 #my $DATE_STR_TO_SEEK = '6/07/10';
 #my $CASE_TO_SEEK = 'Krupski';
 
-my $DATE_STR_TO_SEEK = '6/24/10';
+my $DATE_STR_TO_SEEK = '6/28/10';
 my $CASE_TO_SEEK = 'Bilski';
 
 if (@ARGV != 0) {
@@ -60,12 +60,15 @@ while (1) {
 
   foreach my $url (@SCOTUS_URLS) {
     my $file = URI::Fetch->fetch($url) or DieLoud(URI::Fetch->errstr());
-
     my $data = $file->content;
+
+    $data =~ s/$DATE_STR_TO_SEEK.*McDonald//;
+
+    print $data;
+
     my $out = "";
-    if ($data =~ /$DATE_STR_TO_SEEK/im) {
-      my $out = ($data =~ /$CASE_TO_SEEK/im) ? "$CASE_TO_SEEK announced!"
-                                             : "No $CASE_TO_SEEK today!";
+    if ($data =~ /$DATE_STR_TO_SEEK/im and $data =~ /$CASE_TO_SEEK/im) {
+      my $out = "$CASE_TO_SEEK announced!";
       if ($data =~ /<\s*a[^>]+href\s*=\s*"([^"]+)".*$CASE_TO_SEEK/im) {
         my $subUrl = $1;
         $subUrl = "$url$subUrl" unless $subUrl =~ /^\s*(ftp|http)/;
