@@ -32,44 +32,42 @@ my($MAILDIR_FOLDER, $DSPAM_PROB_MIN, $DSPAM_CONF_MIN) = @ARGV;
 
 my($total, $countDeleted) = (0, 0);
 
-foreach my $folder (@dupFolders) {
-  my @msgDirs = ("$folder/cur", "$folder/new");
-  foreach my $dir (@msgDirs) {
-    die "$MAILDIR_FOLDER must not be a maildir folder (or is unreadable by you), since $dir isn't a readable directory: $!"
-      unless  (-d $dir);
-  }
-  foreach my $dir (@msgDirs) {
-    opendir(MAILDIR, $dir) or die "Unable to open directory $dir for reading: $!";
-    while (my $file = readdir MAILDIR) {
-      next if -d $file;    # skip directories
-      my $existing_file = "$dir/$file";
-      open(MAIL_MESSAGE, "<", $existing_file) or
-        die "unable to open $existing_file for reading: $!";
+my @msgDirs = ("$MAILDIR_FOLDER/cur", "$MAILDIR_FOLDER/new");
 
-      my $header = new Mail::Header(\*MAIL_MESSAGE);
-      my $fields = $header->header_hashref;
+foreach my $dir (@msgDirs) {
+  die "$MAILDIR_FOLDER must not be a maildir folder (or is unreadable by you), since $dir isn't a readable directory: $!"
+    unless  (-d $dir);
+}
+foreach my $dir (@msgDirs) {
+  opendir(MAILDIR, $dir) or die "Unable to open directory $dir for reading: $!";
+  while (my $file = readdir MAILDIR) {
+    next if -d $file;    # skip directories
+    my $existing_file = "$dir/$file";
+    open(MAIL_MESSAGE, "<", $existing_file) or
+      die "unable to open $existing_file for reading: $!";
 
-      my %dspamVal;
-      foreach my $val ('Confidence', 'Probability') {
-        foreach my $dv (@{$fields{"X-DSPAM-$val"}}) {
-          if (not defined $dspamVal{$val}) {
-            $dspamVal{$val} = $dv;
-          } else {
-            $dspamVal = $dv if $dv < $dspamVal{$val};
-          }
-        }
+    my $header = new Mail::Header(\*MAIL_MESSAGE);
+    my $fields = $header->header_hashref;
+
+    my %dspamVal;
+    foreach my $val ('Confidence', 'Probability') {
+      foreach my $dv (@{$fields{"X-DSPAM-$val"}}) {
         if (not defined $dspamVal{$val}) {
-          print STDERR "File $file has no X-DSPAM-$val header. Skipping.\n";
-          next;
+          $dspamVal{$val} = $dv;
+        } else {
+          $dspamVal = $dv if $dv < $dspamVal{$val};
         }
       }
-
-      $total++;
-
-      if ($dspamVal{Confidence}  >= $DSPAM_PROB_MIN and
-          $dspamVal{Probability} >= $DSPAM_CONF_MIN) {
-        $countDeleted++;
+      if (not defined $dspamVal{$val}) {
+        print STDERR "File $file has no X-DSPAM-$val header. Skipping.\n";
+        next;
       }
+    }
+    $total++;
+
+    if ($dspamVal{Confidence}  >= $DSPAM_PROB_MIN and
+        $dspamVal{Probability} >= $DSPAM_CONF_MIN) {
+      $countDeleted++;
     }
     close MAIL_MESSAGE;
   }
@@ -81,5 +79,5 @@ print "$countDeleted of $total would be deleted\n";
 ###############################################################################
 #
 # Local variables:
-# compile-command: "perl -c remove-dup-mails-from-maildir.plx"
+# compile-command: "perl -c remove-spam-high-confidence-maildir.plx"
 # End:
