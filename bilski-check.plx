@@ -64,8 +64,6 @@ while (1) {
 
     $data =~ s/$DATE_STR_TO_SEEK.*McDonald//;
 
-    print $data;
-
     my $out = "";
     if ($data =~ /$DATE_STR_TO_SEEK/im and $data =~ /$CASE_TO_SEEK/im) {
       my $out = "$CASE_TO_SEEK announced!";
