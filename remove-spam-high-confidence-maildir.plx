@@ -51,11 +51,11 @@ foreach my $dir (@msgDirs) {
 
     my %dspamVal;
     foreach my $val ('Confidence', 'Probability') {
-      foreach my $dv (@{$fields{"X-DSPAM-$val"}}) {
+      foreach my $dv (@{$fields->{"X-DSPAM-$val"}}) {
         if (not defined $dspamVal{$val}) {
           $dspamVal{$val} = $dv;
         } else {
-          $dspamVal = $dv if $dv < $dspamVal{$val};
+          $dspamVal{$val} = $dv if $dv < $dspamVal{$val};
         }
       }
       if (not defined $dspamVal{$val}) {
