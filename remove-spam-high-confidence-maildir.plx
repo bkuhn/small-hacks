@@ -38,7 +38,7 @@ foreach my $dir (@msgDirs) {
   die "$MAILDIR_FOLDER must not be a maildir folder (or is unreadable by you), since $dir isn't a readable directory: $!"
     unless  (-d $dir);
 }
-foreach my $dir (@msgDirs) {
+MAIL: foreach my $dir (@msgDirs) {
   opendir(MAILDIR, $dir) or die "Unable to open directory $dir for reading: $!";
   while (my $file = readdir MAILDIR) {
     next if -d $file;    # skip directories
@@ -51,7 +51,7 @@ foreach my $dir (@msgDirs) {
 
     my %dspamVal;
     foreach my $val ('Confidence', 'Probability') {
-      foreach my $dv (@{$fields->{"X-DSPAM-$val"}}) {
+      foreach my $dv (@{$fields->{"X-Dspam-$val"}}) {
         if (not defined $dspamVal{$val}) {
           $dspamVal{$val} = $dv;
         } else {
@@ -59,8 +59,8 @@ foreach my $dir (@msgDirs) {
         }
       }
       if (not defined $dspamVal{$val}) {
-        print STDERR "File $file has no X-DSPAM-$val header. Skipping.\n";
-        next;
+        print STDERR "File $file has no X-Dspam-$val header. Skipping.\n";
+        next MAIL;
       }
     }
     $total++;
