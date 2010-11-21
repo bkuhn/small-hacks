@@ -42,9 +42,12 @@ MAIL: foreach my $dir (@msgDirs) {
   opendir(MAILDIR, $dir) or die "Unable to open directory $dir for reading: $!";
   while (my $file = readdir MAILDIR) {
     next if -d $file;    # skip directories
-    my $existing_file = "$dir/$file";
-    open(MAIL_MESSAGE, "<", $existing_file) or
-      die "unable to open $existing_file for reading: $!";
+    my $fullFileName = "$dir/$file";
+
+    unless (open(MAIL_MESSAGE, "<", $fullFileName)) {
+      print STDERR "File, $fullFileName, appears to have disappeared during processing ($!).\n    (Ignoring that fact, but counts may be off.)\n";
+      next MAIL;
+    }
 
     my $header = new Mail::Header(\*MAIL_MESSAGE);
     my $fields = $header->header_hashref;
@@ -69,8 +72,8 @@ MAIL: foreach my $dir (@msgDirs) {
         $dspamVal{Probability} >= $DSPAM_PROB_MIN) {
       $countDeleted++;
       if (defined $COUNT_ONLY and $COUNT_ONLY) {
-        warn "unable to unlink $dir/$file : $!"
-          unless unlink("$dir/$file") == 1;
+        warn "unable to unlink $fullFileName: $!"
+          unless unlink("$fullFileName") == 1;
       }
     }
     close MAIL_MESSAGE;
