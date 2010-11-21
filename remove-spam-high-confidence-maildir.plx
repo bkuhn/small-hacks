@@ -23,12 +23,12 @@ use warnings;
 use Mail::Header;
 #use File::Copy;
 
-if (@ARGV < 3) {
-  print STDERR "usage: $0 <MAILDIR_DIRECTORY> <DSPAM_PROBABILITY_MIN> <DSPAM_CONFIDENCE_LEVEL_MIN>\n";
+if (@ARGV < 3 or @ARGV > 4) {
+  print STDERR "usage: $0 <MAILDIR_DIRECTORY> <DSPAM_PROBABILITY_MIN> <DSPAM_CONFIDENCE_LEVEL_MIN> [<COUNT_ONLY_DONT_DELETE>]\n";
   exit 1;
 }
 
-my($MAILDIR_FOLDER, $DSPAM_PROB_MIN, $DSPAM_CONF_MIN) = @ARGV;
+my($MAILDIR_FOLDER, $DSPAM_PROB_MIN, $DSPAM_CONF_MIN, $COUNT_ONLY) = @ARGV;
 
 my($total, $countDeleted) = (0, 0);
 
@@ -68,8 +68,10 @@ MAIL: foreach my $dir (@msgDirs) {
     if ($dspamVal{Confidence}  >= $DSPAM_CONF_MIN and
         $dspamVal{Probability} >= $DSPAM_PROB_MIN) {
       $countDeleted++;
-      warn "unable to unlink $dir/$file : $!"
-        unless unlink("$dir/$file") == 1;
+      if (defined $COUNT_ONLY and $COUNT_ONLY) {
+        warn "unable to unlink $dir/$file : $!"
+          unless unlink("$dir/$file") == 1;
+      }
     }
     close MAIL_MESSAGE;
   }
