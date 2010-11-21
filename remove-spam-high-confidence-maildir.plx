@@ -78,8 +78,12 @@ MAIL: foreach my $dir (@msgDirs) {
   close MAILDIR;
 }
 
-print "$countDeleted of $total were deleted\n";
+my $percent = ($countDeleted / $total) * 100.00;
 
+print sprintf("%2f", $percent), " ($countDeleted/$total) ",
+  (defined $COUNT_ONLY and $COUNT_ONLY ? " would be deleted.\n" :
+  sprintf("were deleted.\nThis leaves %d in the folder.\n",
+          $total - $countDeleted));
 ###############################################################################
 #
 # Local variables:
