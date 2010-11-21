@@ -65,16 +65,18 @@ MAIL: foreach my $dir (@msgDirs) {
     }
     $total++;
 
-    if ($dspamVal{Confidence}  >= $DSPAM_PROB_MIN and
-        $dspamVal{Probability} >= $DSPAM_CONF_MIN) {
+    if ($dspamVal{Confidence}  >= $DSPAM_CONF_MIN and
+        $dspamVal{Probability} >= $DSPAM_PROB_MIN) {
       $countDeleted++;
+      warn "unable to unlink $dir/$file : $!"
+        unless unlink("$dir/$file") == 1;
     }
     close MAIL_MESSAGE;
   }
   close MAILDIR;
 }
 
-print "$countDeleted of $total would be deleted\n";
+print "$countDeleted of $total were deleted\n";
 
 ###############################################################################
 #
