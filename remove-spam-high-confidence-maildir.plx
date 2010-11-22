@@ -71,7 +71,7 @@ MAIL: foreach my $dir (@msgDirs) {
     if ($dspamVal{Confidence}  >= $DSPAM_CONF_MIN and
         $dspamVal{Probability} >= $DSPAM_PROB_MIN) {
       $countDeleted++;
-      if (defined $COUNT_ONLY and $COUNT_ONLY) {
+      unless (defined $COUNT_ONLY and $COUNT_ONLY) {
         warn "unable to unlink $fullFileName: $!"
           unless unlink("$fullFileName") == 1;
       }
@@ -83,10 +83,10 @@ MAIL: foreach my $dir (@msgDirs) {
 
 my $percent = ($countDeleted / $total) * 100.00;
 
-print sprintf("%2f", $percent), " ($countDeleted/$total) ",
-  (defined $COUNT_ONLY and $COUNT_ONLY ? " would be deleted.\n" :
-  sprintf("were deleted.\nThis leaves %d in the folder.\n",
-          $total - $countDeleted));
+print sprintf("%.2f", $percent), "% ($countDeleted/$total) ",
+  (defined $COUNT_ONLY and $COUNT_ONLY ?
+   sprintf("were deleted.\nThis leaves %d in the folder.\n",
+          $total - $countDeleted) : " would be deleted.\n");
 ###############################################################################
 #
 # Local variables:
