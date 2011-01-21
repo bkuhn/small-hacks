@@ -6,14 +6,16 @@ use warnings;
 use Mail::Header;
 use File::Copy;
 
-if (@ARGV < 2) {
-  print STDERR "usage: $0 <TYPE> <SOURCE_MAILDIR_FOLDER_PATH> [<MALDIRS_LOOK_FOR_DUPS_IN> ...]\n";
+my $RM_CMD = "/bin/rm";
+
+if (@ARGV < 1) {
+  print STDERR "usage: $0 <SOURCE_MAILDIR_FOLDER_PATH> [<MALDIRS_LOOK_FOR_DUPS_IN> ...]\n";
   exit 1;
 }
 
-my($TYPE, $MAILDIR_FOLDER) = ($ARGV[0], $ARGV[1]);
+my($MAILDIR_FOLDER) = $ARGV[0];
 
-my (@dupFolders) = @ARGV[2..$#ARGV];
+my (@dupFolders) = @ARGV[1..$#ARGV];
 
 my %msgs;  # indexed by Message-Id
 
@@ -80,17 +82,9 @@ foreach my $dir (@msgDirs) {
     # it to %msgs.
 
     if (defined $msgs{$id}) {
-      if ($TYPE eq "print") {
-        print "$id\n";
-      } elsif ($TYPE eq "svn") {
-        system("svn rm \"$existing_file\"");
-        die "Unable to unlink file $existing_file: $!"
-          unless $? == 0;
-      } else {
-        print STDERR "Removing $existing_file\n";
-        die "Unable to unlink $existing_file: $!"
-          unless unlink($existing_file) == 1;
-      }
+      system("$RM_CMD \"$existing_file\"");
+      die "Unable to unlink file $existing_file: $!"
+        unless $? == 0;
     } else {
       $msgs{$id} = $fields;
     }
