@@ -21,16 +21,20 @@ use strict;
 use warnings;
 
 use Mail::Header;
+use Date::Manip;
+
 #use File::Copy;
 
 if (@ARGV < 3 or @ARGV > 4) {
-  print STDERR "usage: $0 <MAILDIR_DIRECTORY> <DSPAM_PROBABILITY_MIN> <DSPAM_CONFIDENCE_LEVEL_MIN> [<COUNT_ONLY_DONT_DELETE>]\n";
+  print STDERR "usage: $0 <MAILDIR_DIRECTORY> <DSPAM_PROBABILITY_MIN> <DSPAM_CONFIDENCE_LEVEL_MIN> <DAYS> [<COUNT_ONLY_DONT_DELETE>]\n";
   exit 1;
 }
 
-my($MAILDIR_FOLDER, $DSPAM_PROB_MIN, $DSPAM_CONF_MIN, $COUNT_ONLY) = @ARGV;
+my($MAILDIR_FOLDER, $DSPAM_PROB_MIN, $DSPAM_CONF_MIN, $DAYS, $COUNT_ONLY) = @ARGV;
 
 my($total, $countDeleted) = (0, 0);
+
+my $nDaysAgo = ParseDate("$DAYS days ago");
 
 my @msgDirs = ("$MAILDIR_FOLDER/cur", "$MAILDIR_FOLDER/new");
 
@@ -51,6 +55,26 @@ MAIL: foreach my $dir (@msgDirs) {
 
     my $header = new Mail::Header(\*MAIL_MESSAGE);
     my $fields = $header->header_hashref;
+
+    my $mailDate;
+    foreach my $dt (@{$fields->{"Date"}}) {
+      if (not defined $mailDate) {
+        $mailDate = $dt;
+      } else {
+        $mailDate = $dt if $dt lt $maileDate;
+      }
+    }
+    if (not defined $mailDate) {
+      print STDERR "File $file has no Date: header. Skipping.\n";
+      next MAIL;
+    }
+    $parsedDate = ParseDate($mailDate);
+    unless (defined $parseDate) {
+      print STDERR "File $file has Unparsable Date header $mailDate";
+      next MAIL;
+    }
+
+    next MAIL if ($parseDate gt $nDaysAgo);
 
     my %dspamVal;
     foreach my $val ('Confidence', 'Probability') {
