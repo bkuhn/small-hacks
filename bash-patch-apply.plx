@@ -28,8 +28,13 @@ foreach my $patchFile (@ARGV) {
     print STDERR "${patchFile}.sig is not readable\n";
     exit 1;
   }
-  system("/usr/bin/gpg ${patchFile}.sig");
-  if ($? != 0) {
+  my $gpgData = "";
+  open(GPG, "-|", "/usr/bin/gpg ${patchFile}.sig 2>&1") or die "unable to run GPG on ${patchFile}.sig: $!";
+  while (my $line = <GPG>) {
+    $gpgData .= $line;
+    last if ($line =~ /(^|\s+)Good\s+signature/i);
+  }
+  if ($? != 0 or $gpgData !~ /Good\s+signature/i) {
     print STDERR "GPG signature check problem on $patchFile\n";
     exit 1;
   }
@@ -74,6 +79,8 @@ foreach my $patchFile (@ARGV) {
   $ENV{GIT_AUTHOR_EMAIL} = 'chet@cwru.edu';
   open(COMMIT, "|-", "git commit -a -F -") or die "unable to run git: $!";
   print COMMIT $log;
+  print "\nThis patch, in file $patchFile, was downloaded from ftp.gnu.org on 2011-05-29,\nand ${patchFile}.sig was furthermore verified, yielding the following output:\n";
+  print $gpgData;
   close COMMIT;
   if ($? != 0) {
     print STDERR "$patchFile commit failed!\n";
