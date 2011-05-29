@@ -73,14 +73,19 @@ foreach my $patchFile (@ARGV) {
     print STDERR "$patchFile did not apply clean!\n";
     exit 1;
   }
+  my $basePatchFile = `/usr/bin/basename $patchFile`;
+  my $basePatchFileSig = `/usr/bin/basename ${patchFile}.sig`;
+  chomp $basePatchFile;
+  chomp $basePatchFileSig;
+
   $ENV{GIT_AUTHOR_DATE} = $date;
   $ENV{GIT_COMMITTER_DATE} = $date;
   $ENV{GIT_AUTHOR_NAME} = 'Chet Ramey'; 
   $ENV{GIT_AUTHOR_EMAIL} = 'chet@cwru.edu';
   open(COMMIT, "|-", "git commit -a -F -") or die "unable to run git: $!";
   print COMMIT $log;
-  print "\nThis patch, in file $patchFile, was downloaded from ftp.gnu.org on 2011-05-29,\nand ${patchFile}.sig was furthermore verified, yielding the following output:\n";
-  print $gpgData;
+  print COMMIT "\nThis patch, in file $basePatchFile, was downloaded from ftp.gnu.org on 2011-05-29,\nand $basePatchFileSig was furthermore verified, yielding the following output:\n";
+  print COMMIT $gpgData;
   close COMMIT;
   if ($? != 0) {
     print STDERR "$patchFile commit failed!\n";
