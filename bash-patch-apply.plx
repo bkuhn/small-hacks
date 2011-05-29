@@ -37,7 +37,7 @@ foreach my $patchFile (@ARGV) {
   my($log, $takingLog, $inPatch, $date, undef) = ("", 0, 0);
   while (my $line = <PATCH>) {
     $takingLog = 1 if ($line =~ /^Patch-ID\s*:/);
-    if ($line =~ /^\s*Patch\s*:\s*$/) {
+    if ($line =~ /^\s*Patch\s*(\([^\)]+\))?:\s*$/) {
       $takingLog = 0;
       $inPatch = 1;
       next;
@@ -69,6 +69,7 @@ foreach my $patchFile (@ARGV) {
     exit 1;
   }
   $ENV{GIT_AUTHOR_DATE} = $date;
+  $ENV{GIT_COMMITTER_DATE} = $date;
   $ENV{GIT_AUTHOR_NAME} = 'Chet Ramey'; 
   $ENV{GIT_AUTHOR_EMAIL} = 'chet@cwru.edu';
   open(COMMIT, "|-", "git commit -a -F -") or die "unable to run git: $!";
