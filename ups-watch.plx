@@ -24,12 +24,9 @@ use URI::Fetch;
 
 my %URLS = 
 (
- 'http://wwwapps.ups.com/WebTracking/track?HTMLVersion=5.0&loc=en_US&Requester=UPSHome&WBPM_lid=&trackNums=1z53e4830399419110&track.x=Track'
- => { date => '11/20/2010', time => '1:06 P.M.' },
-'http://wwwapps.ups.com/WebTracking/track?HTMLVersion=5.0&loc=en_US&Requester=UPSHome&WBPM_lid=&trackNums=1ZW5W5220312162831&track.x=Track'
- => { date => '11/22/2010', time => '4:24 A.M.' },
-'http://wwwapps.ups.com/etracking/tracking.cgi?tracknums_displayed=5&TypeOfInquiryNumber=T&HTMLVersion=4.0&InquiryNumber1=1Z8E5A360395615526&InquiryNumber2=&InquiryNumber3=&InquiryNumber4=&InquiryNumber5=&track.x=50&track.y=3'
- => { date => '11/19/2010', time => '11:39 P.M.' });
+ 'http://wwwapps.ups.com/WebTracking/processInputRequest?HTMLVersion=5.0&loc=en_US&Requester=UPSHome&tracknum=1ZY0E8910300333129&AgreeToTermsAndConditions=yes&track.x=24&track.y=8'
+ => { date => '05/31/2011', time => '6:36 A.M.' },
+);
 
 my $SLEEP_VAL_SECONDS = 15;
 
@@ -99,8 +96,11 @@ while (1) {
         }
       }
     }
+    close WEB_DATA;
   }
   sleep $SLEEP_VAL_SECONDS;
-  print "Checking...\n";
+  my $date=`/bin/date`;
+  chomp $date;
+  print "Checking (at $date)...\n";
 }
 
