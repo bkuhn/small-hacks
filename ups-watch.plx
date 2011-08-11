@@ -21,14 +21,21 @@ use warnings;
 
 use File::Temp qw/ tempfile /;
 use URI::Fetch;
-
 my %URLS = 
+# 1Z5FX957P216384708
+# 1ZX799380356685541                                                             
+# FEDEX: 782107230144867
+#1Z1826920372528717                                                             
 (
- 'http://wwwapps.ups.com/WebTracking/processInputRequest?HTMLVersion=5.0&loc=en_US&Requester=UPSHome&tracknum=1ZY0E8910300333129&AgreeToTermsAndConditions=yes&track.x=24&track.y=8'
- => { date => '05/31/2011', time => '6:36 A.M.' },
+'http://wwwapps.ups.com/WebTracking/track?HTMLVersion=5.0&loc=en_US&Requester=UPSHome&WBPM_lid=&trackNums=1ZX799470353725469&track.x=Track'
+=>  { date => '07/06/2011', time => '7:03 A.M.' },
+'http://wwwapps.ups.com/WebTracking/track?loc=en_US&track.x=Track&trackNums=%20%20%20%201ZX799470353838132'
+=> { date => '07/06/2011', time => '9:03 A.M.' },
+ 'http://wwwapps.ups.com/WebTracking/track?HTMLVersion=5.0&loc=en_US&Requester=UPSHome&WBPM_lid=&trackNums=1ZX799390318463734&track.x=Track'
+ => { date => '07/06/2011', time => '2:18 A.M.' },
 );
 
-my $SLEEP_VAL_SECONDS = 15;
+my $SLEEP_VAL_SECONDS = 90;
 
 if (@ARGV != 0) {
   print STDERR "Usage: $0\n";
@@ -87,7 +94,7 @@ while (1) {
         if ($line =~ /^.*\s+(\d+\s*\/\s*\d*\s*\/\s*\d*)\s+(\S+\s+\S+)\s*(.*)/) {
           my($newDate, $newTime, $data) = ($1, $2, $3);
           if ($newDate ne $date or $newTime ne $time) {
-            WarnLoud("UPS Action at $newTime on $newDate: $data");
+            WarnLoud("UPS Action at $newTime on $newDate: $data: $url");
             last;
           } else {
             $foundEvents = 0;
