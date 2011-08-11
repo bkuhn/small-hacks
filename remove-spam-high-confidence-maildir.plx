@@ -61,20 +61,20 @@ MAIL: foreach my $dir (@msgDirs) {
       if (not defined $mailDate) {
         $mailDate = $dt;
       } else {
-        $mailDate = $dt if $dt lt $maileDate;
+        $mailDate = $dt if $dt lt $mailDate;
       }
     }
     if (not defined $mailDate) {
       print STDERR "File $file has no Date: header. Skipping.\n";
       next MAIL;
     }
-    $parsedDate = ParseDate($mailDate);
-    unless (defined $parseDate) {
+    my $parsedDate = ParseDate($mailDate);
+    unless (defined $parsedDate) {
       print STDERR "File $file has Unparsable Date header $mailDate";
       next MAIL;
     }
 
-    next MAIL if ($parseDate gt $nDaysAgo);
+    next MAIL if ($parsedDate gt $nDaysAgo);
 
     my %dspamVal;
     foreach my $val ('Confidence', 'Probability') {
