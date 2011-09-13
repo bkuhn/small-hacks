@@ -27,6 +27,9 @@ while (<>) {
   my($ip, $method, $url) = ($1, $2, $3);
   next unless $method =~ /^\s*GET\s*$/i;
 
+  $url =~ s/\s*\.(ogg|mp3)\s*$/.audio/i;   # Treat ogg and mp3 downloads same.
+  $url =~ s/\s*\/$$//;   # Always remove trailing slash 
+
   $data{$url}{$ip} = 0 unless defined $data{$url}{$ip};
   $data{$url}{__TOTAL__} = 0 unless defined $data{$url}{__TOTAL__};
   $data{$url}{$ip}++;
