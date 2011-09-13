@@ -33,7 +33,7 @@ while (<>) {
   $data{$url}{__TOTAL__}++;
 }
 
-foreach my $url (sort { $data{$a}{__TOTAL__} <=> $data{$b}{__TOTAL__}}
+foreach my $url (sort { $data{$b}{__TOTAL__} <=> $data{$a}{__TOTAL__}}
                  keys %data) {
   print "$url: $data{$url}{__TOTAL__}\n";
 }
