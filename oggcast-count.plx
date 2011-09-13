@@ -22,9 +22,9 @@ my %data;
 
 while (<>) {
   chomp;
-  die "invalid line: $!" unless
-    /^(\S+)\s+[^"]+"GET\s+(\S+)[\s"]/;
-  my($ip, $url) = ($1, $2);
+  die "invalid line: $_" unless /^(\S+)\s+[^"]+"\s*(HEAD|GET|POST)\s+(\S+)[\s"]/;
+  my($ip, $method, $url) = ($1, $2, $3);
+  next unless $method =~ /^\s*GET\s*$/i;
 
   $data{$url}{$ip} = 0 unless defined $data{$url}{$ip};
   $data{$url}{__TOTAL__} = 0 unless defined $data{$url}{__TOTAL__};
