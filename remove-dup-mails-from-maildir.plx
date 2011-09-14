@@ -6,16 +6,14 @@ use warnings;
 use Mail::Header;
 use File::Copy;
 
-my $RM_CMD = "/bin/rm";
-
-if (@ARGV < 1) {
-  print STDERR "usage: $0 <SOURCE_MAILDIR_FOLDER_PATH> [<MALDIRS_LOOK_FOR_DUPS_IN> ...]\n";
+if (@ARGV < 2) {
+  print STDERR "usage: $0 <TYPE> <SOURCE_MAILDIR_FOLDER_PATH> [<MALDIRS_LOOK_FOR_DUPS_IN> ...]\n";
   exit 1;
 }
 
-my($MAILDIR_FOLDER) = $ARGV[0];
+my($TYPE, $MAILDIR_FOLDER) = ($ARGV[0], $ARGV[1]);
 
-my (@dupFolders) = @ARGV[1..$#ARGV];
+my (@dupFolders) = @ARGV[2..$#ARGV];
 
 my %msgs;  # indexed by Message-Id
 
@@ -39,7 +37,7 @@ foreach my $folder (@dupFolders) {
       my $id = $fields->{'Message-ID'}[0];
       chomp $id;
       die "weirdly formatted message ID, $id in $dir/$file"
-        unless $id =~ s/^\s*\<\s*(\S+)\s*\>.*$/$1/;
+        unless $id =~ s/^\s*\<?\s*(\S+)\s*\>?.*$/$1/;
 
       die "$dir/$file has no message ID" if not defined $id;
 
@@ -73,7 +71,7 @@ foreach my $dir (@msgDirs) {
     my $id = $fields->{'Message-ID'}[0];
     chomp $id;
     die "weirdly formatted message ID, $id in $dir/$file"
-      unless $id =~ s/^\s*\<\s*([\S\n\s]+)\s*\>.*$/$1/m;
+      unless $id =~ s/^\s*\<?\s*([\S\n\s]+)\s*\>?.*$/$1/m;
 
     die "$dir/$file has no message ID" if not defined $id;
 
@@ -82,9 +80,17 @@ foreach my $dir (@msgDirs) {
     # it to %msgs.
 
     if (defined $msgs{$id}) {
-      system("$RM_CMD \"$existing_file\"");
-      die "Unable to unlink file $existing_file: $!"
-        unless $? == 0;
+      if ($TYPE eq "print") {
+        print "$id\n";
+      } elsif ($TYPE eq "svn") {
+        system("svn rm \"$existing_file\"");
+        die "Unable to unlink file $existing_file: $!"
+          unless $? == 0;
+      } else {
+        print STDERR "Removing $existing_file\n";
+        die "Unable to unlink $existing_file: $!"
+          unless unlink($existing_file) == 1;
+      }
     } else {
       $msgs{$id} = $fields;
     }
