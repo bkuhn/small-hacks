@@ -41,7 +41,7 @@ foreach my $folder (@dupFolders) {
 
       die "$dir/$file has no message ID" if not defined $id;
 
-      die "Duplicate message ID's $id\n" if defined $msgs{$id};
+#      die "Duplicate message ID's $id\n" if defined $msgs{$id};
 
       $msgs{$id} = $fields;
     }
