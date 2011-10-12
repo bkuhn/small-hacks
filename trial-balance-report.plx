@@ -20,6 +20,7 @@
 #    Free Software Foundation, Inc., 51 Franklin St, Fifth Floor
 #                                    Boston, MA 02110-1301, USA.
 
+
 use strict;
 use warnings;
 
@@ -28,6 +29,22 @@ use Math::BigFloat;
 my $LEDGER_CMD = "/usr/bin/ledger";
 
 my $ACCT_WIDTH = 70;
+
+# http://www.moneyinstructor.com/lesson/trialbalance.asp
+# told me:
+
+# Key to preparing a trial balance is making sure that all the account
+# balances are listed under the correct column.  The appropriate columns
+# are as follows:
+
+# Assets = Debit balance
+# Liabilities = Credit balance
+# Expenses = Debit Balance
+# Equity = Credit balance
+# Revenue = Credit balance
+
+
+# So, there are some sign switches that are needed:
 
 sub ParseNumber($) {
   $_[0] =~ s/,//g;
@@ -42,68 +59,62 @@ if (@ARGV == 0) {
   exit 1;
 }
 
-my(@ledgerOptions) = ('--wide-register-format', "%-.${ACCT_WIDTH}A %22.108t\n",  '-w', '-s', @ARGV,
+my(@ledgerOptions) = ('--wide-register-format', "%-.${ACCT_WIDTH}A %22.108t" .'\n',  '-w', '-s', @ARGV,
                      'reg');
 
 
-open(LEDGER_NEGATIVE, "-|", $LEDGER_CMD, '-d', 'a<0', @ledgerOptions)
+open(LEDGER_DEBIT, "-|", $LEDGER_CMD, '-d', 'a>0', @ledgerOptions)
   or die "Unable to run $LEDGER_CMD -d a<0 @ledgerOptions: $!";
 
 my %acct;
-while (my $negLine = <LEDGER_NEGATIVE>) {
+while (my $negLine = <LEDGER_DEBIT>) {
+
   chomp $negLine;
 
   die "Unable to parse output line from negative_ledger command: $negLine"
-    unless $negLine =~ /^\s*([^\$]+)\s+\$\s*\-\s*([\d\.\,]+)/;
+    unless $negLine =~ /^\s*([^\$]+)\s+\$\s*\s*([\d\.\,]+)/;
   my($account, $amount) = ($1, $2);
   $amount = ParseNumber($amount);
   $account =~ s/^\s+//;    $account =~ s/\s+$//;
-
-  $acct{$account}{negative} = $amount;
+  $acct{$account}{debit} = $amount;
 }
-close LEDGER_NEGATIVE;
+close LEDGER_DEBIT;
 die "error($0): $! while running negative_ledger command line" unless ($? == 0);
-
-open(LEDGER_NEGATIVE, "-|", $LEDGER_CMD, '-d', 'a<0', @ledgerOptions)
-  or die "Unable to run $LEDGER_CMD -d a<0 @ledgerOptions: $!";
-
 
 # Lazy here: this is nearly identical to loop above
 
-open(LEDGER_POSITIVE, "-|", $LEDGER_CMD, '-d', 'a>0', @ledgerOptions)
+open(LEDGER_CREDIT, "-|", $LEDGER_CMD, '-d', 'a<0', @ledgerOptions)
   or die "Unable to run $LEDGER_CMD -d a<0 @ledgerOptions: $!";
-while (my $postLine = <LEDGER_POSITIVE>) {
+while (my $postLine = <LEDGER_CREDIT>) {
   chomp $postLine;
 
   die "Unable to parse output line from positive_ledger command: $postLine"
-    unless $postLine =~ /^\s*([^\$]+)\s+\$\s*\s*([\d\.\,]+)/;
+    unless $postLine =~ /^\s*([^\$]+)\s+\$\s*\-\s*([\d\.\,]+)/;
   my($account, $amount) = ($1, $2);
   $amount = ParseNumber($amount);
   $account =~ s/^\s+//;    $account =~ s/\s+$//;
 
-  $acct{$account}{positive} = $amount;
+  $acct{$account}{credit} = $amount;
 }
-close LEDGER_POSITIVE;
+close LEDGER_CREDIT;
 die "error($0): $! while running positive_ledger command line" unless ($? == 0);
 
+print sprintf("%-${ACCT_WIDTH}.${ACCT_WIDTH}s        %s              %s\n\n", "ACCOUNT", "DEBITS", "CREDITS");
 
-print sprintf("%${ACCT_WIDTH}s       %s       %s\n\n", "ACCOUNT", "DEBITS", "CREDITS");
-
-print "ACCOUNT       DEBITS       CREDITS\n\n";
-
-my($totNeg, $totPos) = ($ZERO, $ZERO);
-foreach my $account (keys %acct) {
-  foreach my $val (qw/positive negative/) {
+my $format = "%-${ACCT_WIDTH}.${ACCT_WIDTH}s       \$%11.2f       \$%11.2f\n";
+my($totDeb, $totCred) = ($ZERO, $ZERO);
+foreach my $account (sort keys %acct) {
+  foreach my $val (qw/debit credit /) {
     $acct{$account}{$val} = $ZERO unless defined $acct{$account}{$val};
   }
-  print sprintf("%${ACCT_WIDTH}s       \$%-.2d       \$%-2.d\n", $account, 
-                $acct{$account}{negative},                 $acct{$account}{positive});
-  $totNeg += $acct{$account}{negative};
-  $totPos += $acct{$account}{positive};
+  print sprintf($format, $account,
+                $acct{$account}{debit},                 $acct{$account}{credit});
+  $totDeb += $acct{$account}{debit};
+  $totCred += $acct{$account}{credit};
 
 
 }
-print sprintf("%${ACCT_WIDTH}s       \$%-.2d       \$%-2.d\n", 'TOTAL', $totNeg, $totPos);
+print "\n\n", sprintf($format, 'TOTAL', $totDeb, $totCred);
 ###############################################################################
 #
 # Local variables:
