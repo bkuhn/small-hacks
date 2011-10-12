@@ -2,7 +2,7 @@
 # trail-balance-report.plx                                    -*- Perl -*-
 #
 #    Script to generate a Trial Balance report for a ledger.
-
+#
 # Copyright (C) 2011, Bradley M. Kuhn
 #
 # This program gives you software freedom; you can copy, modify, convey,
@@ -19,6 +19,8 @@
 # with this program in a file called 'GPLv3'.  If not, write to the:
 #    Free Software Foundation, Inc., 51 Franklin St, Fifth Floor
 #                                    Boston, MA 02110-1301, USA.
+
+use Math::BigFloat;
 
 my $LEDGER_CMD = "/usr/bin/ledger";
 
@@ -37,7 +39,8 @@ if (@ARGV == 0) {
   exit 1;
 }
 
-my(@ledgerOptions) = ('--wide-register-format', "%-.${ACCT_WIDTH}A %22.108t\n",  '-w', '-s', @ARGV);
+my(@ledgerOptions) = ('--wide-register-format', "%-.${ACCT_WIDTH}A %22.108t\n",  '-w', '-s', @ARGV,
+                     'reg');
 
 
 open(LEDGER_NEGATIVE, "-|", $LEDGER_CMD, '-d', 'a<0', @ledgerOptions)
