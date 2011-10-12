@@ -20,6 +20,9 @@
 #    Free Software Foundation, Inc., 51 Franklin St, Fifth Floor
 #                                    Boston, MA 02110-1301, USA.
 
+use strict;
+use warnings;
+
 use Math::BigFloat;
 
 my $LEDGER_CMD = "/usr/bin/ledger";
@@ -56,7 +59,7 @@ while (my $negLine = <LEDGER_NEGATIVE>) {
   $amount = ParseNumber($amount);
   $account =~ s/^\s+//;    $account =~ s/\s+$//;
 
-  $acc{$account}{negative} = $amount;
+  $acct{$account}{negative} = $amount;
 }
 close LEDGER_NEGATIVE;
 die "error($0): $! while running negative_ledger command line" unless ($? == 0);
@@ -97,7 +100,7 @@ foreach my $account (keys %acct) {
                 $acct{$account}{negative},                 $acct{$account}{postiive});
 
 }
-print sprintf("%${ACCT_WIDTH}s       \$%-.2d       \$%-2.d\n", TOTAL, $totNeg, $totPos);
+print sprintf("%${ACCT_WIDTH}s       \$%-.2d       \$%-2.d\n", 'TOTAL', $totNeg, $totPos);
 ###############################################################################
 #
 # Local variables:
