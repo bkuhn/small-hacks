@@ -72,11 +72,11 @@ open(LEDGER_NEGATIVE, "-|", $LEDGER_CMD, '-d', 'a<0', @ledgerOptions)
 
 open(LEDGER_POSITIVE, "-|", $LEDGER_CMD, '-d', 'a>0', @ledgerOptions)
   or die "Unable to run $LEDGER_CMD -d a<0 @ledgerOptions: $!";
-while (my $negLine = <LEDGER_POSITIVE>) {
-  chomp $negLine;
+while (my $postLine = <LEDGER_POSITIVE>) {
+  chomp $postLine;
 
-  die "Unable to parse output line from positive_ledger command: $negLine"
-    unless $negLine =~ /^\s*([^\$]+)\s+\$\s*\s*([\d\.\,]+)/;
+  die "Unable to parse output line from positive_ledger command: $postLine"
+    unless $postLine =~ /^\s*([^\$]+)\s+\$\s*\s*([\d\.\,]+)/;
   my($account, $amount) = ($1, $2);
   $amount = ParseNumber($amount);
   $account =~ s/^\s+//;    $account =~ s/\s+$//;
@@ -97,7 +97,10 @@ foreach my $account (keys %acct) {
     $acct{$account}{$val} = $ZERO unless defined $acct{$account}{$val};
   }
   print sprintf("%${ACCT_WIDTH}s       \$%-.2d       \$%-2.d\n", $account, 
-                $acct{$account}{negative},                 $acct{$account}{postiive});
+                $acct{$account}{negative},                 $acct{$account}{positive});
+  $totNeg += $acct{$account}{negative};
+  $totPos += $acct{$account}{positive};
+
 
 }
 print sprintf("%${ACCT_WIDTH}s       \$%-.2d       \$%-2.d\n", 'TOTAL', $totNeg, $totPos);
