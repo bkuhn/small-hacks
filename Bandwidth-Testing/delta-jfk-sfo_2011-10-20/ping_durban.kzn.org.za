@@ -1,0 +1,6 @@
+$ ping -c10 durban.kzn.org.za
+PING kzn.org.za (41.0.38.184) 56(84) bytes of data.
+
+--- kzn.org.za ping statistics ---
+10 packets transmitted, 0 received, 100% packet loss, time 9072ms
+

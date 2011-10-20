@@ -1,0 +1,16 @@
+$ ping -c10 pdx.edu
+PING pdx.edu (131.252.115.23) 56(84) bytes of data.
+64 bytes from www.pdx.edu (131.252.115.23): icmp_req=1 ttl=233 time=1075 ms
+64 bytes from www.pdx.edu (131.252.115.23): icmp_req=2 ttl=233 time=619 ms
+64 bytes from www.pdx.edu (131.252.115.23): icmp_req=3 ttl=233 time=758 ms
+64 bytes from www.pdx.edu (131.252.115.23): icmp_req=4 ttl=233 time=622 ms
+64 bytes from www.pdx.edu (131.252.115.23): icmp_req=5 ttl=233 time=387 ms
+64 bytes from www.pdx.edu (131.252.115.23): icmp_req=6 ttl=233 time=532 ms
+64 bytes from www.pdx.edu (131.252.115.23): icmp_req=7 ttl=233 time=641 ms
+64 bytes from www.pdx.edu (131.252.115.23): icmp_req=8 ttl=233 time=508 ms
+64 bytes from www.pdx.edu (131.252.115.23): icmp_req=9 ttl=233 time=779 ms
+64 bytes from www.pdx.edu (131.252.115.23): icmp_req=10 ttl=233 time=608 ms
+
+--- pdx.edu ping statistics ---
+10 packets transmitted, 10 received, 0% packet loss, time 9009ms
+rtt min/avg/max/mdev = 387.705/653.308/1075.409/177.596 ms, pipe 2

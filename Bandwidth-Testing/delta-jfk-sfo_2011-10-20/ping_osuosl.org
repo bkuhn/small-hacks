@@ -1,0 +1,16 @@
+$ ping -c10 osuosl.org
+PING osuosl.org (140.211.166.148) 56(84) bytes of data.
+64 bytes from hawthorn.osuosl.org (140.211.166.148): icmp_req=1 ttl=45 time=1453 ms
+64 bytes from hawthorn.osuosl.org (140.211.166.148): icmp_req=2 ttl=45 time=901 ms
+64 bytes from hawthorn.osuosl.org (140.211.166.148): icmp_req=3 ttl=45 time=1577 ms
+64 bytes from hawthorn.osuosl.org (140.211.166.148): icmp_req=4 ttl=45 time=1458 ms
+64 bytes from hawthorn.osuosl.org (140.211.166.148): icmp_req=5 ttl=45 time=816 ms
+64 bytes from hawthorn.osuosl.org (140.211.166.148): icmp_req=6 ttl=45 time=2132 ms
+64 bytes from hawthorn.osuosl.org (140.211.166.148): icmp_req=7 ttl=45 time=1485 ms
+64 bytes from hawthorn.osuosl.org (140.211.166.148): icmp_req=8 ttl=45 time=1099 ms
+64 bytes from hawthorn.osuosl.org (140.211.166.148): icmp_req=9 ttl=45 time=1768 ms
+64 bytes from hawthorn.osuosl.org (140.211.166.148): icmp_req=10 ttl=45 time=1256 ms
+
+--- osuosl.org ping statistics ---
+10 packets transmitted, 10 received, 0% packet loss, time 10364ms
+rtt min/avg/max/mdev = 816.996/1395.053/2132.764/376.440 ms, pipe 3

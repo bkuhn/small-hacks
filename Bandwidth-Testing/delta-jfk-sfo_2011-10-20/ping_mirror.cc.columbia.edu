@@ -1,0 +1,16 @@
+$ ping -c10 mirror.cc.columbia.edu
+PING teewurst.cc.columbia.edu (128.59.59.71) 56(84) bytes of data.
+64 bytes from teewurst.cc.columbia.edu (128.59.59.71): icmp_req=1 ttl=43 time=914 ms
+64 bytes from teewurst.cc.columbia.edu (128.59.59.71): icmp_req=2 ttl=43 time=1003 ms
+64 bytes from teewurst.cc.columbia.edu (128.59.59.71): icmp_req=3 ttl=43 time=967 ms
+64 bytes from teewurst.cc.columbia.edu (128.59.59.71): icmp_req=4 ttl=43 time=950 ms
+64 bytes from teewurst.cc.columbia.edu (128.59.59.71): icmp_req=5 ttl=43 time=1036 ms
+64 bytes from teewurst.cc.columbia.edu (128.59.59.71): icmp_req=6 ttl=43 time=788 ms
+64 bytes from teewurst.cc.columbia.edu (128.59.59.71): icmp_req=7 ttl=43 time=708 ms
+64 bytes from teewurst.cc.columbia.edu (128.59.59.71): icmp_req=8 ttl=43 time=849 ms
+64 bytes from teewurst.cc.columbia.edu (128.59.59.71): icmp_req=9 ttl=43 time=886 ms
+64 bytes from teewurst.cc.columbia.edu (128.59.59.71): icmp_req=10 ttl=43 time=870 ms
+
+--- teewurst.cc.columbia.edu ping statistics ---
+10 packets transmitted, 10 received, 0% packet loss, time 10012ms
+rtt min/avg/max/mdev = 708.399/897.688/1036.405/94.553 ms, pipe 2

@@ -1,0 +1,16 @@
+$ ping -c10 ubc.ca
+PING ubc.ca (137.82.130.49) 56(84) bytes of data.
+64 bytes from da1.ubc.ca (137.82.130.49): icmp_req=1 ttl=103 time=187 ms
+64 bytes from universityofbritishcolumbia.com (137.82.130.49): icmp_req=2 ttl=103 time=178 ms
+64 bytes from www1.ubc.ca (137.82.130.49): icmp_req=3 ttl=103 time=266 ms
+64 bytes from test.emergency.ubc.ca (137.82.130.49): icmp_req=4 ttl=103 time=187 ms
+64 bytes from web.ubc.ca (137.82.130.49): icmp_req=5 ttl=103 time=262 ms
+64 bytes from ubc.ca (137.82.130.49): icmp_req=6 ttl=103 time=255 ms
+64 bytes from da1.ubc.ca (137.82.130.49): icmp_req=7 ttl=103 time=180 ms
+64 bytes from universityofbritishcolumbia.com (137.82.130.49): icmp_req=8 ttl=103 time=220 ms
+64 bytes from www1.ubc.ca (137.82.130.49): icmp_req=9 ttl=103 time=444 ms
+64 bytes from test.emergency.ubc.ca (137.82.130.49): icmp_req=10 ttl=103 time=315 ms
+
+--- ubc.ca ping statistics ---
+10 packets transmitted, 10 received, 0% packet loss, time 9010ms
+rtt min/avg/max/mdev = 178.705/249.919/444.189/78.190 ms

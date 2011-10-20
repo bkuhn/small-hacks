@@ -1,0 +1,16 @@
+$ ping -c10 apinc.org
+PING apinc.org (88.191.250.14) 56(84) bytes of data.
+64 bytes from ns0.apinc.org (88.191.250.14): icmp_req=1 ttl=42 time=849 ms
+64 bytes from ns0.apinc.org (88.191.250.14): icmp_req=2 ttl=42 time=1528 ms
+64 bytes from ns0.apinc.org (88.191.250.14): icmp_req=3 ttl=42 time=1191 ms
+64 bytes from ns0.apinc.org (88.191.250.14): icmp_req=4 ttl=42 time=556 ms
+64 bytes from ns0.apinc.org (88.191.250.14): icmp_req=5 ttl=42 time=770 ms
+64 bytes from ns0.apinc.org (88.191.250.14): icmp_req=6 ttl=42 time=841 ms
+64 bytes from ns0.apinc.org (88.191.250.14): icmp_req=7 ttl=42 time=958 ms
+64 bytes from ns0.apinc.org (88.191.250.14): icmp_req=8 ttl=42 time=415 ms
+64 bytes from ns0.apinc.org (88.191.250.14): icmp_req=9 ttl=42 time=442 ms
+64 bytes from ns0.apinc.org (88.191.250.14): icmp_req=10 ttl=42 time=415 ms
+
+--- apinc.org ping statistics ---
+10 packets transmitted, 10 received, 0% packet loss, time 9068ms
+rtt min/avg/max/mdev = 415.792/797.151/1528.525/345.900 ms, pipe 2
