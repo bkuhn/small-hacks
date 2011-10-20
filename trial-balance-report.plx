@@ -20,6 +20,7 @@
 #    Free Software Foundation, Inc., 51 Franklin St, Fifth Floor
 #                                    Boston, MA 02110-1301, USA.
 
+# ledger --wide-register-format "%-.70A %22.108t\n" -f no-fund.ledger -b 2010/03/01 -e 2011/03/01 -w reg
 
 use strict;
 use warnings;
