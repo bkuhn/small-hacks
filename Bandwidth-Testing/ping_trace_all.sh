@@ -1,10 +1,11 @@
 #!/bin/sh
-# Written by Denver Gingerich, downloaded from:
+# Written by Denver Gingerich (ossguy), downloaded from:
 #  wget http://ossguy.com/bandwidth/ping_trace_all.sh
 #  Denver told me:
 #      <denver> and I license it to you CC0
+#  I made minor modifications to this, also licensed CC0 -- bkuhn@ebb.org
 
-for host in `cat ../bin/hosts`
+for host in `cat ../hosts`
 do
 	echo tracepath $host...
 	echo \$ tracepath $host > tracepath_$host
