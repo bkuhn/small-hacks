@@ -44,7 +44,8 @@ if (@ARGV < 2) {
 my($startDate, $endDate, @mainLedgerOptions) = @ARGV;
 
 # First, get fund list from ending balance
-my(@ledgerOptions) = ('--wide-register-format', "%-.70A %22.108t\n",  '-w', '-s',
+my(@ledgerOptions) = (@mainLedgerOptions,
+                      '--wide-register-format', "%-.70A %22.108t\n",  '-w', '-s',
                       '-e', $endDate, 'reg', '^Funds:Restricted:');
 
 
@@ -64,8 +65,9 @@ while (my $fundLine = <LEDGER_FUNDS>) {
 close LEDGER_FUNDS;
 
 # First, get fund list from ending balance
-@ledgerOptions = ('--wide-register-format', "%-.70A %22.108t\n",  '-w', '-s',
-                      '-e', $startDate, 'reg', '^Funds:Restricted:');
+@ledgerOptions = (@mainLedgerOptions,
+                  '--wide-register-format', "%-.70A %22.108t\n",  '-w', '-s',
+                  '-e', $startDate, 'reg', '^Funds:Restricted:');
 
 open(LEDGER_FUNDS, "-|", $LEDGER_CMD, @ledgerOptions)
   or die "Unable to run $LEDGER_CMD for funds: $!";
@@ -78,16 +80,19 @@ while (my $fundLine = <LEDGER_FUNDS>) {
   $account =~ s/^\s+Funds:Restricted://;    $account =~ s/\s+$//;
   $funds{$account}{starting} = $amount;
 }
-
 close LEDGER_FUNDS;
+
+foreach my $fund (keys %funds) {
+  $funds{$fund}{starting} = $ZERO if not defined $funds{$fund}{starting};
+}
 
 my $format = "%-${ACCT_WIDTH}.${ACCT_WIDTH}s       \$%11.2f       \$%11.2f\n";
 my($totDeb, $totCred) = ($ZERO, $ZERO);
 
 foreach my $fund (sort keys %funds) {
   print "Fund: $fund\n";
-  print "      Balance as of $startDate: ", sprintf("\$11.2f\n", $funds{$fund}{starting});
-  print "      Balance as of $endDate: ", sprintf("\$11.2f\n", $funds{$fund}{ending});
+  print "      Balance as of $startDate: ", sprintf("\$%11.2f\n", $funds{$fund}{starting});
+  print "      Balance as of $endDate: ", sprintf("\$%11.2f\n", $funds{$fund}{ending});
   print "\n\n";
 }
 ###############################################################################
