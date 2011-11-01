@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 # Text.pm                                                          -*- Perl -*-
 #
 #   Copyright (C) 2008, 2011 Bradley M. Kuhn.
@@ -60,7 +61,7 @@ sub getText {
       next;
     }
     ($lines->[$ii],$lines->[$ii+1]) =
-      $self->_handleDeHyphen($lines->[$ii],$lines->[$ii+1])
+      _handleDeHyphen($lines->[$ii],$lines->[$ii+1])
         if ($lines->[$ii] =~ /\-$/);
 
     $curLen = length($lines->[$ii]);  # May have changed
@@ -101,3 +102,7 @@ while (my $line = <>) {
   $data .= $line;
 }
 print getText($data);
+###############################################################################
+# Local variables:
+# compile-command: "perl -c normalize-text.plx"
+# End:
