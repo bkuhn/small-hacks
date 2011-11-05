@@ -25,7 +25,8 @@ use Date::Manip;
 
 #use File::Copy;
 
-if (@ARGV < 3 or @ARGV > 4) {
+
+if (@ARGV < 4 or @ARGV > 5) {
   print STDERR "usage: $0 <MAILDIR_DIRECTORY> <DSPAM_PROBABILITY_MIN> <DSPAM_CONFIDENCE_LEVEL_MIN> <DAYS> [<COUNT_ONLY_DONT_DELETE>]\n";
   exit 1;
 }
