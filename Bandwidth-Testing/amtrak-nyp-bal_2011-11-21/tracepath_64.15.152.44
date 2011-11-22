@@ -1,0 +1,22 @@
+$ tracepath 64.15.152.44
+ 1:  10.74.40.220                                          0.199ms pmtu 1500
+ 1:  10.74.40.1                                            3.328ms 
+ 1:  10.74.40.1                                            5.237ms 
+ 2:  10.74.40.1                                            3.839ms pmtu 1350
+ 2:  192.168.20.254                                      211.673ms 
+ 3:  172.16.221.252                                      176.349ms 
+ 4:  70.42.157.253                                       483.030ms 
+ 5:  core3.te4-1-bbnet1.wdc002.pnap.net                  1245.662ms 
+ 5:  core3.te4-1-bbnet1.wdc002.pnap.net                  5261.540ms 
+ 6:  ash-bb1-link.telia.net                              522.784ms asymm  7 
+ 7:  level3-ic-126699-ash-bb1.c.telia.net                369.646ms asymm  9 
+ 8:  vlan80.csw3.Washington1.Level3.net                  1437.772ms asymm  9 
+ 8:  vlan60.csw1.Washington1.Level3.net                  953.479ms asymm  9 
+ 9:  ae-92-92.ebr2.Washington1.Level3.net                167.132ms asymm 10 
+10:  ae-3-3.ebr1.NewYork2.Level3.net                     117.451ms asymm 11 
+11:  ae-1-100.ebr2.NewYork2.Level3.net                   117.833ms 
+12:  ae-6-6.ebr2.NewYork1.Level3.net                     127.416ms 
+13:  ae-5-5.car1.Montreal2.Level3.net                    523.458ms 
+14:  te6-2.cl-core05.level3.mtl.iweb.com                 230.739ms asymm 10 
+15:  singpolyma.net                                      283.433ms reached
+     Resume: pmtu 1350 hops 15 back 54 

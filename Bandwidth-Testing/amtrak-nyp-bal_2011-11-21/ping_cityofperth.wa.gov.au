@@ -1,0 +1,16 @@
+$ ping -c10 cityofperth.wa.gov.au
+PING cityofperth.wa.gov.au (203.32.126.84) 56(84) bytes of data.
+64 bytes from web1.per.highway1.com.au (203.32.126.84): icmp_req=1 ttl=242 time=441 ms
+64 bytes from web1.per.highway1.com.au (203.32.126.84): icmp_req=2 ttl=242 time=542 ms
+64 bytes from web1.per.highway1.com.au (203.32.126.84): icmp_req=3 ttl=242 time=566 ms
+64 bytes from web1.per.highway1.com.au (203.32.126.84): icmp_req=4 ttl=242 time=590 ms
+64 bytes from web1.per.highway1.com.au (203.32.126.84): icmp_req=5 ttl=242 time=361 ms
+64 bytes from web1.per.highway1.com.au (203.32.126.84): icmp_req=6 ttl=242 time=398 ms
+64 bytes from web1.per.highway1.com.au (203.32.126.84): icmp_req=7 ttl=242 time=370 ms
+64 bytes from web1.per.highway1.com.au (203.32.126.84): icmp_req=8 ttl=242 time=738 ms
+64 bytes from web1.per.highway1.com.au (203.32.126.84): icmp_req=9 ttl=242 time=879 ms
+64 bytes from web1.per.highway1.com.au (203.32.126.84): icmp_req=10 ttl=242 time=483 ms
+
+--- cityofperth.wa.gov.au ping statistics ---
+10 packets transmitted, 10 received, 0% packet loss, time 9890ms
+rtt min/avg/max/mdev = 361.389/537.236/879.121/158.427 ms

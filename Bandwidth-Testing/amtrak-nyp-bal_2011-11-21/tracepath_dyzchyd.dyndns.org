@@ -1,0 +1,42 @@
+$ tracepath dyzchyd.dyndns.org
+ 1:  10.74.40.220                                          0.191ms pmtu 1500
+ 1:  10.74.40.1                                            4.844ms 
+ 1:  10.74.40.1                                            4.281ms 
+ 2:  10.74.40.1                                            8.047ms pmtu 1350
+ 2:  no reply
+ 3:  172.16.221.252                                      323.328ms 
+ 2:  192.168.23.254                                      7633.415ms 
+ 4:  no reply
+ 5:  core4.te4-2.wdc002.pnap.net.127.52.216.in-addr.arpa 135.424ms 
+ 6:  144.228.205.101                                     281.232ms 
+ 7:  sl-crs2-dc-0-1-0-0.sprintlink.net                   283.175ms 
+ 8:  sl-crs1-rly-0-1-5-0.sprintlink.net                  148.734ms 
+ 9:  sl-crs2-akr-0-4-5-0.sprintlink.net                  218.601ms 
+10:  sl-crs2-tac-0-0-3-0.sprintlink.net                  651.434ms asymm 11 
+11:  144.232.1.155                                       283.578ms asymm 12 
+12:  sl-bigpi1-358452-0.sprintlink.net                   266.408ms asymm 15 
+11:  144.232.1.155                                       12727.641ms asymm 12 
+12:  144.232.1.152                                       11326.186ms asymm 13 
+13:  sl-bigpi1-364261-0.sprintlink.net                   558.399ms asymm 15 
+14:  rc2wh-pos0-1-5-0.vc.shawcable.net                   2186.952ms 
+14:  rd3st-tge0-8-5-0.vc.shawcable.net                   6191.219ms asymm 15 
+14:  rd3st-tge0-8-5-0.vc.shawcable.net                   6048.692ms asymm 15 
+15:  dx1ag-f15.va.shawcable.net                          407.610ms asymm 16 
+16:  dx1ag-f15.va.shawcable.net                          765.444ms 
+17:  no reply
+18:  no reply
+19:  no reply
+20:  no reply
+21:  no reply
+22:  no reply
+23:  no reply
+24:  no reply
+25:  no reply
+26:  no reply
+27:  no reply
+28:  no reply
+29:  no reply
+30:  no reply
+31:  no reply
+     Too many hops: pmtu 1350
+     Resume: pmtu 1350 

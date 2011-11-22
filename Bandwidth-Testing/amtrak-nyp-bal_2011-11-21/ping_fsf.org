@@ -1,0 +1,16 @@
+$ ping -c10 fsf.org
+PING fsf.org (140.186.70.131) 56(84) bytes of data.
+64 bytes from www.fsf.org (140.186.70.131): icmp_req=1 ttl=50 time=286 ms
+64 bytes from www.fsf.org (140.186.70.131): icmp_req=6 ttl=50 time=431 ms
+64 bytes from www.fsf.org (140.186.70.131): icmp_req=3 ttl=50 time=3753 ms
+64 bytes from www.fsf.org (140.186.70.131): icmp_req=7 ttl=50 time=314 ms
+64 bytes from www.fsf.org (140.186.70.131): icmp_req=4 ttl=50 time=3955 ms
+64 bytes from www.fsf.org (140.186.70.131): icmp_req=8 ttl=50 time=359 ms
+64 bytes from www.fsf.org (140.186.70.131): icmp_req=2 ttl=50 time=6357 ms
+64 bytes from www.fsf.org (140.186.70.131): icmp_req=5 ttl=50 time=4408 ms
+64 bytes from www.fsf.org (140.186.70.131): icmp_req=9 ttl=50 time=1970 ms
+64 bytes from www.fsf.org (140.186.70.131): icmp_req=10 ttl=50 time=1950 ms
+
+--- fsf.org ping statistics ---
+10 packets transmitted, 10 received, 0% packet loss, time 13308ms
+rtt min/avg/max/mdev = 286.393/2378.723/6357.740/2029.482 ms, pipe 7

@@ -1,0 +1,16 @@
+$ ping -c10 64.15.152.44
+PING 64.15.152.44 (64.15.152.44) 56(84) bytes of data.
+64 bytes from 64.15.152.44: icmp_req=1 ttl=54 time=161 ms
+64 bytes from 64.15.152.44: icmp_req=2 ttl=54 time=697 ms
+64 bytes from 64.15.152.44: icmp_req=3 ttl=54 time=112 ms
+64 bytes from 64.15.152.44: icmp_req=4 ttl=54 time=220 ms
+64 bytes from 64.15.152.44: icmp_req=6 ttl=54 time=276 ms
+64 bytes from 64.15.152.44: icmp_req=5 ttl=54 time=1416 ms
+64 bytes from 64.15.152.44: icmp_req=7 ttl=54 time=598 ms
+64 bytes from 64.15.152.44: icmp_req=8 ttl=54 time=2727 ms
+64 bytes from 64.15.152.44: icmp_req=9 ttl=54 time=1764 ms
+64 bytes from 64.15.152.44: icmp_req=10 ttl=54 time=946 ms
+
+--- 64.15.152.44 ping statistics ---
+10 packets transmitted, 10 received, 0% packet loss, time 9003ms
+rtt min/avg/max/mdev = 112.166/892.134/2727.876/806.464 ms, pipe 3

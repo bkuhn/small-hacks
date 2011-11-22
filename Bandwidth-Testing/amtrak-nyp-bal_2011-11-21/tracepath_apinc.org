@@ -1,0 +1,37 @@
+$ tracepath apinc.org
+ 1:  10.74.40.220                                          0.183ms pmtu 1500
+ 1:  10.74.40.1                                            6.463ms 
+ 1:  10.74.40.1                                           19.163ms 
+ 2:  10.74.40.1                                            8.012ms pmtu 1350
+ 2:  192.168.23.254                                      136.723ms 
+ 3:  172.16.221.252                                      164.273ms 
+ 4:  70.42.157.253                                       227.038ms 
+ 5:  core1.te5-2-bbnet2.wdc002.pnap.net                  349.117ms 
+ 6:  no reply
+ 7:  te0-0-0-6.ccr22.iad02.atlas.cogentco.com            131.864ms 
+ 8:  te0-3-0-1.ccr22.dca01.atlas.cogentco.com            391.860ms 
+ 9:  te0-6-0-1.ccr22.jfk02.atlas.cogentco.com            703.331ms 
+10:  te0-6-0-2.mpd22.par01.atlas.cogentco.com            206.790ms 
+11:  te0-4-0-2.mpd22.par01.atlas.cogentco.com            199.281ms asymm 12 
+12:  te0-4-0-3.ccr22.par01.atlas.cogentco.com            213.668ms asymm 10 
+13:  195.219.241.174                                     284.165ms asymm 12 
+14:  te0-5-0-0.ccr21.par04.atlas.cogentco.com            405.100ms asymm 11 
+15:  c4948-bzn-fdt.routers.proxad.net                    208.339ms asymm 13 
+16:  no reply
+17:  no reply
+18:  bzn-crs16-1-be2000.intf.routers.proxad.net          249.263ms asymm 12 
+19:  no reply
+20:  no reply
+21:  no reply
+22:  no reply
+23:  no reply
+24:  no reply
+25:  no reply
+26:  no reply
+27:  no reply
+28:  no reply
+29:  no reply
+30:  no reply
+31:  no reply
+     Too many hops: pmtu 1350
+     Resume: pmtu 1350 

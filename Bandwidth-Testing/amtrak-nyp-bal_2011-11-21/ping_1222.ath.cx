@@ -1,0 +1,14 @@
+$ ping -c10 1222.ath.cx
+PING 1222.ath.cx (108.41.173.59) 56(84) bytes of data.
+64 bytes from pool-108-41-173-59.nycmny.fios.verizon.net (108.41.173.59): icmp_req=1 ttl=53 time=1824 ms
+64 bytes from pool-108-41-173-59.nycmny.fios.verizon.net (108.41.173.59): icmp_req=4 ttl=53 time=337 ms
+64 bytes from pool-108-41-173-59.nycmny.fios.verizon.net (108.41.173.59): icmp_req=3 ttl=53 time=1701 ms
+64 bytes from pool-108-41-173-59.nycmny.fios.verizon.net (108.41.173.59): icmp_req=5 ttl=53 time=437 ms
+64 bytes from pool-108-41-173-59.nycmny.fios.verizon.net (108.41.173.59): icmp_req=6 ttl=53 time=1268 ms
+64 bytes from pool-108-41-173-59.nycmny.fios.verizon.net (108.41.173.59): icmp_req=8 ttl=53 time=332 ms
+64 bytes from pool-108-41-173-59.nycmny.fios.verizon.net (108.41.173.59): icmp_req=7 ttl=53 time=2049 ms
+64 bytes from pool-108-41-173-59.nycmny.fios.verizon.net (108.41.173.59): icmp_req=9 ttl=53 time=1330 ms
+
+--- 1222.ath.cx ping statistics ---
+10 packets transmitted, 8 received, 20% packet loss, time 13854ms
+rtt min/avg/max/mdev = 332.058/1160.360/2049.881/656.902 ms, pipe 3

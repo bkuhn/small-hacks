@@ -1,0 +1,33 @@
+$ tracepath pdx.edu
+ 1:  10.74.40.220                                          0.190ms pmtu 1500
+ 1:  10.74.40.1                                            2.848ms 
+ 1:  10.74.40.1                                            6.049ms 
+ 2:  10.74.40.1                                           28.149ms pmtu 1350
+ 2:  no reply
+ 2:  192.168.19.254                                      3662.054ms 
+ 2:  192.168.23.254                                      7672.269ms 
+ 2:  192.168.19.254                                      17599.769ms 
+ 3:  172.16.221.252                                      21628.747ms 
+ 4:  70.42.157.253                                       1217.846ms 
+ 4:  70.42.157.253                                       5221.999ms 
+ 5:  core1.te5-1-bbnet1.wdc002.pnap.net                  1266.021ms 
+ 6:  xe-0-5-0-4.r01.asbnva02.us.bb.gin.ntt.net           847.191ms 
+ 5:  core1.te5-1-bbnet1.wdc002.pnap.net                  2916.075ms 
+ 7:  ae-3.r02.asbnva02.us.bb.gin.ntt.net                 251.522ms 
+ 8:  4.68.63.185                                         971.810ms 
+ 9:  vlan60.csw1.Washington1.Level3.net                  702.402ms 
+10:  ae-62-62.ebr2.Washington1.Level3.net                613.645ms 
+11:  ae-5-5.ebr2.Washington12.Level3.net                 1110.012ms asymm 10 
+11:  ae-5-5.ebr2.washington12.level3.net                 2018.682ms asymm 10 
+12:  ae-6-6.ebr2.Chicago2.Level3.net                     2326.247ms 
+13:  ae-1-100.ebr1.Chicago2.Level3.net                   1101.805ms 
+14:  ae-3-3.ebr2.Denver1.Level3.net                      791.542ms asymm  9 
+12:  ae-6-6.ebr2.chicago2.level3.net                     2565.161ms 
+15:  ae-2-2.ebr2.Seattle1.Level3.net                     2678.623ms asymm 11 
+16:  ae-22-52.car2.Seattle1.Level3.net                   2628.090ms asymm 11 
+18:  131.252.5.220                                       2874.374ms asymm 14 
+20:  131.252.115.4                                       2281.650ms asymm 15 
+20:  131.252.115.4                                       16290.809ms asymm 15 
+20:  131.252.115.4                                       20300.339ms asymm 15 
+21:  131.252.115.4                                       279.422ms !H
+     Resume: pmtu 1350 

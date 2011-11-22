@@ -1,0 +1,22 @@
+$ tracepath taurine.csclub.uwaterloo.ca
+ 1:  10.74.40.220                                          0.197ms pmtu 1500
+ 1:  10.74.40.1                                           20.615ms 
+ 1:  10.74.40.1                                            2.846ms 
+ 2:  10.74.40.1                                          144.754ms pmtu 1350
+ 2:  192.168.16.254                                      380.575ms 
+ 3:  172.16.221.252                                      144.016ms 
+ 4:  70.42.157.253                                       186.749ms 
+ 5:  core1.te5-2-bbnet2.wdc002.pnap.net                  177.290ms 
+ 6:  no reply
+ 7:  no reply
+ 8:  te0-6-0-6.ccr21.iad02.atlas.cogentco.com            200.332ms 
+ 9:  te0-2-0-4.ccr21.dca01.atlas.cogentco.com            201.772ms 
+10:  te0-3-0-5.mpd22.dca01.atlas.cogentco.com            169.742ms asymm  8 
+11:  te0-0-0-3.ccr21.yyz02.atlas.cogentco.com            833.420ms 
+12:  te0-3-0-2.mpd21.yyz02.atlas.cogentco.com            200.749ms asymm 13 
+13:  no reply
+14:  university_of_waterloo.demarc.cogentco.com          740.317ms asymm 12 
+15:  no reply
+16:  v719-cs-rt-mc.uwaterloo.ca                          218.488ms asymm 18 
+17:  taurine.csclub.uwaterloo.ca                         270.822ms reached
+     Resume: pmtu 1350 hops 17 back 45 
