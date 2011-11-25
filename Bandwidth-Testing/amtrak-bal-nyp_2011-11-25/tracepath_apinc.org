@@ -1,0 +1,40 @@
+$ tracepath apinc.org
+ 1:  10.81.40.87                                           0.180ms pmtu 1500
+ 1:  10.81.40.1                                            2.488ms 
+ 1:  10.81.40.1                                            5.975ms 
+ 2:  10.81.40.1                                            2.507ms pmtu 1350
+ 2:  192.168.16.254                                      234.437ms 
+ 3:  172.16.221.252                                      863.056ms 
+ 4:  70.42.157.253                                       1432.331ms 
+ 4:  70.42.157.253                                       5437.737ms 
+ 5:  core2.te5-1-bbnet1.wdc002.pnap.net                  376.710ms 
+ 6:  TenGigE0-3-4-0.GW1.IAD8.ALTER.NET                   278.242ms 
+ 7:  0.xe-3-1-1.XL4.IAD8.ALTER.NET                       679.809ms asymm  8 
+ 8:  0.ae4.BR2.IAD8.ALTER.NET                            739.588ms asymm  9 
+ 9:  no reply
+10:  no reply
+10:  if-4-16.tcore1.NYY-NewYork.as6453.net               4527.716ms asymm 15 
+10:  if-4-16.tcore1.nyy-newyork.as6453.net               8207.547ms asymm 15 
+10:  if-4-16.tcore1.nyy-newyork.as6453.net               7208.603ms asymm 15 
+11:  if-6-10.tcore1.PYE-Paris.as6453.net                 6209.354ms asymm 13 
+11:  if-6-10.tcore1.pye-paris.as6453.net                 6867.857ms asymm 13 
+12:  80.231.154.66                                       1808.962ms 
+12:  80.231.154.66                                       9635.174ms 
+13:  c4948-bzn-fdt.routers.proxad.net                    460.385ms 
+14:  no reply
+15:  no reply
+16:  no reply
+17:  no reply
+18:  no reply
+19:  no reply
+20:  no reply
+21:  no reply
+22:  no reply
+23:  no reply
+24:  no reply
+25:  no reply
+26:  no reply
+27:  no reply
+28:  no reply
+29:  10.81.40.1                                           55.763ms !N
+     Resume: pmtu 1350 

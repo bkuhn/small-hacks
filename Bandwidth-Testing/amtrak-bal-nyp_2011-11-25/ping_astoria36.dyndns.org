@@ -1,0 +1,8 @@
+$ ping -c10 astoria36.dyndns.org
+PING astoria36.dyndns.org (208.120.217.83) 56(84) bytes of data.
+64 bytes from user-387hmaj.cable.mindspring.com (208.120.217.83): icmp_req=1 ttl=50 time=139 ms
+64 bytes from user-387hmaj.cable.mindspring.com (208.120.217.83): icmp_req=2 ttl=50 time=169 ms
+
+--- astoria36.dyndns.org ping statistics ---
+10 packets transmitted, 2 received, 80% packet loss, time 9057ms
+rtt min/avg/max/mdev = 139.796/154.648/169.500/14.852 ms

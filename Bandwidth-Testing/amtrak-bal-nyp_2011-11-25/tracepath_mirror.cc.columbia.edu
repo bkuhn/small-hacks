@@ -1,0 +1,22 @@
+$ tracepath mirror.cc.columbia.edu
+ 1:  10.81.40.87                                           0.129ms pmtu 1500
+ 1:  10.81.40.1                                           21.888ms 
+ 1:  10.81.40.1                                          122.017ms 
+ 2:  10.81.40.1                                          101.218ms pmtu 1350
+ 2:  192.168.16.254                                      414.464ms 
+ 3:  172.16.221.252                                      357.460ms 
+ 4:  70.42.157.253                                       448.713ms 
+ 5:  core3.te4-1-bbnet1.wdc002.pnap.net                  544.223ms 
+ 6:  ash-bb1-link.telia.net                              309.396ms asymm  7 
+ 7:  te0-6-0-6.mpd21.iad02.atlas.cogentco.com            219.602ms asymm  8 
+ 8:  te0-3-0-1.mpd21.dca01.atlas.cogentco.com            2258.681ms asymm  9 
+ 8:  te0-0-0-4.ccr22.iad02.atlas.cogentco.com            1617.869ms asymm  7 
+ 8:  te0-0-0-4.mpd21.dca01.atlas.cogentco.com            1217.758ms asymm  9 
+ 9:  te0-2-0-6.mpd21.jfk02.atlas.cogentco.com            109.172ms asymm 10 
+10:  te0-4-0-4.ccr21.jfk02.atlas.cogentco.com            113.507ms 
+11:  no reply
+12:  38.122.8.210                                        405.858ms asymm 11 
+13:  cc-core-1-x-nyser32-gw-1.net.columbia.edu           131.869ms asymm 12 
+14:  cc-conc-1-x-cc-core-1.net.columbia.edu              267.613ms asymm 13 
+15:  teewurst.cc.columbia.edu                            155.477ms reached
+     Resume: pmtu 1350 hops 15 back 51 

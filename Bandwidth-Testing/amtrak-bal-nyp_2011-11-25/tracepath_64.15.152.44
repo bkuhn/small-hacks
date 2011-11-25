@@ -1,0 +1,26 @@
+$ tracepath 64.15.152.44
+ 1:  10.81.40.87                                           0.199ms pmtu 1500
+ 1:  10.81.40.1                                           16.256ms 
+ 1:  10.81.40.1                                            3.485ms 
+ 2:  10.81.40.1                                            2.534ms pmtu 1350
+ 2:  192.168.21.254                                      193.265ms 
+ 3:  172.16.221.252                                      180.177ms 
+ 4:  70.42.157.253                                       399.762ms 
+ 5:  core1.te5-1-bbnet1.wdc002.pnap.net                  128.544ms 
+ 6:  xe-0-5-0-4.r01.asbnva02.us.bb.gin.ntt.net           308.403ms 
+ 7:  ae-3.r02.asbnva02.us.bb.gin.ntt.net                 162.961ms 
+ 8:  no reply
+ 9:  vlan90.csw4.Washington1.Level3.net                  177.489ms 
+10:  ae-72-72.ebr2.Washington1.Level3.net                458.794ms 
+11:  ae-3-3.ebr1.NewYork2.Level3.net                     258.046ms 
+12:  ae-1-100.ebr2.NewYork2.Level3.net                   204.706ms asymm 11 
+ 8:  xe-1.level3.asbnva02.us.bb.gin.ntt.net              9162.800ms 
+13:  ae-6-6.ebr2.NewYork1.Level3.net                     248.307ms asymm 12 
+14:  ae-5-5.car1.Montreal2.Level3.net                    251.904ms asymm 13 
+ 8:  4.68.63.185                                         9775.294ms 
+ 8:  xe-2.level3.asbnva02.us.bb.gin.ntt.net              13892.187ms asymm  9 
+11:  ae-3-3.ebr1.newyork2.level3.net                     11036.434ms 
+11:  ae-3-3.ebr1.newyork2.level3.net                     12042.227ms 
+15:  te6-2.cl-core05.level3.mtl.iweb.com                 5674.583ms asymm 10 
+16:  singpolyma.net                                      227.450ms reached
+     Resume: pmtu 1350 hops 16 back 54 

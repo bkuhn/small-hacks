@@ -1,0 +1,12 @@
+$ ping -c10 bbc.co.uk
+PING bbc.co.uk (212.58.241.131) 56(84) bytes of data.
+64 bytes from 212.58.241.131: icmp_req=2 ttl=245 time=6240 ms
+64 bytes from 212.58.241.131: icmp_req=6 ttl=245 time=2248 ms
+64 bytes from virtual-vip-231.thdo.bbc.co.uk (212.58.241.131): icmp_req=1 ttl=245 time=8183 ms
+64 bytes from virtual-vip-231.thdo.bbc.co.uk (212.58.241.131): icmp_req=8 ttl=245 time=1207 ms
+64 bytes from virtual-vip-231.thdo.bbc.co.uk (212.58.241.131): icmp_req=9 ttl=245 time=526 ms
+64 bytes from virtual-vip-231.thdo.bbc.co.uk (212.58.241.131): icmp_req=10 ttl=245 time=316 ms
+
+--- bbc.co.uk ping statistics ---
+10 packets transmitted, 6 received, 40% packet loss, time 34798ms
+rtt min/avg/max/mdev = 316.652/3120.630/8183.868/3010.550 ms, pipe 8

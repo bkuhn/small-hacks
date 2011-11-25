@@ -1,0 +1,30 @@
+$ tracepath pdx.edu
+ 1:  10.81.40.87                                           0.190ms pmtu 1500
+ 1:  10.81.40.1                                            4.430ms 
+ 1:  10.81.40.1                                            5.387ms 
+ 2:  10.81.40.1                                           17.891ms pmtu 1350
+ 2:  192.168.19.254                                      2126.071ms 
+ 2:  192.168.16.254                                      5142.321ms 
+ 2:  192.168.23.254                                      16236.330ms 
+ 3:  172.16.221.252                                      576.258ms 
+ 3:  172.16.221.252                                      6587.020ms 
+ 4:  70.42.157.253                                       741.070ms 
+ 5:  core4.te4-1-bbnet1.wdc002.pnap.net                  110.051ms 
+ 6:  dcx2-edge-01.inet.qwest.net                         103.587ms asymm  7 
+ 7:  dcp-brdr-03.inet.qwest.net                          406.790ms asymm  8 
+ 8:  xe-9-1-0.edge1.washington4.level3.net               789.386ms asymm  9 
+ 9:  no reply
+10:  4.69.134.153                                        492.338ms 
+11:  ae-5-5.ebr2.Washington12.Level3.net                 258.960ms asymm 10 
+12:  ae-6-6.ebr2.Chicago2.Level3.net                     582.974ms 
+12:  ae-6-6.ebr2.chicago2.level3.net                     1870.981ms 
+14:  ae-3-3.ebr2.Denver1.Level3.net                      361.452ms asymm  9 
+15:  ae-2-2.ebr2.Seattle1.Level3.net                     417.059ms asymm 11 
+16:  ae-22-52.car2.Seattle1.Level3.net                   228.665ms asymm 11 
+17:  no reply
+18:  131.252.5.218                                       1333.316ms asymm 13 
+19:  no reply
+20:  131.252.115.4                                       1502.158ms asymm 15 
+20:  131.252.115.4                                       11309.302ms asymm 15 
+21:  131.252.115.4                                       301.669ms !H
+     Resume: pmtu 1350 

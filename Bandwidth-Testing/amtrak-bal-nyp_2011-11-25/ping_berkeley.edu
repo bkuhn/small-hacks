@@ -1,0 +1,15 @@
+$ ping -c10 berkeley.edu
+PING berkeley.edu (169.229.131.81) 56(84) bytes of data.
+64 bytes from webfarm.Berkeley.EDU (169.229.131.81): icmp_req=1 ttl=48 time=200 ms
+64 bytes from webfarm.berkeley.edu (169.229.131.81): icmp_req=2 ttl=48 time=3431 ms
+64 bytes from webfarm.berkeley.edu (169.229.131.81): icmp_req=6 ttl=48 time=267 ms
+64 bytes from webfarm.berkeley.edu (169.229.131.81): icmp_req=5 ttl=48 time=1267 ms
+64 bytes from webfarm.berkeley.edu (169.229.131.81): icmp_req=3 ttl=48 time=3520 ms
+64 bytes from webfarm.berkeley.edu (169.229.131.81): icmp_req=4 ttl=48 time=2627 ms
+64 bytes from webfarm.berkeley.edu (169.229.131.81): icmp_req=8 ttl=48 time=168 ms
+64 bytes from webfarm.berkeley.edu (169.229.131.81): icmp_req=10 ttl=48 time=180 ms
+64 bytes from webfarm.berkeley.edu (169.229.131.81): icmp_req=9 ttl=48 time=3249 ms
+
+--- berkeley.edu ping statistics ---
+10 packets transmitted, 9 received, 10% packet loss, time 13206ms
+rtt min/avg/max/mdev = 168.058/1656.857/3520.629/1441.387 ms, pipe 4

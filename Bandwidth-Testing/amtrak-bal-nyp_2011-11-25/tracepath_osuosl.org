@@ -1,0 +1,48 @@
+$ tracepath osuosl.org
+ 1:  10.81.40.87                                           0.205ms pmtu 1500
+ 1:  10.81.40.1                                           23.833ms 
+ 1:  10.81.40.1                                           25.928ms 
+ 2:  10.81.40.1                                           75.442ms pmtu 1350
+ 2:  192.168.19.254                                      1435.768ms 
+ 2:  192.168.19.254                                      7500.815ms 
+ 3:  172.16.221.252                                      796.045ms 
+ 3:  172.16.221.252                                      10135.179ms 
+ 4:  no reply
+ 5:  core4.te4-1-bbnet1.wdc002.pnap.net                  301.598ms 
+ 6:  dcx2-edge-01.inet.qwest.net                         312.313ms asymm  7 
+ 7:  dcp-brdr-03.inet.qwest.net                          181.413ms asymm  8 
+ 8:  no reply
+ 8:  xe-9-1-0.edge1.washington4.level3.net               2335.643ms asymm  9 
+ 9:  vlan80.csw3.Washington1.Level3.net                  630.211ms 
+ 8:  xe-9-1-0.edge1.washington4.level3.net               2203.538ms asymm  9 
+ 4:  70.42.157.253                                       9924.791ms 
+ 4:  70.42.157.253                                       13929.197ms 
+ 4:  70.42.157.253                                       20937.686ms 
+ 5:  core4.te4-1-bbnet1.wdc002.pnap.net                  22939.045ms 
+ 8:  xe-9-1-0.edge1.washington4.level3.net               19844.709ms asymm  9 
+10:  ae-72-72.ebr2.Washington1.Level3.net                15754.090ms 
+11:  ae-5-5.ebr2.Washington12.Level3.net                 15757.317ms asymm 10 
+12:  ae-6-6.ebr2.Chicago2.Level3.net                     790.871ms 
+12:  ae-6-6.ebr2.chicago2.level3.net                     2707.657ms 
+13:  ae-1-100.ebr1.Chicago2.Level3.net                   392.008ms asymm 12 
+14:  ae-3-3.ebr2.Denver1.Level3.net                      702.415ms asymm  9 
+15:  ae-2-2.ebr2.Seattle1.Level3.net                     579.228ms asymm 11 
+16:  ae-21-52.car1.Seattle1.Level3.net                   647.860ms asymm 11 
+17:  4.53.150.46                                         347.634ms asymm 12 
+17:  4.53.150.46                                         6500.596ms asymm 12 
+18:  corv-car1-gw.nero.net                               668.916ms asymm 13 
+19:  no reply
+20:  no reply
+21:  no reply
+22:  no reply
+23:  no reply
+24:  no reply
+25:  no reply
+26:  no reply
+27:  no reply
+28:  no reply
+29:  no reply
+30:  no reply
+31:  no reply
+     Too many hops: pmtu 1350
+     Resume: pmtu 1350 

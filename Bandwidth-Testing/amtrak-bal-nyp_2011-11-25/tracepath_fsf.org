@@ -1,0 +1,37 @@
+$ tracepath fsf.org
+ 1:  10.81.40.87                                           0.191ms pmtu 1500
+ 1:  10.81.40.1                                            6.812ms 
+ 1:  10.81.40.1                                            2.705ms 
+ 2:  10.81.40.1                                            3.049ms pmtu 1350
+ 2:  192.168.22.254                                       88.826ms 
+ 3:  172.16.221.252                                      116.719ms 
+ 4:  70.42.157.253                                       185.837ms 
+ 5:  core1.te5-2-bbnet2.wdc002.pnap.net                  184.334ms 
+ 6:  no reply
+ 7:  no reply
+ 8:  xe-7-1-0.edge2.Washington4.Level3.net               311.309ms asymm  9 
+ 9:  ae-13-60.car3.Washington1.Level3.net                 84.405ms 
+10:  CWIE-LLC.car3.Washington1.Level3.net                376.099ms asymm 11 
+11:  199.232.45.193                                      432.507ms 
+12:  so-6-0-0-000.br1.qcy1.ma.gnaps.net                  883.690ms 
+13:  ge-4-1-0-000.ar1.qcy1.ma.gnaps.net                  197.909ms 
+14:  link74-182.cent.net                                 139.429ms 
+13:  ge-4-1-0-000.ar1.qcy1.ma.gnaps.net                  2262.233ms 
+16:  no reply
+17:  no reply
+18:  no reply
+19:  no reply
+20:  no reply
+21:  no reply
+22:  no reply
+23:  no reply
+24:  no reply
+25:  no reply
+26:  no reply
+27:  no reply
+28:  no reply
+29:  no reply
+30:  no reply
+31:  no reply
+     Too many hops: pmtu 1350
+     Resume: pmtu 1350 

@@ -1,0 +1,38 @@
+$ tracepath durban.kzn.org.za
+ 1:  10.81.40.87                                           0.203ms pmtu 1500
+ 1:  10.81.40.1                                            5.126ms 
+ 1:  10.81.40.1                                            2.295ms 
+ 2:  10.81.40.1                                            5.602ms pmtu 1350
+ 2:  192.168.23.254                                      425.910ms 
+ 3:  172.16.221.252                                      175.263ms 
+ 4:  70.42.157.253                                       1734.660ms 
+ 5:  core2.te5-1-bbnet1.wdc002.pnap.net                  220.428ms 
+ 6:  12.90.32.9                                          356.647ms asymm  7 
+ 7:  cr1.wswdc.ip.att.net                                339.247ms asymm  9 
+ 7:  cr2.wswdc.ip.att.net                                2159.435ms asymm  9 
+ 8:  12.122.135.25                                       196.213ms 
+ 9:  192.205.35.190                                      317.688ms asymm  7 
+10:  vodacom.ge10-5.br02.ldn01.pccwbtn.net               316.716ms asymm 11 
+11:  no reply
+12:  no reply
+13:  41.0.71.4                                           904.522ms asymm 14 
+14:  no reply
+15:  no reply
+16:  no reply
+17:  no reply
+18:  no reply
+19:  no reply
+20:  no reply
+21:  no reply
+22:  no reply
+23:  no reply
+24:  no reply
+25:  no reply
+26:  no reply
+27:  no reply
+28:  no reply
+29:  no reply
+30:  no reply
+31:  no reply
+     Too many hops: pmtu 1350
+     Resume: pmtu 1350 
