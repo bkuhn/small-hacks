@@ -25,6 +25,7 @@ use Date::Manip;
 
 #use File::Copy;
 
+my $VERBOSE = 1;
 
 if (@ARGV < 4 or @ARGV > 5) {
   print STDERR "usage: $0 <MAILDIR_DIRECTORY> <DSPAM_PROBABILITY_MIN> <DSPAM_CONFIDENCE_LEVEL_MIN> <DAYS> [<COUNT_ONLY_DONT_DELETE>]\n";
@@ -43,9 +44,9 @@ foreach my $dir (@msgDirs) {
   die "$MAILDIR_FOLDER must not be a maildir folder (or is unreadable by you), since $dir isn't a readable directory: $!"
     unless  (-d $dir);
 }
-MAIL: foreach my $dir (@msgDirs) {
+foreach my $dir (@msgDirs) {
   opendir(MAILDIR, $dir) or die "Unable to open directory $dir for reading: $!";
-  while (my $file = readdir MAILDIR) {
+MAIL:  while (my $file = readdir MAILDIR) {
     next if -d $file;    # skip directories
     my $fullFileName = "$dir/$file";
 
@@ -75,11 +76,15 @@ MAIL: foreach my $dir (@msgDirs) {
       next MAIL;
     }
 
+    print "\nDate: $parsedDate" if ($VERBOSE > 2);
+
     next MAIL if ($parsedDate gt $nDaysAgo);
 
+    print "    Not skipping over date, $nDaysAgo\n" if ($VERBOSE > 2);
     my %dspamVal;
     foreach my $val ('Confidence', 'Probability') {
       foreach my $dv (@{$fields->{"X-Dspam-$val"}}) {
+        chomp $dv;
         if (not defined $dspamVal{$val}) {
           $dspamVal{$val} = $dv;
         } else {
@@ -93,9 +98,13 @@ MAIL: foreach my $dir (@msgDirs) {
     }
     $total++;
 
+    print " Confidence: $dspamVal{Confidence}, Probability: $dspamVal{Probability}\n"
+      if ($VERBOSE > 2);
+
     if ($dspamVal{Confidence}  >= $DSPAM_CONF_MIN and
         $dspamVal{Probability} >= $DSPAM_PROB_MIN) {
       $countDeleted++;
+      print "    counting this one\n" if ($VERBOSE > 2);
       unless (defined $COUNT_ONLY and $COUNT_ONLY) {
         warn "unable to unlink $fullFileName: $!"
           unless unlink("$fullFileName") == 1;
