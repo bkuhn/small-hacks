@@ -46,7 +46,7 @@ if (@ARGV < 2) {
 my($beginDate, $endDate, @otherLedgerOpts) = @ARGV;
 
 my(@chartOfAccountsOpts) = ('--wide-register-format', "%150A\n",  '-w', '-s',
-                            '-b', $beginDate, @otherLedgerOpts, 'reg');
+                            '-e', $endDate, @otherLedgerOpts, 'reg');
 
 open(CHART_DATA, "-|", $LEDGER_CMD, @chartOfAccountsOpts)
   or die "Unable to run $LEDGER_CMD @chartOfAccountsOpts: $!";
@@ -80,7 +80,6 @@ foreach my $acct (
   push(@sortedAccounts, $acct);
 }
 close(CHART_OUTPUT); die "error writing to chart-of-accounts.txt: $!" unless $? == 0;
-
 ###############################################################################
 #
 # Local variables:
