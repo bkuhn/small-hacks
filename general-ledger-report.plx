@@ -69,7 +69,9 @@ foreach my $acct (
                   # Proper sorting for a chart of accounts
                   sort {
                     if ($a =~ /^Assets/ and $b !~ /^Assets/) {
-                      return 1;
+                      return -1;
+                    elsif ($a =~ /^Liabilities/ and $b !~ /^Liabilitie/) {
+                      return -1;
                     } else {
                       return $a cmp $b;
                     }
