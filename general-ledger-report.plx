@@ -25,6 +25,7 @@ use strict;
 use warnings;
 
 use Math::BigFloat;
+use Date::Manip;
 
 my $LEDGER_CMD = "/usr/bin/ledger";
 
@@ -80,6 +81,27 @@ foreach my $acct (
   push(@sortedAccounts, $acct);
 }
 close(CHART_OUTPUT); die "error writing to chart-of-accounts.txt: $!" unless $? == 0;
+
+my $formattedEndDate = new Date::Manip::Date;
+die "badly formatted end date, $endDate" if $formattedEndDate->parse($endDate);
+my $oneDayLess = new Date::Manip::Delta;
+die "bad one day less" if $oneDayLess->parse("- 1 day");
+$formattedEndDate = $formattedEndDate->calc($oneDayLess);
+$formattedEndDate = $formattedEndDate->printf("%Y/%m/%d");
+
+foreach my $acct (@sortedAccounts) {
+  print "\n\nACCOUNT: $acct\nFROM:    $beginDate TO $formattedEndDate\n\n";
+  my @acctLedgerOpts = ('--wide-register-format',
+                        "%D  %-.10C   %-.80P  %-.80N  %18t  %18T\n", '-w',
+                        '-b', $beginDate, '-e', $endDate, @otherLedgerOpts, 'reg', $acct);
+  open(ACCOUNT_DATA, "-|", $LEDGER_CMD, @acctLedgerOpts)
+    or die "Unable to run $LEDGER_CMD @acctLedgerOpts: $!";
+
+  foreach my $line (<ACCOUNT_DATA>) {
+    print $line;
+  }
+  close(ACCOUNT_DATA); die "error reading ledger output for chart of accounts: $!" unless $? == 0;
+}
 ###############################################################################
 #
 # Local variables:
