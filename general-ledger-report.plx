@@ -89,19 +89,36 @@ die "bad one day less" if $oneDayLess->parse("- 1 day");
 $formattedEndDate = $formattedEndDate->calc($oneDayLess);
 $formattedEndDate = $formattedEndDate->printf("%Y/%m/%d");
 
+open(GL_TEXT_OUT, ">", "general-ledger.txt") or die "unable to write general-ledger.txt: $!";
+open(GL_CSV_OUT, ">", "general-ledger.csv") or die "unable to write general-ledger.csv: $!";
+
 foreach my $acct (@sortedAccounts) {
-  print "\n\nACCOUNT: $acct\nFROM:    $beginDate TO $formattedEndDate\n\n";
+  print GL_TEXT_OUT "\n\nACCOUNT: $acct\nFROM:    $beginDate TO $formattedEndDate\n\n";
   my @acctLedgerOpts = ('--wide-register-format',
                         "%D  %-.10C   %-.80P  %-.80N  %18t  %18T\n", '-w',
                         '-b', $beginDate, '-e', $endDate, @otherLedgerOpts, 'reg', $acct);
-  open(ACCOUNT_DATA, "-|", $LEDGER_CMD, @acctLedgerOpts)
+  open(GL_TEXT_DATA, "-|", $LEDGER_CMD, @acctLedgerOpts)
     or die "Unable to run $LEDGER_CMD @acctLedgerOpts: $!";
 
-  foreach my $line (<ACCOUNT_DATA>) {
-    print $line;
+  foreach my $line (<GL_TEXT_DATA>) {
+    print GL_TEXT_OUT $line;
   }
-  close(ACCOUNT_DATA); die "error reading ledger output for chart of accounts: $!" unless $? == 0;
+  close(GL_TEXT_DATA); die "error reading ledger output for chart of accounts: $!" unless $? == 0;
+
+  print GL_CSV_OUT "ACCOUNT,$acct\nPERIOD START,$beginDate,PERIOD END,$formattedEndDate\n\n";
+  @acctLedgerOpts = ('--wide-register-format',
+                     "%D,%-.10C,%-.100P,%-.200N,%18t,%18T\n", '-w',
+                        '-b', $beginDate, '-e', $endDate, @otherLedgerOpts, 'reg', $acct);
+  open(GL_CSV_DATA, "-|", $LEDGER_CMD, @acctLedgerOpts)
+    or die "Unable to run $LEDGER_CMD @acctLedgerOpts: $!";
+
+  foreach my $line (<GL_CSV_DATA>) {
+    print GL_CSV_OUT $line;
+  }
+  close(GL_CSV_DATA); die "error reading ledger output for chart of accounts: $!" unless $? == 0;
 }
+close(GL_TEXT_OUT); die "error writing to general-ledger.txt: $!" unless $? == 0;
+close(GL_CSV_OUT); die "error writing to general-ledger.csv: $!" unless $? == 0;
 ###############################################################################
 #
 # Local variables:
