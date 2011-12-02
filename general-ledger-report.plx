@@ -47,7 +47,7 @@ if (@ARGV < 2) {
 my($beginDate, $endDate, @otherLedgerOpts) = @ARGV;
 
 my(@chartOfAccountsOpts) = ('--wide-register-format', "%150A\n",  '-w', '-s',
-                            '-e', $endDate, @otherLedgerOpts, 'reg');
+                            '-b', $beginDate, '-e', $endDate, @otherLedgerOpts, 'reg');
 
 open(CHART_DATA, "-|", $LEDGER_CMD, @chartOfAccountsOpts)
   or die "Unable to run $LEDGER_CMD @chartOfAccountsOpts: $!";
