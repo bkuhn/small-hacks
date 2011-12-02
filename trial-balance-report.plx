@@ -29,7 +29,7 @@ use Math::BigFloat;
 
 my $LEDGER_CMD = "/usr/bin/ledger";
 
-my $ACCT_WIDTH = 70;
+my $ACCT_WIDTH = 75;
 
 # http://www.moneyinstructor.com/lesson/trialbalance.asp
 # told me:
@@ -60,45 +60,38 @@ if (@ARGV == 0) {
   exit 1;
 }
 
-my(@ledgerOptions) = ('--wide-register-format', "%-.${ACCT_WIDTH}A %22.108t" .'\n',  '-w', '-s', @ARGV,
-                     'reg');
 
+my(@ledgerOptions) = ('--wide-register-format', "%-.${ACCT_WIDTH}A %22.108t\n",  '-w',
+                      @ARGV, 'reg');
 
-open(LEDGER_DEBIT, "-|", $LEDGER_CMD, '-d', 'a>0', @ledgerOptions)
-  or die "Unable to run $LEDGER_CMD -d a<0 @ledgerOptions: $!";
+open(LEDGER_DATA, "-|", $LEDGER_CMD, @ledgerOptions)
+  or die "Unable to run $LEDGER_CMD @ledgerOptions: $!";
 
 my %acct;
-while (my $negLine = <LEDGER_DEBIT>) {
+while (my $line = <LEDGER_DATA>) {
 
-  chomp $negLine;
-
-  die "Unable to parse output line from negative_ledger command: $negLine"
-    unless $negLine =~ /^\s*([^\$]+)\s+\$\s*\s*([\d\.\,]+)/;
+  die "Unable to parse output line from negative_ledger command: $line"
+    unless $line =~ /^\s*([^\$]+)\s+\$\s*\s*([\-\d\.\,]+)/;
   my($account, $amount) = ($1, $2);
   $amount = ParseNumber($amount);
   $account =~ s/^\s+//;    $account =~ s/\s+$//;
-  $acct{$account}{debit} = $amount;
+  $acct{$account}{debit} = $ZERO if not defined $acct{$account}{debit};
+  $acct{$account}{credit} = $ZERO if not defined $acct{$account}{credit};
+
+  if ($account =~ /^(Asset|Expense)/) {
+      $acct{$account}{debit} += $amount;
+  } elsif ($account =~ /^(Income)/) {
+    $acct{$account}{debit} += - $amount;
+  } elsif ($account =~ /^(Liabilities)/) {
+    $acct{$account}{credit} += $amount;
+  } else {
+    die "unkown account type $account";
+  }
+
 }
-close LEDGER_DEBIT;
-die "error($0): $! while running negative_ledger command line" unless ($? == 0);
+close LEDGER_DATA;
+die "error($0): $! while running ledger command line" unless ($? == 0);
 
-# Lazy here: this is nearly identical to loop above
-
-open(LEDGER_CREDIT, "-|", $LEDGER_CMD, '-d', 'a<0', @ledgerOptions)
-  or die "Unable to run $LEDGER_CMD -d a<0 @ledgerOptions: $!";
-while (my $postLine = <LEDGER_CREDIT>) {
-  chomp $postLine;
-
-  die "Unable to parse output line from positive_ledger command: $postLine"
-    unless $postLine =~ /^\s*([^\$]+)\s+\$\s*\-\s*([\d\.\,]+)/;
-  my($account, $amount) = ($1, $2);
-  $amount = ParseNumber($amount);
-  $account =~ s/^\s+//;    $account =~ s/\s+$//;
-
-  $acct{$account}{credit} = $amount;
-}
-close LEDGER_CREDIT;
-die "error($0): $! while running positive_ledger command line" unless ($? == 0);
 
 print sprintf("%-${ACCT_WIDTH}.${ACCT_WIDTH}s        %s              %s\n\n", "ACCOUNT", "DEBITS", "CREDITS");
 
