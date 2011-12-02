@@ -70,17 +70,17 @@ foreach my $acct (
                   sort {
                     if ($a =~ /^Assets/ and $b !~ /^Assets/) {
                       return -1;
-                    elsif ($a =~ /^Liabilities/ and $b !~ /^Liabilitie/) {
+                    } elsif ($a =~ /^Liabilities/ and $b !~ /^Liabilitie/) {
                       return -1;
                     } else {
                       return $a cmp $b;
                     }
-                  } @accounts) {
+                    } @accounts) {
   print CHART_OUTPUT "$acct\n";
   push(@sortedAccounts, $acct);
-
 }
 close(CHART_OUTPUT); die "error writing to chart-of-accounts.txt: $!" unless $? == 0;
+
 ###############################################################################
 #
 # Local variables:
