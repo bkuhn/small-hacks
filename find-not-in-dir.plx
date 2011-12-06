@@ -18,6 +18,8 @@
 # along with this program in a file in the toplevel directory called
 # "GPLv3".  If not, see <http://www.gnu.org/licenses/>.
 #
+use strict;
+use warnings;
 
 ######################################################################
 sub FindAndSortOutput {
@@ -43,8 +45,10 @@ sub FindAndSortOutput {
 
   find({ wanted => $buildList, no_chdir => 1},  $dir);
 
-  open(FILE_OUTPUT, ">$output") or
-    die "$0: unable to open temporary output file, $output: $!";
+  if (defined $output) {
+    open(FILE_OUTPUT, ">$output") or
+      die "$0: unable to open temporary output file, $output: $!";
+  }
 
   my @sortedChompedFiles;
   foreach my $file (sort {$a cmp $b } @files) {
@@ -52,13 +56,40 @@ sub FindAndSortOutput {
     next if defined $ignoreRegex and $file =~ /$ignoreRegex/;
     next if defined $includeRegex and $file !~ /$includeRegex/;
     push(@sortedChompedFiles, $file);
-    print FILE_OUTPUT "$file\n";
+    print FILE_OUTPUT "$file\n" if defined $output;
   }
-  close FILE_OUTPUT;
+  close FILE_OUTPUT if defined $output;
+  die "unable to write to output file: $output: $! ($?)"
+    if $? != 0 and defined $output;
 
   return @sortedChompedFiles;
 }
 ######################################################################
 
-my(@orgNonRegular) = FindAndSortOutput("FILES", $origDir, $origTempFile,
-                                 $ignoreRegex, "^/?($origDir|$comparedDir)/?");
+if (@ARGV < 2) {
+  print STDERR "usage: $0 <DIRECTORY_OF_FILES_TO_EXCLUDE>  <DIRECTORY> ... <DIRECTORY>\n";
+  exit 1;
+}
+my $excludeDirectory = shift @ARGV;
+my(@directories) = @ARGV;
+
+  my($type, $dir, $output, $ignoreRegex, $includeRegex, $filterRewrite) = @_;
+
+my(@ignoredFiles) = FindAndSortOutput("FILES", $excludeDirectory, undef,
+                                      undef, undef, '.*/[^/]+$');
+
+my %ignoredFiles;
+foreach my $file (@ignoredFiles) {  $ignoredFiles{$file} = 1;  }
+
+foreach my $file (sort keys %ignoredFiles) { print "IGNORING: $file\n";  }
+
+my @files;
+
+foreach my $dir (@directories) {
+  push(@files,  FindAndSortOutput("FILES", $dir));
+}
+###############################################################################
+#
+# Local variables:
+# compile-command: "perl -c find-not-in-dir.plx"
+# End:
