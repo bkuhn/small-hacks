@@ -77,13 +77,13 @@ my(@directories) = @ARGV;
   my($type, $dir, $output, $ignoreRegex, $includeRegex, $filterRewrite) = @_;
 
 my(@ignoredFiles) = FindAndSortOutput("FILES", $excludeDirectory, undef,
-                                      undef, undef, '.*/[^/]+$');
+                                      '(?:/\.svn/|~$)');
 
 my %ignoredFiles;
-foreach my $file (@ignoredFiles) {  $ignoredFiles{$file} = 1;  }
-
-foreach my $file (sort keys %ignoredFiles) { print "IGNORING: $file\n";  }
-
+foreach my $file (@ignoredFiles) {
+  $file =~ s%.*/([^/]+)$%$1%;
+  $ignoredFiles{$file} = 1;
+}
 my @files;
 
 foreach my $dir (@directories) {
