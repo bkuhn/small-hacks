@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 # find-not-in-dir.plx                                            -*- Perl -*-
 #   Possible bug: only -type f and -type d are checked
 # Copyright (C) 2001, 2002, 2003, 2004, 2008, 2011 Bradley M. Kuhn <bkuhn@ebb.org>
