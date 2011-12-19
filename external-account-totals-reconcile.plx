@@ -33,8 +33,12 @@ my $LEDGER_CMD = "/usr/bin/ledger";
 my $ACCT_WIDTH = 75;
 
 sub ParseNumber($) {
-  $_[0] =~ s/,//g;
-  return Math::BigFloat->new($_[0]);
+  my($val) = @_;
+  $val =~ s/,//g;
+  $val =~ s/\s+//g;
+  $val = - $val if $val =~ s/^\s*\(//;
+
+  return Math::BigFloat->new($val);
 }
 
 
@@ -57,7 +61,7 @@ while (my $line = <STDIN>) {
   $line =~ s/^\s*//;   $line =~ s/\s*$//;
 
   next unless $line =~
-    /^\s*(\S+\:.+)\s+[\(\d].+\s+\(?\s*([\d\.\,]+)\s*\)?\s*$/;
+    /^\s*(\S+\:.+)\s+[\(\d].+\s+([\(?\s*\d\.\,]+)\s*\)?\s*$/;
   my($acct, $value) = ($1, $2);
   $acct =~ s/^\s*//;   $acct =~ s/\s*$//;
   $acct =~ s/\s{3,}[\(\)\d,\.\s]+$//;
@@ -71,8 +75,8 @@ my %internalBalances;
 while (my $line = <ACCT_DATA>) {
   chomp $line;
   $line =~ s/^\s*//;   $line =~ s/\s*$//;
-  next unless
-    $line =~ /^\s*(\S+\:.+)\s+[\(\d].+\s+\(?\s*([\d\.\,])+\s*\)?\s*$/;
+  die "Strange line, \"$line\" found in ledger output" unless
+    $line =~ /^\s*(\S+\:[^\$]+)\s+\$?\s*([\-\d\.\,]+)\s*$/;
 
   my($acct, $value) = ($1, $2);
   $acct =~ s/^\s*//;   $acct =~ s/\s*$//;
