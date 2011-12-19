@@ -84,13 +84,39 @@ while (my $line = <ACCT_DATA>) {
   $internalBalances{$acct} = ParseNumber($value);
 
 }
-close(ACCT_DATA); die "error reading ledger output for chart of accounts: $!" unless $? == 0;
+close(ACCT_DATA); die "error reading ledger output: $!" unless $? == 0;
+
+my(@laterAccountOptions) = ('--wide-register-format', '%-.150A %22.108t\n',  '-w', '-s',
+                            @otherLedgerOpts, 'reg');
+
+open(LATER_ACCT_DATA, "-|", $LEDGER_CMD, @laterAccountOptions)
+  or die "Unable to run $LEDGER_CMD @laterAccountOptions: $!";
+
+my %laterInternalBalances;
+while (my $line = <LATER_ACCT_DATA>) {
+  chomp $line;
+  $line =~ s/^\s*//;   $line =~ s/\s*$//;
+  die "Strange line, \"$line\" found in ledger output" unless
+    $line =~ /^\s*(\S+\:[^\$]+)\s+\$?\s*([\-\d\.\,]+)\s*$/;
+
+  my($acct, $value) = ($1, $2);
+  $acct =~ s/^\s*//;   $acct =~ s/\s*$//;
+
+  $laterInternalBalances{$acct} = $value;
+
+}
+close(LATER_ACCT_DATA); die "error reading ledger output: $!" unless $? == 0;
 
 foreach my $acct (sort keys %externalBalances) {
   if (not defined $internalBalances{$acct}) {
-    print "$acct EXISTS in external data, but does not appear in Ledger.\n";
+    if (not defined $laterInternalBalances{$acct}) {
+      print "$acct EXISTS in external data, but does not appear in Ledger.\n";
+    } else {
+      $internalBalances{$acct} = $ZERO;
+    }
   }
   delete $internalBalances{$acct};
+  delete $laterInternalBalances{$acct};
 }
 
 foreach my $acct (sort keys %internalBalances) {
