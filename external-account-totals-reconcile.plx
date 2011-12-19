@@ -86,14 +86,15 @@ while (my $line = <ACCT_DATA>) {
 }
 close(ACCT_DATA); die "error reading ledger output for chart of accounts: $!" unless $? == 0;
 
-print "EXTERNAL: \n";
 foreach my $acct (sort keys %externalBalances) {
-  print "$acct: $externalBalances{$acct}\n";
+  if (not defined $internalBalances{$acct}) {
+    print "$acct EXISTS in external data, but does not appear in Ledger.\n";
+  }
+  delete $internalBalances{$acct};
 }
 
-print "INTERNAL: \n";
 foreach my $acct (sort keys %internalBalances) {
-  print "$acct: $internalBalances{$acct}\n";
+  print "$acct EXISTS in Ledger, but does not appear in external data.\n";
 }
 ###############################################################################
 #
