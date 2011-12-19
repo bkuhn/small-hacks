@@ -57,7 +57,7 @@ while (my $line = <STDIN>) {
   $line =~ s/^\s*//;   $line =~ s/\s*$//;
 
   next unless $line =~
-    /^\s*(\S+\:.+)\s+[\(\d].+\s+\(?\s*([\d\.\,])+\s*\)?\s*$/;
+    /^\s*(\S+\:.+)\s+[\(\d].+\s+\(?\s*([\d\.\,]+)\s*\)?\s*$/;
   my($acct, $value) = ($1, $2);
   $acct =~ s/^\s*//;   $acct =~ s/\s*$//;
 
