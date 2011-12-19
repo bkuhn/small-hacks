@@ -68,7 +68,9 @@ while (my $line = <STDIN>) {
   my($acct, $value) = ($1, $2);
   $acct =~ s/^\s*//;   $acct =~ s/\s*$//;
   $acct =~ s/\s{3,}[\(\)\d,\.\s]+$//;
-  $externalBalances{$acct} = ParseNumber($value);
+
+  $externalBalances{$acct} = $ZERO if (not defined $externalBalances{$acct});
+  $externalBalances{$acct} += ParseNumber($value);
 }
 
 open(ACCT_DATA, "-|", $LEDGER_CMD, @internalBalancesPeriodOptions)
@@ -90,8 +92,8 @@ while (my $line = <ACCT_DATA>) {
 close(ACCT_DATA); die "error reading ledger output: $!" unless $? == 0;
 
 
-open(ACCT_DATA, "-|", $LEDGER_CMD, @internalBalancesPeriodOptions)
-  or die "Unable to run $LEDGER_CMD @internalBalancesPeriodOptions: $!";
+open(ACCT_DATA, "-|", $LEDGER_CMD, @internalBalancesHistoricalOptions)
+  or die "Unable to run $LEDGER_CMD @internalBalancesHistoricalOptions: $!";
 
 my %internalBalancesHistorical;
 while (my $line = <ACCT_DATA>) {
@@ -133,11 +135,23 @@ foreach my $acct (sort keys %externalBalances) {
   if (not defined $internalBalancesPeriod{$acct}) {
     if (not defined $laterInternalBalances{$acct}
        and not defined $internalBalancesHistorical{$acct}) {
-      print "$acct EXISTS in external data, but does not appear in Ledger.\n";
+      print "$acct\n",
+            "    EXISTS in external data, but does not appear in Ledger.\n";
+      next;
     } else {
       $internalBalancesPeriod{$acct} = $ZERO;
     }
   }
+  # if the account is an Asset or a Liability, then we want the historical
+  # balance ending on the $endDate, which is stored in the %internalBalancesHistorical
+  $internalBalancesPeriod{$acct} = $internalBalancesHistorical{$acct}
+    if ($acct =~ /^(?:Assets?|Liabilit(?:ies|y))/);
+
+  print "$acct\n",
+        "     Ledger:         $internalBalancesPeriod{$acct}\n",
+        "     External Report: $externalBalances{$acct}\n"
+    if ($internalBalancesPeriod{$acct} != $externalBalances{$acct});
+
   delete $internalBalancesPeriod{$acct};
 }
 
