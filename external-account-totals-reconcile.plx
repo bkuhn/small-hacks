@@ -60,7 +60,7 @@ while (my $line = <STDIN>) {
     /^\s*(\S+\:.+)\s+[\(\d].+\s+\(?\s*([\d\.\,]+)\s*\)?\s*$/;
   my($acct, $value) = ($1, $2);
   $acct =~ s/^\s*//;   $acct =~ s/\s*$//;
-
+  $acct =~ s/\s{3,}[\(\)\d,\.\s]+$//;
   $externalBalances{$acct} = ParseNumber($value);
 }
 
