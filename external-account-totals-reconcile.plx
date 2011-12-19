@@ -53,9 +53,13 @@ my(@accountOptions) = ('--wide-register-format', '%-.150A %22.108t\n',  '-w', '-
 
 my %externalBalances;
 while (my $line = <STDIN>) {
+  chomp $line;
+  $line =~ s/^\s*//;   $line =~ s/\s*$//;
+
   next unless $line =~
     /^\s*(\S+\:.+)\s+[\(\d].+\s+\(?\s*([\d\.\,])+\s*\)?\s*$/;
   my($acct, $value) = ($1, $2);
+  $acct =~ s/^\s*//;   $acct =~ s/\s*$//;
 
   $externalBalances{$acct} = ParseNumber($value);
 }
@@ -71,6 +75,7 @@ while (my $line = <ACCT_DATA>) {
     $line =~ /^\s*(\S+\:.+)\s+[\(\d].+\s+\(?\s*([\d\.\,])+\s*\)?\s*$/;
 
   my($acct, $value) = ($1, $2);
+  $acct =~ s/^\s*//;   $acct =~ s/\s*$//;
 
   $internalBalances{$acct} = ParseNumber($value);
 
