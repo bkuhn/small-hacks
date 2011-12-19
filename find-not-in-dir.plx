@@ -66,7 +66,6 @@ sub FindAndSortOutput {
   return @sortedChompedFiles;
 }
 ######################################################################
-
 if (@ARGV < 2) {
   print STDERR "usage: $0 <DIRECTORY_OF_FILES_TO_EXCLUDE>  <DIRECTORY> ... <DIRECTORY>\n";
   exit 1;
@@ -87,7 +86,11 @@ foreach my $file (@ignoredFiles) {
 my @files;
 
 foreach my $dir (@directories) {
-  push(@files,  FindAndSortOutput("FILES", $dir));
+  push(@files,  FindAndSortOutput("FILES", $dir, undef, '(?:/\.svn/|~$)'));
+}
+foreach my $file (@files) {
+  print "$file\n" unless defined $ignoredFiles{$file};
+  $ignoredFiles{$file} = 1; # Ignore the ones we've already printed so they aren't printed again.
 }
 ###############################################################################
 #
