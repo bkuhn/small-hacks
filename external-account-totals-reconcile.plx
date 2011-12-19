@@ -53,7 +53,7 @@ my(@accountOptions) = ('--wide-register-format', '%-.150A %22.108t\n',  '-w', '-
 
 my %externalBalances;
 while (my $line = <STDIN>) {
-  next unless
+  next unless $line =~
     /^\s*(\S+\:.+)\s+[\(\d].+\s+\(?\s*([\d\.\,])+\s*\)?\s*$/;
   my($acct, $value) = ($1, $2);
 
@@ -68,7 +68,7 @@ while (my $line = <ACCT_DATA>) {
   chomp $line;
   $line =~ s/^\s*//;   $line =~ s/\s*$//;
   next unless
-    /^\s*(\S+\:.+)\s+[\(\d].+\s+\(?\s*([\d\.\,])+\s*\)?\s*$/;
+    $line =~ /^\s*(\S+\:.+)\s+[\(\d].+\s+\(?\s*([\d\.\,])+\s*\)?\s*$/;
 
   my($acct, $value) = ($1, $2);
 
