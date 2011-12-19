@@ -45,15 +45,18 @@ sub ParseNumber($) {
 Math::BigFloat->precision(-2);
 my $ZERO =  Math::BigFloat->new("0.00");
 
-if (@ARGV < 2) {
-  print STDERR "usage: $0 <END_DATE> <OTHER_LEDGER_OPTS>\n";
+if (@ARGV < 3) {
+  print STDERR "usage: $0 <START_DATE> <END_DATE> <OTHER_LEDGER_OPTS>\n";
   exit 1;
 }
 
-my($endDate, @otherLedgerOpts) = @ARGV;
+my($beginDate, $endDate, @otherLedgerOpts) = @ARGV;
 
-my(@accountOptions) = ('--wide-register-format', '%-.150A %22.108t\n',  '-w', '-s',
+my(@internalBalancesHistoricalOptions) = ('--wide-register-format', '%-.150A %22.108t\n',  '-w', '-s',
                             '-e', $endDate, @otherLedgerOpts, 'reg');
+
+my(@internalBalancesPeriodOptions) = ('--wide-register-format', '%-.150A %22.108t\n',  '-w', '-s',
+                            '-b', $beginDate, '-e', $endDate, @otherLedgerOpts, 'reg');
 
 my %externalBalances;
 while (my $line = <STDIN>) {
@@ -68,10 +71,10 @@ while (my $line = <STDIN>) {
   $externalBalances{$acct} = ParseNumber($value);
 }
 
-open(ACCT_DATA, "-|", $LEDGER_CMD, @accountOptions)
-  or die "Unable to run $LEDGER_CMD @accountOptions: $!";
+open(ACCT_DATA, "-|", $LEDGER_CMD, @internalBalancesPeriodOptions)
+  or die "Unable to run $LEDGER_CMD @internalBalancesPeriodOptions: $!";
 
-my %internalBalances;
+my %internalBalancesPeriod;
 while (my $line = <ACCT_DATA>) {
   chomp $line;
   $line =~ s/^\s*//;   $line =~ s/\s*$//;
@@ -81,7 +84,26 @@ while (my $line = <ACCT_DATA>) {
   my($acct, $value) = ($1, $2);
   $acct =~ s/^\s*//;   $acct =~ s/\s*$//;
 
-  $internalBalances{$acct} = ParseNumber($value);
+  $internalBalancesPeriod{$acct} = ParseNumber($value);
+
+}
+close(ACCT_DATA); die "error reading ledger output: $!" unless $? == 0;
+
+
+open(ACCT_DATA, "-|", $LEDGER_CMD, @internalBalancesPeriodOptions)
+  or die "Unable to run $LEDGER_CMD @internalBalancesPeriodOptions: $!";
+
+my %internalBalancesHistorical;
+while (my $line = <ACCT_DATA>) {
+  chomp $line;
+  $line =~ s/^\s*//;   $line =~ s/\s*$//;
+  die "Strange line, \"$line\" found in ledger output" unless
+    $line =~ /^\s*(\S+\:[^\$]+)\s+\$?\s*([\-\d\.\,]+)\s*$/;
+
+  my($acct, $value) = ($1, $2);
+  $acct =~ s/^\s*//;   $acct =~ s/\s*$//;
+
+  $internalBalancesHistorical{$acct} = ParseNumber($value);
 
 }
 close(ACCT_DATA); die "error reading ledger output: $!" unless $? == 0;
@@ -108,18 +130,18 @@ while (my $line = <LATER_ACCT_DATA>) {
 close(LATER_ACCT_DATA); die "error reading ledger output: $!" unless $? == 0;
 
 foreach my $acct (sort keys %externalBalances) {
-  if (not defined $internalBalances{$acct}) {
-    if (not defined $laterInternalBalances{$acct}) {
+  if (not defined $internalBalancesPeriod{$acct}) {
+    if (not defined $laterInternalBalances{$acct}
+       and not defined $internalBalancesHistorical{$acct}) {
       print "$acct EXISTS in external data, but does not appear in Ledger.\n";
     } else {
-      $internalBalances{$acct} = $ZERO;
+      $internalBalancesPeriod{$acct} = $ZERO;
     }
   }
-  delete $internalBalances{$acct};
-  delete $laterInternalBalances{$acct};
+  delete $internalBalancesPeriod{$acct};
 }
 
-foreach my $acct (sort keys %internalBalances) {
+foreach my $acct (sort keys %internalBalancesPeriod) {
   print "$acct EXISTS in Ledger, but does not appear in external data.\n";
 }
 ###############################################################################
