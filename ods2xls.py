@@ -50,16 +50,7 @@ class SSConverter:
             # For more information see:
             #   http://wiki.services.openoffice.org/wiki/Documentation/DevGuide/Spreadsheets/Filter_Options
             #
-            # THE following works for xls
-            document.storeToURL(outputUrl, ooutils.oo_properties(FilterName="MS Excel 97"))
-            # THE following works for xlsx
-            #document.storeToURL(outputUrl, ooutils.oo_properties(FilterName="Microsoft Excel 2007/2010 XML"))
-            #document.storeToURL(outputUrl, ooutils.oo_properties(FilterName="MS Excel 2007/2010 XML"))
-            #document.storeToURL(outputUrl, ooutils.oo_properties(FilterName="MS Excel 2007/2010"))
-            #document.storeToURL(outputUrl, ooutils.oo_properties(FilterName="MS Excel 2007"))
-            #document.storeToURL(outputUrl, ooutils.oo_properties(FilterName="MS Excel 2010"))
-            #document.storeToURL(outputUrl, ooutils.oo_properties(FilterName="MS Excel 2010 XML"))
-            #document.storeToURL(outputUrl, ooutils.oo_properties(FilterName="MS Excel 2007 XML"))
+            document.storeToURL(outputUrl, ooutils.oo_properties(FilterName="Calc MS Excel 2007 XML"))
         finally:
             document.close(True)
 
@@ -86,8 +77,7 @@ if __name__ == "__main__":
             converter = SSConverter()
             while i < len(argv):
                 odsname = argv[i]
-                #xlsxname = odsname.replace('.ods', '.xlsx')
-                xlsxname = odsname.replace('.ods', '.xls')
+                xlsxname = odsname.replace('.ods', '.xlsx')
                 print '%s => %s' % (odsname, xlsxname)
                 converter.convert(odsname, xlsxname)
                 i += 1
