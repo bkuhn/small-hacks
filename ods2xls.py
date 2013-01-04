@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# ods2xlsx.py
+# ods2xls.py
 # adapted from ssconv.py
 # see also
 #  https://help.libreoffice.org/Common/About_Converting_Microsoft_Office_Documents
@@ -8,6 +8,7 @@
 
 import os
 import ooutils
+import time
 
 import uno
 from com.sun.star.task import ErrorCodeIOException
@@ -15,7 +16,7 @@ from com.sun.star.task import ErrorCodeIOException
 class SSConverter:
     """
     Spreadsheet converter class.
-    Converts spreadsheets to XLSX files.
+    Converts spreadsheets to XLS files.
     """
 
     def __init__(self, oorunner=None):
@@ -25,7 +26,7 @@ class SSConverter:
 
     def convert(self, inputFile, outputFile):
         """
-        Convert the input file (a spreadsheet) to a XLSX file.
+        Convert the input file (a spreadsheet) to a XLS file.
         """
 
         # Start openoffice if needed.
@@ -33,7 +34,12 @@ class SSConverter:
             if not self.oorunner:
                 self.oorunner = ooutils.OORunner()
 
+            # DEBUG
+            print('oorunner should be working here')
             self.desktop = self.oorunner.connect()
+            time.sleep(1)
+            print(os.popen('fuser -u 8100/tcp').read())
+            print('connected to LibreOffice...')
 
         inputUrl  = uno.systemPathToFileUrl(os.path.abspath(inputFile))
         outputUrl = uno.systemPathToFileUrl(os.path.abspath(outputFile))
@@ -50,7 +56,7 @@ class SSConverter:
             # For more information see:
             #   http://wiki.services.openoffice.org/wiki/Documentation/DevGuide/Spreadsheets/Filter_Options
             #
-            document.storeToURL(outputUrl, ooutils.oo_properties(FilterName="Calc MS Excel 2007 XML"))
+            document.storeToURL(outputUrl, ooutils.oo_properties(FilterName="MS Excel 97"))
         finally:
             document.close(True)
 
@@ -77,9 +83,9 @@ if __name__ == "__main__":
             converter = SSConverter()
             while i < len(argv):
                 odsname = argv[i]
-                xlsxname = odsname.replace('.ods', '.xlsx')
-                print '%s => %s' % (odsname, xlsxname)
-                converter.convert(odsname, xlsxname)
+                xlsname = odsname.replace('.ods', '.xls')
+                print '%s => %s' % (odsname, xlsname)
+                converter.convert(odsname, xlsname)
                 i += 1
 
         except ErrorCodeIOException, exception:
