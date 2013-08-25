@@ -23,15 +23,27 @@
 use strict;
 use warnings;
 use Date::Manip;
+use utf8;
+use feature 'unicode_strings';
+use Encode qw(encode decode);
 
-if (@ARGV != 3) {
-  print STDERR "usage: $0 /path/to/mythtv/git/checkout <units> <location>\n";
+if (@ARGV != 5 and @ARGV != 6) {
+  print STDERR "usage: $0 /path/to/mythtv/git/checkout <units> <location> <voffset> <fontsize_pixels> [hour-format]\n";
   exit 1;
 }
-my($MYTH_PATH, $UNITS, $LOCATION) = @ARGV;
-
+my($MYTH_PATH, $UNITS, $LOCATION, $VOFFSET, $FONT_SIZE, $HOUR_FORMAT) = @ARGV;
+$HOUR_FORMAT = "%a %H:%M" unless defined $HOUR_FORMAT;
+my $degree;
+if ($UNITS eq "SI") {
+  $degree = encode('utf8', "°C");
+} elsif ($UNITS eq 'ENG') {
+  $degree = encode('utf8', "°F");
+} else {
+  die "invalid units, $UNITS";
+}
 my($forecastCmd) = $MYTH_PATH .
                  "/mythplugins/mythweather/mythweather/scripts/us_nws/ndfd18.pl";
+my($mythIconPath) = $MYTH_PATH .  "/mythplugins/mythweather/theme/default/icons";
 
 open(FORECAST, "-|", $forecastCmd, '-u', $UNITS, $LOCATION)
   or die "unable to run: $forecastCmd -u $UNITS $LOCATION: $!";
@@ -53,6 +65,28 @@ my $x = Delta_Format(DateCalc(ParseDate($forecast{updatetime}), $now), 0,
 
 $forecast{updatetime} = $x if defined $x;
 $forecast{updatetime} = "as of $forecast{updatetime}";
+foreach my $ii (qw/0 1 2 3 4 5/) {
+  my $time = ParseDate($forecast{"time-${ii}"});
+  if (defined $time) {
+    $time = DateCalc($time, "+ 1 day") if ($time lt $now);
+    $forecast{"time-${ii}"} = UnixDate($time, $HOUR_FORMAT);
+  }
+}
+my($xpos, $vpos) = ($FONT_SIZE * (2 + length($forecast{"time-0"})),
+                    $VOFFSET + 37);
+my $f = $FONT_SIZE + 5;
+print '${voffset ', $VOFFSET , '} ${font :size=', $f, '}${alignc}Forecast:${font}', " $forecast{'18hrlocation'}\n\n";
+foreach my $ii (qw/0 1 2 3 4 5/) {
+  my($time, $temp, $pop, $icon) =
+    ($forecast{"time-${ii}"}, $forecast{"temp-${ii}"},
+     $forecast{"pop-${ii}"}, $forecast{"18icon-${ii}"});
+  $pop =~ s/\s+//g;
+  $pop = "  $pop" if length($pop) eq 2;
+  $pop = " $pop" if length($pop) eq 3;
+  print "\${font :size=${FONT_SIZE}px} $time: $temp $degree \${image $mythIconPath/$icon -p $xpos,$vpos  -s 25x18}     $pop chance\n\n";
+  $vpos += ($FONT_SIZE * 2) + 15;
+}
+
 ###############################################################################
 #
 # Local variables:
