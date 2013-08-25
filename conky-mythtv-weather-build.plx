@@ -95,8 +95,8 @@ undef $feelsLike if $feelsLike =~ /^\s*N[\s\/]*A\s*$/i;
 undef $windGust if defined $windGust and $windGust =~ /^\s*N[\s\/]*A\s*$/i;
 
 print "\${font :size=${FONT_SIZE}px} Current: $temp $degree";
-print " ($feelsLike $degree)" if defined $feelsLike;
-print "\n\${goto 20}Humidity: $humidity\%  Wind: $windSpeed kph";
+print " (feels like: $feelsLike $degree)" if defined $feelsLike;
+print "\n\${goto 82}Humidity: $humidity\%  Wind: $windSpeed kph";
 print "  ($windGust kph)" if defined $windGust;
 print "\n\n";
 
