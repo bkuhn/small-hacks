@@ -85,23 +85,33 @@ foreach my $ii (qw/0 1 2 3 4 5/) {
 my $f = $FONT_SIZE + 5;
 print '${voffset ', $VOFFSET_TEXT , '} ${font :size=', $f, '}${alignc}Weather:${font}', " $data{current}{'cclocation'}\n\n";
 
-my($temp, $feelsLike, $humidity, $windSpeed, $windGust) = ($data{current}{temp},
-         $data{current}{heat_index}, $data{current}{relative_humidity},
-                $data{current}{wind_speed}, $data{current}{wind_gust});
+my($temp, $feelsLike, $humidity, $windSpeed, $windGust, $icon, $datetime) =
+  ($data{current}{temp}, $data{current}{heat_index},
+   $data{current}{relative_humidity}, $data{current}{wind_speed},
+   $data{current}{wind_gust}, $data{current}{weather_icon},
+   $data{current}{observation_time_rfc822});
+
+my $ago = Delta_Format(DateCalc($datetime, $now), 0, "%mt min");
+$ago = Delta_Format(DateCalc($datetime, $now), 0, "%st sec")
+  if ($ago =~ /0 minutes/);
 
 $feelsLike = $data{current}{windchill}
   if (not defined $feelsLike) or $feelsLike =~ /^\s*N[\s\/]*A\s*$/i;
 undef $feelsLike if $feelsLike =~ /^\s*N[\s\/]*A\s*$/i;
 undef $windGust if defined $windGust and $windGust =~ /^\s*N[\s\/]*A\s*$/i;
 
+my($xpos, $vpos) = (350, $VOFFSET_IMAGE + 40);
+
 print "\${font :size=${FONT_SIZE}px} Current: $temp $degree";
 print " (feels like: $feelsLike $degree)" if defined $feelsLike;
-print "\n\${goto 82}Humidity: $humidity\%  Wind: $windSpeed kph";
+print "\${image $mythIconPath/$icon -p $xpos,$vpos  -s 50x37}"
+  unless $icon =~ /unknown/i;
+print "\n\${goto 82}Humidity: $humidity\%     Wind: $windSpeed kph";
 print "  ($windGust kph)" if defined $windGust;
-print "\n\n";
+print "\n" . ( (defined $ago) ? "\${alignr}(as of $ago ago)" : "" ) . "\n";
 
-my($xpos, $vpos) = ($FONT_SIZE * (5 + length($data{forecast}{"time-0"})),
-                    $VOFFSET_IMAGE + 98);
+($xpos, $vpos) = ($FONT_SIZE * (5 + length($data{forecast}{"time-0"})),
+                  $VOFFSET_IMAGE + 98);
 
 foreach my $ii (qw/0 1 2 3 4 5/) {
   my($time, $temp, $pop, $icon) =
