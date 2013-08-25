@@ -70,11 +70,13 @@ my $x = Delta_Format(DateCalc(ParseDate($data{forecast}{updatetime}), $now), 0,
 
 $data{forecast}{updatetime} = $x if defined $x;
 $data{forecast}{updatetime} = "as of $data{forecast}{updatetime}";
+my %doneDays;
 foreach my $ii (qw/0 1 2 3 4 5/) {
   my $time = ParseDate($data{forecast}{"time-${ii}"});
   if (defined $time) {
     $time = DateCalc($time, "+ 1 day") if ($time lt $now);
     $data{forecast}{"time-${ii}"} = UnixDate($time, $HOUR_FORMAT);
+    $doneDays{UnixDate($time, '%A')} = 'forecast';
   }
 }
 my($xpos, $vpos) = ($FONT_SIZE * (3 + length($data{forecast}{"time-0"})),
@@ -89,6 +91,16 @@ foreach my $ii (qw/0 1 2 3 4 5/) {
   $pop = "  $pop" if length($pop) eq 2;
   $pop = " $pop" if length($pop) eq 3;
   print "\${font :size=${FONT_SIZE}px} $time: $temp $degree \${image $mythIconPath/$icon -p $xpos,$vpos  -s 25x18}     $pop chance\n\n";
+  $vpos += ($FONT_SIZE * 2) + 15;
+}
+($xpos, $vpos) = ($FONT_SIZE * 26,
+                    $VOFFSET_IMAGE + 37 + 230);
+foreach my $ii (qw/0 1 2 3 4 5/) {
+  next if defined $doneDays{$data{extended}{"date-${ii}"}};
+  my($day, $high, $low, $icon) =
+    ($data{extended}{"date-${ii}"}, $data{extended}{"high-${ii}"},
+     $data{extended}{"low-${ii}"}, $data{extended}{"icon-${ii}"});
+  print "\${font :size=${FONT_SIZE}px} $day:\${goto 120}High: $high $degree   Low: $low $degree \${image $mythIconPath/$icon -p $xpos,$vpos  -s 25x18}\n\n";
   $vpos += ($FONT_SIZE * 2) + 15;
 }
 
