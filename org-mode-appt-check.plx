@@ -36,7 +36,7 @@ if ($? != 0) {
   exit 0;
 }
 my $now =  ParseDate("now");
-open(THREE_DAYS, "-|", "/usr/bin/emacs -batch -l ~/.emacs -eval '(org-batch-agenda \"a\" org-agenda-files (mapcar (lambda (arg) (replace-regexp-in-string \"~/Crypt/Orgs/\" \"~/Crypt/.org-backup/\" arg)) org-agenda-files) org-agenda-span (quote 3)  org-agenda-overriding-header \"\" org-agenda-repeating-timestamp-show-all t org-agenda-time-grid nil org-agenda-repeating-timestamp-show-all t org-agenda-entry-types (quote (:sexp :scheduled)) org-agenda-skip-function (quote bkuhn/skip-unless-appt-or-diary))' 2>/dev/null") or
+open(THREE_DAYS, "-|", "/usr/bin/emacs -batch -l ~/.emacs -eval '(org-batch-agenda \"a\" org-agenda-files (mapcar (lambda (arg) (replace-regexp-in-string \"~/Crypt/Orgs/\" \"~/Crypt/.org-backup/\" arg)) org-agenda-files) org-agenda-span (quote 6)  org-agenda-overriding-header \"\" org-agenda-repeating-timestamp-show-all t org-agenda-time-grid nil org-agenda-repeating-timestamp-show-all t org-agenda-entry-types (quote (:sexp :scheduled)) org-agenda-skip-function (quote bkuhn/skip-unless-appt-or-diary))' 2>/dev/null") or
 die "Unable to run emacs: $!";
 
 my $firstDay = 1;
