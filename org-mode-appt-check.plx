@@ -49,14 +49,16 @@ while (my $line = <THREE_DAYS>) {
     $firstDay = $firstTime;
     $firstTime = 0;
     $dayLine = $line;
+    $dayLine =~ s/\s*W\d+\s*$//;
     $prettyDayLine = "\${color3}$dayLine\${color}\n";
   }
-  if ($line =~ /^\s+(?:[^:]+)\s*:\s+(\d+)\s*:\s*(\d+)\s*[\-\.]+(.*)$/) {
+  elsif ($line =~ /^\s+(?:[^:]+)\s*:\s+(\d+)\s*:\s*(\d+)\s*[\-\.]+(.*)$/) {
+    my $date =  ParseDate("$dayLine $1:$2");
     if ($firstDay) {
       my $time = "$1:$2";
       my $val = $3;
-      my $date =  ParseDate("$dayLine $1:$2");
-      if (DateCalc("$date", "+ 15 minutes") ge $now) {
+      if (DateCalc("$date", "+ 15 minutes") ge $now and
+          DateCalc("$now", "+ 15 minutes") gt $date) {
         my  $fh = File::Temp->new();
         $fh->unlink_on_destroy( 1 );
         my  $fname = $fh->filename;
@@ -69,6 +71,7 @@ while (my $line = <THREE_DAYS>) {
                'Appointment', "You have an appointment at $time: $val");
       }
     }
+    next if DateCalc("$date", "+ 1 hour") lt $now;
     if (defined $prettyDayLine) {
       print $prettyDayLine;
       undef $prettyDayLine;
