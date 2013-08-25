@@ -41,45 +41,50 @@ if ($UNITS eq "SI") {
 } else {
   die "invalid units, $UNITS";
 }
-my($forecastCmd) = $MYTH_PATH .
-                 "/mythplugins/mythweather/mythweather/scripts/us_nws/ndfd18.pl";
+
 my($mythIconPath) = $MYTH_PATH .  "/mythplugins/mythweather/theme/default/icons";
+my(%commands) = ('forecast' => $MYTH_PATH .
+                 "/mythplugins/mythweather/mythweather/scripts/us_nws/ndfd18.pl",
+                 'extended' => $MYTH_PATH .
+                 "/mythplugins/mythweather/mythweather/scripts/us_nws/ndfd.pl");
 
-open(FORECAST, "-|", $forecastCmd, '-u', $UNITS, $LOCATION)
-  or die "unable to run: $forecastCmd -u $UNITS $LOCATION: $!";
+my %data;
+foreach my $type (keys %commands) {
+  open(DATA, "-|", $commands{$type}, '-u', $UNITS, $LOCATION)
+    or die "unable to run: $commands{$type} -u $UNITS $LOCATION: $!";
 
-my %forecast;
-
-while (my $line = <FORECAST>) {
-  die "bad line output in forecast: $line"
-    unless $line =~ /^\s*(\S+)\s*:\s*:\s*(.+)$/;
-  $forecast{$1} = $2;
+  while (my $line = <DATA>) {
+    die "bad line output in data: $line"
+      unless $line =~ /^\s*(\S+)\s*:\s*:\s*(.+)$/;
+    $data{$type}{$1} = $2;
+  }
+  close DATA;
+  die "error($?) running: $commands{$type} -u $UNITS $LOCATION: $!"
+    unless $? == 0;
 }
-close FORECAST;
-die "error($?) running: $forecastCmd -u $UNITS $LOCATION: $!" unless $? == 0;
 
-$forecast{updatetime} =~ s/\s*Last\s+Updated\s+on\s*//;
+$data{forecast}{updatetime} =~ s/\s*Last\s+Updated\s+on\s*//;
 my $now =  ParseDate("now");
-my $x = Delta_Format(DateCalc(ParseDate($forecast{updatetime}), $now), 0,
+my $x = Delta_Format(DateCalc(ParseDate($data{forecast}{updatetime}), $now), 0,
                      "%mt minutes ago");
 
-$forecast{updatetime} = $x if defined $x;
-$forecast{updatetime} = "as of $forecast{updatetime}";
+$data{forecast}{updatetime} = $x if defined $x;
+$data{forecast}{updatetime} = "as of $data{forecast}{updatetime}";
 foreach my $ii (qw/0 1 2 3 4 5/) {
-  my $time = ParseDate($forecast{"time-${ii}"});
+  my $time = ParseDate($data{forecast}{"time-${ii}"});
   if (defined $time) {
     $time = DateCalc($time, "+ 1 day") if ($time lt $now);
-    $forecast{"time-${ii}"} = UnixDate($time, $HOUR_FORMAT);
+    $data{forecast}{"time-${ii}"} = UnixDate($time, $HOUR_FORMAT);
   }
 }
-my($xpos, $vpos) = ($FONT_SIZE * (3 + length($forecast{"time-0"})),
+my($xpos, $vpos) = ($FONT_SIZE * (3 + length($data{forecast}{"time-0"})),
                     $VOFFSET_IMAGE + 37);
 my $f = $FONT_SIZE + 5;
-print '${voffset ', $VOFFSET_TEXT , '} ${font :size=', $f, '}${alignc}Forecast:${font}', " $forecast{'18hrlocation'}\n\n";
+print '${voffset ', $VOFFSET_TEXT , '} ${font :size=', $f, '}${alignc}Weather:${font}', " $data{forecast}{'18hrlocation'}\n\n";
 foreach my $ii (qw/0 1 2 3 4 5/) {
   my($time, $temp, $pop, $icon) =
-    ($forecast{"time-${ii}"}, $forecast{"temp-${ii}"},
-     $forecast{"pop-${ii}"}, $forecast{"18icon-${ii}"});
+    ($data{forecast}{"time-${ii}"}, $data{forecast}{"temp-${ii}"},
+     $data{forecast}{"pop-${ii}"}, $data{forecast}{"18icon-${ii}"});
   $pop =~ s/\s+//g;
   $pop = "  $pop" if length($pop) eq 2;
   $pop = " $pop" if length($pop) eq 3;
