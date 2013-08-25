@@ -27,11 +27,11 @@ use utf8;
 use feature 'unicode_strings';
 use Encode qw(encode decode);
 
-if (@ARGV != 5 and @ARGV != 6) {
-  print STDERR "usage: $0 /path/to/mythtv/git/checkout <units> <location> <voffset> <fontsize_pixels> [hour-format]\n";
+if (@ARGV != 6 and @ARGV != 7) {
+  print STDERR "usage: $0 /path/to/mythtv/git/checkout <units> <location> <text_voffset> <img_voffset> <fontsize_pixels> [hour-format]\n";
   exit 1;
 }
-my($MYTH_PATH, $UNITS, $LOCATION, $VOFFSET, $FONT_SIZE, $HOUR_FORMAT) = @ARGV;
+my($MYTH_PATH, $UNITS, $LOCATION, $VOFFSET_TEXT, $VOFFSET_IMAGE, $FONT_SIZE, $HOUR_FORMAT) = @ARGV;
 $HOUR_FORMAT = "%a %H:%M" unless defined $HOUR_FORMAT;
 my $degree;
 if ($UNITS eq "SI") {
@@ -72,10 +72,10 @@ foreach my $ii (qw/0 1 2 3 4 5/) {
     $forecast{"time-${ii}"} = UnixDate($time, $HOUR_FORMAT);
   }
 }
-my($xpos, $vpos) = ($FONT_SIZE * (2 + length($forecast{"time-0"})),
-                    $VOFFSET + 37);
+my($xpos, $vpos) = ($FONT_SIZE * (3 + length($forecast{"time-0"})),
+                    $VOFFSET_IMAGE + 37);
 my $f = $FONT_SIZE + 5;
-print '${voffset ', $VOFFSET , '} ${font :size=', $f, '}${alignc}Forecast:${font}', " $forecast{'18hrlocation'}\n\n";
+print '${voffset ', $VOFFSET_TEXT , '} ${font :size=', $f, '}${alignc}Forecast:${font}', " $forecast{'18hrlocation'}\n\n";
 foreach my $ii (qw/0 1 2 3 4 5/) {
   my($time, $temp, $pop, $icon) =
     ($forecast{"time-${ii}"}, $forecast{"temp-${ii}"},
