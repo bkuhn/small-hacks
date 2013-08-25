@@ -90,7 +90,7 @@ foreach my $ii (qw/0 1 2 3 4 5/) {
   $pop =~ s/\s+//g;
   $pop = "  $pop" if length($pop) eq 2;
   $pop = " $pop" if length($pop) eq 3;
-  print "\${font :size=${FONT_SIZE}px} $time: $temp $degree \${image $mythIconPath/$icon -p $xpos,$vpos  -s 25x18}     $pop chance\n\n";
+  print "\${font :size=${FONT_SIZE}px} $time: $temp $degree \${image $mythIconPath/$icon -p $xpos,$vpos  -s 25x18}     $pop chance\n";
   $vpos += ($FONT_SIZE * 2) + 15;
 }
 ($xpos, $vpos) = ($FONT_SIZE * 26,
@@ -100,7 +100,7 @@ foreach my $ii (qw/0 1 2 3 4 5/) {
   my($day, $high, $low, $icon) =
     ($data{extended}{"date-${ii}"}, $data{extended}{"high-${ii}"},
      $data{extended}{"low-${ii}"}, $data{extended}{"icon-${ii}"});
-  print "\${font :size=${FONT_SIZE}px} $day:\${goto 120}High: $high $degree   Low: $low $degree \${image $mythIconPath/$icon -p $xpos,$vpos  -s 25x18}\n\n";
+  print "\n\${font :size=${FONT_SIZE}px} $day:\${goto 120}High: $high $degree   Low: $low $degree \${image $mythIconPath/$icon -p $xpos,$vpos  -s 25x18}\n";
   $vpos += ($FONT_SIZE * 2) + 15;
 }
 
