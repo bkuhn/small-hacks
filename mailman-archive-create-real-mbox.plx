@@ -22,10 +22,13 @@ use strict;
 use warnings;
 
 while (<>) {
-  if (/^From\s+(\S+)\s+at\s+(\S+)\s+(.+)$/) {
+  if (/^From\s+(\S+)(?:\s+at\s+|\@)(\S+)\s+(.+)$/) {
     print "From ${1}\@${2} ${3}\n";
+  } elsif (/^From\s+=\?ISO\S+\s+(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/) {
+    print $_;
   } elsif (/^From\s+/) {
-    die "invalid from line $_";
+    warn "just quoting line $_";
+    print ">$_";
   } else {
     print $_;
   }
