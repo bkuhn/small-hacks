@@ -116,7 +116,9 @@ foreach my $ii (qw/0 1 2 3 4 5/) {
 ($xpos, $vpos) = ($FONT_SIZE * 26,
                     $VOFFSET_IMAGE + 37 + 175);
 foreach my $ii (qw/0 1 2 3 4 5/) {
-  next if defined $doneDays{$data{extended}{"date-${ii}"}};
+  # You can also use "%doneDays" here, as in:
+  #      next if defined $doneDays{$data{extended}{"date-${ii}"}};
+  next if $data{extended}{"date-${ii}"} eq UnixDate($now, "%A");
   my($day, $high, $low, $icon) =
     ($data{extended}{"date-${ii}"}, $data{extended}{"high-${ii}"},
      $data{extended}{"low-${ii}"}, $data{extended}{"icon-${ii}"});
