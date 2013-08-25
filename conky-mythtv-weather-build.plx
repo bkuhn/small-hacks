@@ -74,14 +74,17 @@ $data{forecast}{updatetime} = $x if defined $x;
 $data{forecast}{updatetime} = "as of $data{forecast}{updatetime}";
 my %doneDays;
 foreach my $ii (qw/0 1 2 3 4 5/) {
+  next if not defined $data{forecast}{"time-${ii}"};
   my $time = ParseDate($data{forecast}{"time-${ii}"});
+  next if not defined $time;
   if (defined $time) {
+    next if ($time lt $now and $ii == 0);
     $time = DateCalc($time, "+ 1 day") if ($time lt $now);
+    my $day = UnixDate($time, '%A');
     $data{forecast}{"time-${ii}"} = UnixDate($time, $HOUR_FORMAT);
-    $doneDays{UnixDate($time, '%A')} = 'forecast';
+    $doneDays{$day} = 'forecast';
   }
 }
-
 my $f = $FONT_SIZE + 5;
 print '${voffset ', $VOFFSET_TEXT , '} ${font :size=', $f, '}${alignc}Weather:${font}', " $data{current}{'cclocation'}\n\n";
 
@@ -114,6 +117,7 @@ print "\n" . ( (defined $ago) ? "\${alignr}(as of $ago ago)" : "" ) . "\n";
                   $VOFFSET_IMAGE + 98);
 
 foreach my $ii (qw/0 1 2 3 4 5/) {
+  next if not defined $data{forecast}{"time-${ii}"};
   my($time, $temp, $pop, $icon) =
     ($data{forecast}{"time-${ii}"}, $data{forecast}{"temp-${ii}"},
      $data{forecast}{"pop-${ii}"}, $data{forecast}{"18icon-${ii}"});
@@ -124,10 +128,11 @@ foreach my $ii (qw/0 1 2 3 4 5/) {
   $vpos += $FONT_SIZE + 7;
 }
 ($xpos, $vpos) = ($FONT_SIZE * 26,
-                    $VOFFSET_IMAGE + 37 + 175);
+                    $VOFFSET_IMAGE + 37 + 153);
 foreach my $ii (qw/0 1 2 3 4 5/) {
   # You can also use "%doneDays" here, as in:
   #      next if defined $doneDays{$data{extended}{"date-${ii}"}};
+  next if not defined $data{extended}{"date-${ii}"};
   next if $data{extended}{"date-${ii}"} eq UnixDate($now, "%A");
   my($day, $high, $low, $icon) =
     ($data{extended}{"date-${ii}"}, $data{extended}{"high-${ii}"},
