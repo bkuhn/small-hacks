@@ -22,14 +22,37 @@
 
 use strict;
 use warnings;
+use Date::Manip;
 
-if (@ARGV != 1) {
-  print STDERR "usage: $0 /path/to/mythtv/git/checkout\n";
+if (@ARGV != 3) {
+  print STDERR "usage: $0 /path/to/mythtv/git/checkout <units> <location>\n";
   exit 1;
 }
-my($MYTH_PATH) = @ARGV;
+my($MYTH_PATH, $UNITS, $LOCATION) = @ARGV;
 
+my($forecastCmd) = $MYTH_PATH .
+                 "/mythplugins/mythweather/mythweather/scripts/us_nws/ndfd18.pl";
 
+open(FORECAST, "-|", $forecastCmd, '-u', $UNITS, $LOCATION)
+  or die "unable to run: $forecastCmd -u $UNITS $LOCATION: $!";
+
+my %forecast;
+
+while (my $line = <FORECAST>) {
+  die "bad line output in forecast: $line"
+    unless $line =~ /^\s*(\S+)\s*:\s*:\s*(.+)$/;
+  $forecast{$1} = $2;
+}
+close FORECAST;
+die "error($?) running: $forecastCmd -u $UNITS $LOCATION: $!" unless $? == 0;
+
+$forecast{updatetime} =~ s/\s*Last\s+Updated\s+on\s*//;
+my $now =  ParseDate("now");
+my $x = Delta_Format(DateCalc(ParseDate($forecast{updatetime}), $now), 0,
+                     "%mt minutes ago");
+
+$forecast{updatetime} = $x if defined $x;
+$forecast{updatetime} = "as of $forecast{updatetime}";
 ###############################################################################
 #
 # Local variables:
