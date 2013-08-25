@@ -46,7 +46,9 @@ my($mythIconPath) = $MYTH_PATH .  "/mythplugins/mythweather/theme/default/icons"
 my(%commands) = ('forecast' => $MYTH_PATH .
                  "/mythplugins/mythweather/mythweather/scripts/us_nws/ndfd18.pl",
                  'extended' => $MYTH_PATH .
-                 "/mythplugins/mythweather/mythweather/scripts/us_nws/ndfd.pl");
+                 "/mythplugins/mythweather/mythweather/scripts/us_nws/ndfd.pl",
+                 'current' => $MYTH_PATH .
+                 "/mythplugins/mythweather/mythweather/scripts/us_nws/nwsxml.pl");
 
 my %data;
 foreach my $type (keys %commands) {
@@ -79,10 +81,28 @@ foreach my $ii (qw/0 1 2 3 4 5/) {
     $doneDays{UnixDate($time, '%A')} = 'forecast';
   }
 }
-my($xpos, $vpos) = ($FONT_SIZE * (3 + length($data{forecast}{"time-0"})),
-                    $VOFFSET_IMAGE + 37);
+
 my $f = $FONT_SIZE + 5;
-print '${voffset ', $VOFFSET_TEXT , '} ${font :size=', $f, '}${alignc}Weather:${font}', " $data{forecast}{'18hrlocation'}\n\n";
+print '${voffset ', $VOFFSET_TEXT , '} ${font :size=', $f, '}${alignc}Weather:${font}', " $data{current}{'cclocation'}\n\n";
+
+my($temp, $feelsLike, $humidity, $windSpeed, $windGust) = ($data{current}{temp},
+         $data{current}{heat_index}, $data{current}{relative_humidity},
+                $data{current}{wind_speed}, $data{current}{wind_gust});
+
+$feelsLike = $data{current}{windchill}
+  if (not defined $feelsLike) or $feelsLike =~ /^\s*N[\s\/]*A\s*$/i;
+undef $feelsLike if $feelsLike =~ /^\s*N[\s\/]*A\s*$/i;
+undef $windGust if defined $windGust and $windGust =~ /^\s*N[\s\/]*A\s*$/i;
+
+print "\${font :size=${FONT_SIZE}px} Current: $temp $degree";
+print " ($feelsLike $degree)" if defined $feelsLike;
+print "\n\${goto 20}Humidity: $humidity\%  Wind: $windSpeed kph";
+print "  ($windGust kph)" if defined $windGust;
+print "\n\n";
+
+my($xpos, $vpos) = ($FONT_SIZE * (5 + length($data{forecast}{"time-0"})),
+                    $VOFFSET_IMAGE + 98);
+
 foreach my $ii (qw/0 1 2 3 4 5/) {
   my($time, $temp, $pop, $icon) =
     ($data{forecast}{"time-${ii}"}, $data{forecast}{"temp-${ii}"},
@@ -90,18 +110,18 @@ foreach my $ii (qw/0 1 2 3 4 5/) {
   $pop =~ s/\s+//g;
   $pop = "  $pop" if length($pop) eq 2;
   $pop = " $pop" if length($pop) eq 3;
-  print "\${font :size=${FONT_SIZE}px} $time: $temp $degree \${image $mythIconPath/$icon -p $xpos,$vpos  -s 25x18}     $pop chance\n";
-  $vpos += ($FONT_SIZE * 2) + 15;
+  print "\${font :size=${FONT_SIZE}px} $time:\${goto 120}$temp $degree \${image $mythIconPath/$icon -p $xpos,$vpos  -s 16x11}     $pop chance\n";
+  $vpos += $FONT_SIZE + 7;
 }
 ($xpos, $vpos) = ($FONT_SIZE * 26,
-                    $VOFFSET_IMAGE + 37 + 230);
+                    $VOFFSET_IMAGE + 37 + 175);
 foreach my $ii (qw/0 1 2 3 4 5/) {
   next if defined $doneDays{$data{extended}{"date-${ii}"}};
   my($day, $high, $low, $icon) =
     ($data{extended}{"date-${ii}"}, $data{extended}{"high-${ii}"},
      $data{extended}{"low-${ii}"}, $data{extended}{"icon-${ii}"});
-  print "\n\${font :size=${FONT_SIZE}px} $day:\${goto 120}High: $high $degree   Low: $low $degree \${image $mythIconPath/$icon -p $xpos,$vpos  -s 25x18}\n";
-  $vpos += ($FONT_SIZE * 2) + 15;
+  print "\${font :size=${FONT_SIZE}px} $day:\${goto 120}High: $high $degree   Low: $low $degree \${image $mythIconPath/$icon -p $xpos,$vpos  -s 20x14}\n";
+  $vpos += $FONT_SIZE + 8;
 }
 
 ###############################################################################
