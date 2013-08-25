@@ -76,3 +76,9 @@ while (my $line = <THREE_DAYS>) {
     print "$line\n";
   }
 }
+###############################################################################
+#
+# Local variables:
+# compile-command: "perl -c org-mode-appt-check.plx"
+# End:
+
