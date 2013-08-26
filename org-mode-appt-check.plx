@@ -70,8 +70,8 @@ while (my $line = <THREE_DAYS>) {
         system('/usr/bin/notify-send', '-u', 'critical', '-t', '300000',
                'Appointment', "You have an appointment at $time: $val");
       }
+      next if DateCalc("$date", "+ 1 hour") lt $now;
     }
-    next if DateCalc("$date", "+ 1 hour") lt $now;
     if (defined $prettyDayLine) {
       print $prettyDayLine;
       undef $prettyDayLine;
