@@ -46,7 +46,6 @@ my $prettyDayLine;
 
 while (my $line = <THREE_DAYS>) {
   my $thisLinePrintable;
-
   chomp $line;
   if ($line =~ /^\S/) {
     $firstDay = $firstTime;
