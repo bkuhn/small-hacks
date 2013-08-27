@@ -27,6 +27,12 @@ use utf8;
 use feature 'unicode_strings';
 use Encode qw(encode decode);
 
+use File::Temp qw/tempdir/;
+
+
+chdir("$ENV{HOME}/tmp/.conky-mythtv-weather")
+  or die "unable to go to $ENV{HOME}/tmp/.conky-mythtv-weather";
+
 if (@ARGV != 6 and @ARGV != 7) {
   print STDERR "usage: $0 /path/to/mythtv/git/checkout <units> <location> <text_voffset> <img_voffset> <fontsize_pixels> [hour-format]\n";
   exit 1;
