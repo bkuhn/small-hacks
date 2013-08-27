@@ -43,7 +43,10 @@ my $firstDay = 1;
 my $firstTime = 1;
 my $dayLine = "";
 my $prettyDayLine;
+
 while (my $line = <THREE_DAYS>) {
+  my $thisLinePrintable;
+
   chomp $line;
   if ($line =~ /^\S/) {
     $firstDay = $firstTime;
@@ -52,31 +55,40 @@ while (my $line = <THREE_DAYS>) {
     $dayLine =~ s/\s*W\d+\s*$//;
     $prettyDayLine = "\${color3}$dayLine\${color}\n";
   }
-  elsif ($line =~ /^\s+(?:[^:]+)\s*:\s+(\d+)\s*:\s*(\d+)\s*[\-\.]+(.*)$/) {
-    my $date =  ParseDate("$dayLine $1:$2");
+  elsif ($line =~ /^\s+([^:]+)\s*:\s+(\d+)\s*:\s*(\d+)\s*[\-\.]+(?:\s*(\d+)\s*:\s*(\d+))?(.*)$/) {
+    my($source, $startHour, $startMin, $endHour, $endMin, $rest) =
+      ($1, $2, $3, $4, $5, $6);
+    my $start = "$startHour:$startMin";
+    my $end = "$endHour:$endMin";
+    my $date =  ParseDate("$dayLine $start");
+    my $endDate = ParseDate("$dayLine $end");
+    $endDate = DateCalc($date, "+ 1 hour") unless defined $endDate;
+    $thisLinePrintable = "    $start-$end  $rest\${alignr 10}(from $source)"
+      unless $endDate lt $now;
     if ($firstDay) {
-      my $time = "$1:$2";
       my $val = $3;
-      if (DateCalc("$date", "+ 15 minutes") ge $now and
-          DateCalc("$now", "+ 15 minutes") gt $date) {
+      if (DateCalc("$now", "+ 15 minutes") ge $date and $now le $date) {
         my  $fh = File::Temp->new();
         $fh->unlink_on_destroy( 1 );
         my  $fname = $fh->filename;
-        print $fh "You have an appointment at $time: $val\n";
+        print $fh "You have an appointment at $start: $rest\n";
         $fh->close();
         system('/home/bkuhn/bin/myosd', $fname);
         system("/usr/bin/espeak",  '-p', '45', '-s', '130', '-f', $fname)
           unless -f "$ENV{HOME}/.silent-running";
         system('/usr/bin/notify-send', '-u', 'critical', '-t', '300000',
-               'Appointment', "You have an appointment at $time: $val");
+               'Appointment', "You have an appointment at $start: $rest");
       }
-      next if DateCalc("$date", "+ 1 hour") lt $now;
     }
+  } elsif ($line =~ /^\s+(?:birthday|anniversary)\s*:\s+(\S.+)\s*$/i) {
+    $thisLinePrintable = "    $1";
+  }
+  if (defined $thisLinePrintable) {
     if (defined $prettyDayLine) {
       print $prettyDayLine;
       undef $prettyDayLine;
     }
-    print "$line\n";
+    print $thisLinePrintable, "\n";
   }
 }
 ###############################################################################
