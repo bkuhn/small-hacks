@@ -79,7 +79,7 @@ while (my $line = <THREE_DAYS>) {
                'Appointment', "You have an appointment at $start: $rest");
       }
     }
-  } elsif ($line =~ /^\s+(?:birthday|anniversary)\s*:\s+(\S.+)\s*$/i) {
+  } elsif ($line =~ /^\s+(?:birthday|anniversary)\s*:\s*(\S.+)\s*$/i) {
     $thisLinePrintable = "    $1";
   }
   if (defined $thisLinePrintable) {
