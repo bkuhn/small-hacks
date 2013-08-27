@@ -20,6 +20,9 @@
 #
 # Quick hack to use mythtv scripts.
 
+# Get listing of stations with:
+# /home/bkuhn/hacks/mythtv/mythplugins/mythweather/mythweather/scripts/us_nws/nwsxml.pl  -l
+
 use strict;
 use warnings;
 use Date::Manip;
