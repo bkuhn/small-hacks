@@ -128,6 +128,9 @@ $feelsLike = $data{current}{windchill}
 undef $feelsLike if $feelsLike =~ /^\s*N[\s\/]*A\s*$/i;
 undef $windGust if defined $windGust and $windGust =~ /^\s*N[\s\/]*A\s*$/i;
 
+$icon = $data{extended}{"icon-0"}
+  if ($icon =~ /unknown/i and $data{extended}{"date-0"} eq UnixDate($now, "%A"));
+
 my($xpos, $vpos) = (350, $VOFFSET_IMAGE + 40);
 my $smallFontSize = $FONT_SIZE - 5;
 $smallFontSize = 7 if $smallFontSize < 7;
