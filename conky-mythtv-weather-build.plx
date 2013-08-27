@@ -73,26 +73,33 @@ foreach my $type (keys %commands) {
 
 $data{forecast}{updatetime} =~ s/\s*Last\s+Updated\s+on\s*//;
 my $now =  ParseDate("now");
-my $x = Delta_Format(DateCalc(ParseDate($data{forecast}{updatetime}), $now), 0,
-                     "%mt minutes ago");
+my $updateTime = ParseDate($data{forecast}{updatetime});
+my $x = Delta_Format(DateCalc($updateTime, $now), 0, "%mt minutes ago");
 
 $data{forecast}{updatetime} = $x if defined $x;
 $data{forecast}{updatetime} = "as of $data{forecast}{updatetime}";
+$data{forecast}{"maxLength"} = 0;
 my %doneDays;
 foreach my $ii (qw/0 1 2 3 4 5/) {
   next if not defined $data{forecast}{"time-${ii}"};
   my $time = ParseDate($data{forecast}{"time-${ii}"});
   next if not defined $time;
   if (defined $time) {
-    next if ($time lt $now and $ii == 0);
-    $time = DateCalc($time, "+ 1 day") if ($time lt $now);
+    $time = DateCalc($time, "+ 1 day") if ($time lt $updateTime);
+    if ($time lt $now) {
+      delete $data{forecast}{"time-${ii}"};
+      next;
+    }
     my $day = UnixDate($time, '%A');
     $data{forecast}{"time-${ii}"} = UnixDate($time, $HOUR_FORMAT);
+    my $ll = length($data{forecast}{"time-${ii}"});
+    $data{forecast}{"maxLength"} = $ll
+      unless $data{forecast}{"maxLength"} > $ll;
     $doneDays{$day} = 'forecast';
   }
 }
 my $f = $FONT_SIZE + 5;
-print '${voffset ', $VOFFSET_TEXT , '} ${font :size=', $f, '}${alignc}Weather:${font}', " $data{current}{'cclocation'}\n\n";
+print '${voffset ', $VOFFSET_TEXT , '} ${font :size=', $f, '}${alignc}Weather:${font}', " $data{current}{'cclocation'}\n";
 
 my($temp, $feelsLike, $humidity, $windSpeed, $windGust, $icon, $datetime) =
   ($data{current}{temp}, $data{current}{heat_index},
@@ -100,27 +107,42 @@ my($temp, $feelsLike, $humidity, $windSpeed, $windGust, $icon, $datetime) =
    $data{current}{wind_gust}, $data{current}{weather_icon},
    $data{current}{observation_time_rfc822});
 
-my $ago = Delta_Format(DateCalc($datetime, $now), 0, "%mt min");
-$ago = Delta_Format(DateCalc($datetime, $now), 0, "%st sec")
-  if ($ago =~ /0 minutes/);
+my $date = ParseDate($datetime);
 
+my $howOld = DateCalc($date, $now);
+my $ago = Delta_Format($howOld, 0, "%mt min ago");
+my $hourFormat = $HOUR_FORMAT;
+if ($howOld ge DateCalc($now, "+ 1 day")) {
+  $ago =  Delta_Format($howOld, 0, "\${color5}%dt day(s) ago\${color}");
+} elsif (UnixDate($date, "%Y-%m-%d") ne UnixDate($now, "%Y-%m-%d")) {
+  $hourFormat = "%a at $hourFormat" unless $hourFormat =~ /%[aA]/g;
+  $ago = UnixDate($date, $hourFormat);
+} else {
+  $hourFormat =~ s/\s*%[aA]\s*//;
+  $ago = UnixDate($date, $hourFormat);
+}
+$ago = Delta_Format(DateCalc($date, $now), 0, "%st sec ago")
+  if ($ago =~ /0 min ago/);
 $feelsLike = $data{current}{windchill}
   if (not defined $feelsLike) or $feelsLike =~ /^\s*N[\s\/]*A\s*$/i;
 undef $feelsLike if $feelsLike =~ /^\s*N[\s\/]*A\s*$/i;
 undef $windGust if defined $windGust and $windGust =~ /^\s*N[\s\/]*A\s*$/i;
 
 my($xpos, $vpos) = (350, $VOFFSET_IMAGE + 40);
-
+my $smallFontSize = $FONT_SIZE - 5;
+$smallFontSize = 7 if $smallFontSize < 7;
+(defined $ago) ?
+  print "\${alignr}\${font :size=${smallFontSize}px}(as of $ago)\n" :
+   print "\n";
 print "\${font :size=${FONT_SIZE}px} Current: $temp $degree";
 print " (feels like: $feelsLike $degree)" if defined $feelsLike;
 print "\${image $mythIconPath/$icon -p $xpos,$vpos  -s 50x37}"
   unless $icon =~ /unknown/i;
 print "\n\${goto 82}Humidity: $humidity\%     Wind: $windSpeed kph";
 print "  ($windGust kph)" if defined $windGust;
-print "\n" . ( (defined $ago) ? "\${alignr}(as of $ago ago)" : "" ) . "\n";
-
-($xpos, $vpos) = ($FONT_SIZE * (5 + length($data{forecast}{"time-0"})),
-                  $VOFFSET_IMAGE + 98);
+print "\n";
+($xpos, $vpos) = ($FONT_SIZE * (5 + $data{forecast}{maxLength}),
+                  $VOFFSET_IMAGE + 80);
 
 foreach my $ii (qw/0 1 2 3 4 5/) {
   next if not defined $data{forecast}{"time-${ii}"};
@@ -130,11 +152,11 @@ foreach my $ii (qw/0 1 2 3 4 5/) {
   $pop =~ s/\s+//g;
   $pop = "  $pop" if length($pop) eq 2;
   $pop = " $pop" if length($pop) eq 3;
-  print "\${font :size=${FONT_SIZE}px} $time:\${goto 120}$temp $degree \${image $mythIconPath/$icon -p $xpos,$vpos  -s 16x11}     $pop chance\n";
+  print "\${font :size=${FONT_SIZE}px} $time:\${goto 120}$temp $degree \${image $mythIconPath/$icon -p $xpos,$vpos  -s 20x15}     $pop chance\n";
   $vpos += $FONT_SIZE + 7;
 }
 ($xpos, $vpos) = ($FONT_SIZE * 26,
-                    $VOFFSET_IMAGE + 37 + 153);
+                    $VOFFSET_IMAGE + 174);
 foreach my $ii (qw/0 1 2 3 4 5/) {
   # You can also use "%doneDays" here, as in:
   #      next if defined $doneDays{$data{extended}{"date-${ii}"}};
@@ -143,7 +165,7 @@ foreach my $ii (qw/0 1 2 3 4 5/) {
   my($day, $high, $low, $icon) =
     ($data{extended}{"date-${ii}"}, $data{extended}{"high-${ii}"},
      $data{extended}{"low-${ii}"}, $data{extended}{"icon-${ii}"});
-  print "\${font :size=${FONT_SIZE}px} $day:\${goto 120}High: $high $degree   Low: $low $degree \${image $mythIconPath/$icon -p $xpos,$vpos  -s 20x14}\n";
+  print "\${font :size=${FONT_SIZE}px} $day:\${goto 120}High: $high $degree   Low: $low $degree \${image $mythIconPath/$icon -p $xpos,$vpos  -s 20x15}\n";
   $vpos += $FONT_SIZE + 8;
 }
 
