@@ -26,10 +26,11 @@ use Date::Manip;
 use utf8;
 use feature 'unicode_strings';
 use Encode qw(encode decode);
+use Text::Autoformat qw(autoformat);
 
 my $now =  ParseDate("now");
 
-my $MYTH_PATH = shift;
+my $MYTH_PATH = shift @ARGV;
 my($command) = $MYTH_PATH .
              "/mythplugins/mythweather/mythweather/scripts/us_nws/nws-alert.pl";
 my %data;
@@ -51,11 +52,19 @@ foreach my $location (keys %data) {
   die "Missing $location!" if (not defined $data{$location}{alerts});
   next if $data{$location}{alerts} =~ /no\s*warning/i;
   print "\${color5}\${font :size=20}WEATHER ALERT:\n";
+  $data{$location}{updatetime} =~ s/\s*last\s*updated?\s*(at|on)\s*//i;
   my $datetime = ParseDate($data{$location}{updatetime});
   my $ago = Delta_Format(DateCalc($datetime, $now), 0, "%mt min");
-  $ago = Delta_Format(DateCalc($datetime, $now), 0, "%st sec")
-    if ($ago =~ /0 minutes/);
-  print "\${font}As of $ago ago:\n$data{$location}{alerts}\n";
+  if (defined $ago) {
+    $ago = Delta_Format(DateCalc($datetime, $now), 0, "%st sec")
+      if ($ago =~ /0 minutes/);
+  } else {
+    $ago = $data{$location}{updatetime};
+  }
+  my $data = autoformat $data{$location}{alerts}, { justify => 'left',
+                                                    fill => 70};
+  print "\${font}For $data{$location}{swlocation},",
+    "as of $ago ago:\n$data\${color}\$hr\n";
 }
 
 ###############################################################################
