@@ -39,17 +39,15 @@ my $now =  ParseDate("now");
 open(THREE_DAYS, "-|", "/usr/bin/emacs -batch -l ~/.emacs -eval '(org-batch-agenda \"a\" org-agenda-files (mapcar (lambda (arg) (replace-regexp-in-string \"~/Crypt/Orgs/\" \"~/Crypt/.org-backup/\" arg)) org-agenda-files) org-agenda-span (quote 6)  org-agenda-overriding-header \"\" org-agenda-repeating-timestamp-show-all t org-agenda-time-grid nil org-agenda-repeating-timestamp-show-all t org-agenda-entry-types (quote (:sexp :scheduled)) org-agenda-skip-function (quote bkuhn/skip-unless-appt-or-diary))' 2>/dev/null") or
 die "Unable to run emacs: $!";
 
-my $firstDay = 1;
-my $firstTime = 1;
+my $firstDay;
 my $dayLine = "";
 my $prettyDayLine;
 
 while (my $line = <THREE_DAYS>) {
   my $thisLinePrintable;
   chomp $line;
-  if ($line =~ /^\S/) {
-    $firstDay = $firstTime;
-    $firstTime = 0;
+  if ($line =~ /^\S+/) {
+    $firstDay =  (not defined $firstDay) ? 1 : 0;
     $dayLine = $line;
     $dayLine =~ s/\s*W\d+\s*$//;
     $prettyDayLine = "\${color3}$dayLine\${color}\n";
@@ -64,7 +62,14 @@ while (my $line = <THREE_DAYS>) {
     $endDate = DateCalc($date, "+ 1 hour") unless defined $endDate;
     $thisLinePrintable = "    $start-$end  $rest\${alignr 10}(from $source)"
       unless $endDate lt $now;
-    if ($firstDay) {
+    # At this point, we'd hope we'd hit a "\S+" line, which would indicate
+    # that there's a date in this output, as they start at column 0 on the
+    # output.  However, if we happen to find something odd in the output,
+    # just treat it like an Appointment without a known date.
+    if (not defined $firstDay) {
+      print "Appointment, on an Unknown Date:\n"
+        if $thisLinePrintable;
+    } elsif ($firstDay) {
       my $val = $3;
       if (DateCalc("$now", "+ 15 minutes") ge $date and $now le $date) {
         my  $fh = File::Temp->new();
