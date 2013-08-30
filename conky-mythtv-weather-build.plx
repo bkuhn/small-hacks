@@ -148,7 +148,7 @@ print "\n\${goto 82}Humidity: $humidity\%     Wind: $windSpeed kph";
 print "  ($windGust kph)" if defined $windGust;
 print "\n";
 ($xpos, $vpos) = ($FONT_SIZE * (5 + $data{forecast}{maxLength}),
-                  $VOFFSET_IMAGE + 80);
+                  $VOFFSET_IMAGE + 78);
 
 foreach my $ii (qw/0 1 2 3 4 5/) {
   next if not defined $data{forecast}{"time-${ii}"};
@@ -162,7 +162,7 @@ foreach my $ii (qw/0 1 2 3 4 5/) {
   $vpos += $FONT_SIZE + 7;
 }
 ($xpos, $vpos) = ($FONT_SIZE * 26,
-                    $VOFFSET_IMAGE + 174);
+                    $VOFFSET_IMAGE + 173);
 foreach my $ii (qw/0 1 2 3 4 5/) {
   # You can also use "%doneDays" here, as in:
   #      next if defined $doneDays{$data{extended}{"date-${ii}"}};
