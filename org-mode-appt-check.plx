@@ -56,6 +56,7 @@ while (my $line = <ORG_MODE_AGENDA>) {
     my($source, $startHour, $startMin, $endHour, $endMin, $rest) =
       ($1, $2, $3, $4, $5, $6);
     next if $rest =~ /Sched.*\d+x\s*:/;  # Skip overdue TODOs, because I have lot.
+    $rest =~ s/\[\s*\#\s*\S+\s*\]//g;   # Remove priority tags
     my $type;
     if ($rest =~ s/^\s*Scheduled?\s*:\s*(WAITING|TODO|APPT|DELEGATED|DONE|DEFFERRED|CANCELLED|STARTED)\s*//i) {
       $type = $1;
