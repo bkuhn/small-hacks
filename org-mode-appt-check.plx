@@ -77,7 +77,7 @@ while (my $line = <ORG_MODE_AGENDA>) {
     }
     # Diaries and appointments are always printed, and have notifier.
     if ($source =~ /(Diary|APPT)/i or $type =~ /(Diary|APPT)/i) {
-      $thisLinePrintable = "    $start$end  $rest\${alignr 10} (from $source)"
+      $thisLinePrintable = "    $start$end  $rest\${alignr 10} ($source)"
         if ($endDate gt $now);
       # At this point, we'd hope we'd hit a "\S+" line, which would indicate
       # that there's a date in this output, as they start at column 0 on the
@@ -102,7 +102,7 @@ while (my $line = <ORG_MODE_AGENDA>) {
         }
       }
     } else {  # Source isn't a diary or appointment
-      $thisLinePrintable = "    $start$end  $rest\${alignr 10}(from $source)"
+      $thisLinePrintable = "    $start$end  $rest\${alignr 10}($type, $source)"
         if (($endDate gt $now) and
             ($firstDay or $type   =~ /(birthday|anniversary)/i
                        or $source =~ /(birthday|anniversary)/i));
