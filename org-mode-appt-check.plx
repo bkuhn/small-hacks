@@ -63,6 +63,8 @@ while (my $line = <ORG_MODE_AGENDA>) {
     } else {
       $type = $source;
     }
+    next if $type =~ /(DELEGATED|DONE|DEFFERRED|CANCELLED)/i;
+
     $startHour = "0$startHour" if length($startHour) == 1;
     my $start = "$startHour:$startMin";
     my $date =  ParseDate("$dayLine $start");
