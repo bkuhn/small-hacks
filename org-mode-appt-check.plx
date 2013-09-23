@@ -44,6 +44,7 @@ my $dayLine = "";
 my $prettyDayLine;
 
 while (my $line = <ORG_MODE_AGENDA>) {
+  next if ($line =~ /^\a/);   # Skip line of bells
   my $thisLinePrintable;
   chomp $line;
   if ($line =~ /^\S+/) {
