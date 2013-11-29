@@ -67,6 +67,9 @@
 # You should have received a copy of the GNU General Public License,
 # version 3.  If not, see <http://www.gnu.org/licenses/>
 
+use strict;
+use warnings;
+
 use POSIX ":sys_wait_h";
 use Fcntl;             # for sysopen
 use Carp;
@@ -396,14 +399,14 @@ END_ICAL
       }
       $newCalendar->add_entry($entry);
     }
+    open(SCRUBBED_CAL, ">$file") or
+      DieLog("Unable to overwrite $file: $!", $LOCK_CLEANUP_CODE);
+    print SCRUBBED_CAL $newCalendar->as_string;
+    close SCRUBBED_CAL;
+    DieLog("Error when writing $file: $!", $LOCK_CLEANUP_CODE)
+      unless $? == 0;
+    undef $newCalendar;
   }
-  open(SCRUBBED_CAL, ">$file") or
-    DieLog("Unable to overwrite $file: $!", $LOCK_CLEANUP_CODE);
-  print SCRUBBED_CAL $newCalendar->as_string;
-  close SCRUBBED_CAL;
-  DieLog("Error when writing $file: $!", $LOCK_CLEANUP_CODE)
-    unless $? == 0;
-  undef $newCalendar;
 }
 ######################################################################
 sub PrivatizeMergeAndTZIcalFile ($$$$$$) {
