@@ -46,7 +46,21 @@ use File::Temp qw/:POSIX tempfile/;
 use DateTime::TimeZone;
 use Date::Manip;
 use DateTime::Format::ICal;
-use Date::ICal;
+
+my($CONFIG_FILE) = (@ARGV);
+
+if (@ARGV != 1) {
+  print STDERR "usage: $0 <CONFIG_FILE>\n";
+  exit 1;
+}
+###############################################################################
+my $CALENDAR_LOCK_FILE = "$ENV{HOME}/.emacs-calendar-to-ics-lock";
+
+my $LOCK_CLEANUP_CODE = sub {
+  return (unlink($CALENDAR_LOCK_FILE) != 1) ?
+    "Failed unlink of $CALENDAR_LOCK_FILE.  Could cause trouble." :
+    "";
+};
 ###############################################################################
 {
   my %messageHistory;
