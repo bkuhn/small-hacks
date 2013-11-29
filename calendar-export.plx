@@ -22,8 +22,9 @@
 # along with this program in a file in the toplevel directory called
 # "GPLv3".  If not, see <http://www.gnu.org/licenses/>.
 
-# The functions PrivatizeMergeAndTZIcalFile, BuildTZList, and
-# FilterEmacsToICal material copyrighted and licensed as below:
+# The functions PrivatizeMergeAndTZIcalFile, BuildTZList,
+# PrivacyFilterICalFile, and FilterEmacsToICal material copyrighted and
+# licensed as below:
 
 # Copyright © 2006 Software Freedom Law Center, Inc.
 #
@@ -149,6 +150,58 @@ ELISP_END
   PrivacyFilterICalFile($icsFullFile, $outputFile);
   DieLog("Unable to remove temporary files")
     unless unlink($icsPublicFile, $icsWillBePrivatizedFile, $icsFullFile) == 3;
+}
+###############################################################################
+sub PrivacyFilterICalFile ($$) {
+  my($inputFile, $outputFile) = @_;
+
+  my $oldCalendar = Data::ICal->new(filename => $inputFile);
+  my $newCalendar = Data::ICal->new(data => <<END_ICAL
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Mozilla.org/NONSGML Mozilla Calendar V1.0//EN
+END:VCALENDAR
+END_ICAL
+);
+  my $entries = (defined $oldCalendar) ? $oldCalendar->entries : [];
+  my $x =0;
+  foreach my $entry (@{$entries}) {
+    my @newSubEntries;
+    foreach my $subEntry (@{$entry->{entries}}) {
+      my $refVal = ref $subEntry;
+      if (defined $refVal and $refVal =~ /Alarm/i) {
+        # Don't put it in the list in the public version if is an alarm
+      } else {
+        push(@newSubEntries, $subEntry);
+      }
+    }
+    $entry->{entries} = \@newSubEntries;
+
+    my $classes = $entry->property('class');
+    my $class;
+    foreach my $classProp (@{$classes}) {
+      $class = $classProp->value;
+      last if defined $class and
+        $class =~ /^\s*(?:PUBLIC|PRIVATE|CONFIDENTIAL)\s*/i;
+    }
+    if (defined $class and $class  =~ /CONFIDENTIAL/i) {
+      foreach my $prop (qw/location summary description/) {
+        my $propList = $entry->property($prop);
+        $entry->add_property($prop => "Private")
+          if (defined $propList and @{$propList} > 0);
+      }
+    } elsif (defined $class and $class =~ /PRIVATE/i){
+      # do not put this event in the output at all
+      next;
+    }
+    $newCalendar->add_entry($entry);
+  }
+  open(SCRUBBED_CAL, ">$outputFile") or
+    DieLog("Unable to overwrite $outputFile: $!", $LOCK_CLEANUP_CODE);
+  print SCRUBBED_CAL $newCalendar->as_string;
+  close SCRUBBED_CAL;
+  DieLog("Error when writing $outputFile: $!", $LOCK_CLEANUP_CODE)
+    unless $? == 0;
 }
 ######################################################################
 sub PrivatizeMergeAndTZIcalFile ($$$$$$) {
