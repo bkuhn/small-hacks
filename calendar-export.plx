@@ -343,9 +343,9 @@ ELISP_END
   PrivatizeMergeAndTZIcalFile($icsWillBePrivatizedFile, $icsPublicFile,
                             $outputDir, \@tzList, $user);
 
-  PrivacyFilterICalFile($icsFullFile, $outputDir) if $emacsSettings->{privacyScrub};
+  PrivacyFilterICalFile($outputDir) if $emacsSettings->{privacyScrub};
   DieLog("Unable to remove temporary files")
-    unless unlink($icsPublicFile, $icsWillBePrivatizedFile, $icsFullFile) == 3;
+    unless unlink($icsPublicFile, $icsWillBePrivatizedFile) == 2;
 }
 ###############################################################################
 sub PrivacyFilterICalFiles ($$) {
