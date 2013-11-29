@@ -22,7 +22,7 @@
 # along with this program in a file in the toplevel directory called
 # "GPLv3".  If not, see <http://www.gnu.org/licenses/>.
 
-# The functions BinarySearchForTZEntry, PrivatizeMergeAndTZIcalFile,
+# The functions DoLog, BinarySearchForTZEntry, PrivatizeMergeAndTZIcalFile,
 # BuildTZList, PrivacyFilterICalFiles, and FilterEmacsToICal material
 # copyrighted and licensed as below:
 
@@ -47,6 +47,53 @@ use DateTime::TimeZone;
 use Date::Manip;
 use DateTime::Format::ICal;
 use Date::ICal;
+###############################################################################
+{
+  my %messageHistory;
+
+  sub DoLog ($$$;$) {
+    my($type, $user, $message, $cleanupCode) = @_;
+
+    use Date::Manip;
+    my $NOW = ParseDate("now");
+    syslog LOG_INFO, $message;
+
+    my $lastTime = $messageHistory{$message};
+
+    my $sendIt = 0;
+    if (not defined $lastTime) {
+      $sendIt = 1;
+    } else {
+      my $err;
+      my $sinceLast = DateCalc($lastTime,"+ 10 minutes",\$err);
+      $sendIt = 1 if ($NOW gt $sinceLast);
+    }
+    if ($sendIt) {
+      my  $fh = File::Temp->new();
+      $fh->unlink_on_destroy( 1 );
+      my  $fname = $fh->filename;
+      print $fh "Calendar Export Failure: $message\n";
+      $fh->close();
+      system('/home/bkuhn/bin/myosd', $fname);
+      system("/usr/bin/espeak",  '-p', '45', '-s', '130', '-f', $fname)
+        unless -f "$ENV{HOME}/.silent-running";
+      system('/usr/bin/notify-send', '-u', 'critical', '-t', '300000',
+             'Failure', "Calendar export failure: $message");
+      $messageHistory{$message} = $NOW;
+    }
+    my $more;
+    $more = &$cleanupCode if defined $cleanupCode and ref $cleanupCode;
+    $message .= "  $more" if (defined $more and $more !~ /^\s*$/);
+    croak $message if $type eq "die";
+    warn $message;
+  }
+  sub DieLog ($;$) {
+    DoLog("die", undef, $_[0], $_[1]);
+  }
+  sub WarnLog ($$) {
+    DoLog("warn", $_[0], $_[1]);
+  }
+}
 ###############################################################################
 sub BinarySearchForTZEntry {
 # $tzList is assumed to be sorted, $dateTime is 
