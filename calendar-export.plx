@@ -52,7 +52,7 @@
 # "GPLv3".  If not, see <http://www.gnu.org/licenses/>.
 
 # The functions DoLog, BinarySearchForTZEntry, PrivatizeMergeAndTZIcalFile,
-# BuildTZList, PrivacyFilterICalFiles, and FilterEmacsToICal material
+# BuildTZList, MergeLists, PrivacyFilterICalFiles, and FilterEmacsToICal material
 # copyrighted and licensed as below:
 
 # Copyright © 2006 Software Freedom Law Center, Inc.
@@ -221,6 +221,19 @@ sub BinarySearchForTZEntry {
     }
   }
   return  $tzList->[$final];         # not found, go down one lower
+}
+###############################################################################
+# Take a list of keys and a list of values and insersperse them and
+# return the result
+sub MergeLists {
+    my ($keys, $values) = @_;
+    DieLog("Length mismatch", $LOCK_CLEANUP_CODE) unless @$keys == @$values;
+    # Add the argument names to the values
+    my @result;
+    for (my $i = 0; $i < @$keys; $i++) {
+	push @result, $keys->[$i] => $values->[$i];
+    }
+    return @result;
 }
 ###############################################################################
 sub BuildTZList ($$$) {
