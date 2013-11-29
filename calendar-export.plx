@@ -468,7 +468,8 @@ END_ICAL
 
       my $uidList = $entry->property('UID');
       DieLog("This entry has multiple UIDs: @{$uidList}") unless @$uidList == 1;
-      my $uid = $uidList->[0];
+      my $uid = $uidList->[0]->value;
+
       my $outputFile = File::Spec->catpath("", $icsOutputDir, "${uid}.ics");
       open(SINGLE_EVENT_ICAL, ">", $outputFile) or
         DieLog("Unable to overwrite $outputFile: $!", $LOCK_CLEANUP_CODE);
