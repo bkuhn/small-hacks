@@ -22,9 +22,9 @@
 # along with this program in a file in the toplevel directory called
 # "GPLv3".  If not, see <http://www.gnu.org/licenses/>.
 
-# The functions PrivatizeMergeAndTZIcalFile, BuildTZList,
-# PrivacyFilterICalFiles, and FilterEmacsToICal material copyrighted and
-# licensed as below:
+# The functions BinarySearchForTZEntry, PrivatizeMergeAndTZIcalFile,
+# BuildTZList, PrivacyFilterICalFiles, and FilterEmacsToICal material
+# copyrighted and licensed as below:
 
 # Copyright © 2006 Software Freedom Law Center, Inc.
 #
@@ -47,6 +47,27 @@ use DateTime::TimeZone;
 use Date::Manip;
 use DateTime::Format::ICal;
 use Date::ICal;
+###############################################################################
+sub BinarySearchForTZEntry {
+# $tzList is assumed to be sorted, $dateTime is 
+  my($tzList, $dateTime) = @_;
+  my ($l, $u) = (0, @$tzList - 1);  # lower, upper end of search interval
+  my $i;                       # index of probe
+  my $final = 0;
+  while ($l <= $u) {
+    $i = int(($l + $u)/2);
+    my $compareVal = DateTime->compare($tzList->[$i]{date}, $dateTime);
+    if ($compareVal < 0) {
+      $l = $i+1;
+      $final = $i;
+    } elsif ($compareVal > 0) {
+      $u = $i-1;
+    } else {
+      return $tzList->[$i]; # found, won't happen often
+    }
+  }
+  return  $tzList->[$final];         # not found, go down one lower
+}
 ###############################################################################
 sub BuildTZList ($$$) {
   my($user, $pubEmacsFile, $privEmacsFile) = @_;
