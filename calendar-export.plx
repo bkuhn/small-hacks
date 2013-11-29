@@ -189,7 +189,7 @@ sub BuildTZList ($$$) {
 }
 ###############################################################################
 sub FilterEmacsToICal ($$$$$) {
-  my ($publicCalendarFile, $privateCalendarFile, $outputFile,
+  my ($publicCalendarFile, $privateCalendarFile, $outputDir,
       $emacsSettings, $user) = @_;
 
   my @tzList = BuildTZList($emacsSettings->{reportProblems},
@@ -202,10 +202,13 @@ sub FilterEmacsToICal ($$$$$) {
     if $emacsSettings->{calendarStyle} =~  /european/i;
   print $elispFH <<ELISP_END
 (setq icalendar-uid-format "emacs-%u-%h-%s")
-(icalendar-export-file "$privateCalendarFile" "$icsWillBePrivatizedFile")
-(icalendar-export-file "$publicCalendarFile" "$icsPublicFile")
 ELISP_END
 ;
+  print $elispFH "(icalendar-export-file \"$privateCalendarFile\" \"$icsWillBePrivatizedFile\")\n"
+    if defined $privateCalendarFile;
+  print $elispFH "(icalendar-export-file \"$publicCalendarFile\" \"$icsPublicFile\")\n"
+    if defined $publicCalendarFile;
+
   $elispFH->close();
   my @emacsOutput = read_from_process($EMACS, '--no-windows',
                  '--batch', '--no-site-file', '-l', $elispFile);
@@ -221,14 +224,12 @@ ELISP_END
   }
   DieLog("Unexpected Emacs output: " . join("\n   ", @emacsOutput),
          $LOCK_CLEANUP_CODE)
-    if ($goodCount != 2);
+    if ($goodCount > 2);
 
-  my $icsFullFile = tmpnam();
   PrivatizeMergeAndTZIcalFile($icsWillBePrivatizedFile, $icsPublicFile,
-                            $icsFullFile, \@tzList, $user,
-                              $emacsSettings->{reportProblems});
+                            $outputDir, \@tzList, $user);
 
-  PrivacyFilterICalFile($icsFullFile, $outputFile);
+  PrivacyFilterICalFile($icsFullFile, $outputDir) if $emacsSettings->{privacyScrub};
   DieLog("Unable to remove temporary files")
     unless unlink($icsPublicFile, $icsWillBePrivatizedFile, $icsFullFile) == 3;
 }
@@ -260,7 +261,7 @@ END_ICAL
         }
       }
       $entry->{entries} = \@newSubEntries;
-      
+
       my $classes = $entry->property('class');
       my $class;
       foreach my $classProp (@{$classes}) {
@@ -350,7 +351,7 @@ END_ICAL
 
       my $uidList = $entry->property('UID');
       DieLog("This entry has multiple UIDs: @{$uidList}") unless @$uidList == 1;
-      my $uid = $uidList[0];
+      my $uid = $uidList->[0];
       my $outputFile = File::Spec->catpath("", $icsOutputDir, "${uid}.ics");
       open(SINGLE_EVENT_ICAL, ">", $outputFile) or
         DieLog("Unable to overwrite $outputFile: $!", $LOCK_CLEANUP_CODE);
@@ -404,4 +405,40 @@ END_ICAL
   }
   return \%calendar;
 }
+######################################################################
+sub ReadConfig($) {
+  my($configFile) = @_;
+  open (CONFIG_FILE, "<", $configFile) or DieLog("unable to read $configFile ($?): $!");
 
+  my %config;
+
+  while (my $line = <CONFIG_FILE>) {
+    DieLog("Unable to parse $line in config file, $configFile")
+      unless $line =~ /^\s*([^:]+)\s*:\s*([^:]+)\s*$/;
+    $config{$1} = $2;
+  }
+  close CONFIG_FILE;  DieLog("Error reading $configFile ($?): $!") if $? != 0;
+  return \%config;
+}
+######################################################################
+
+my $config = ReadConfig($CONFIG_FILE);
+
+$config->{scrubPrivate} = 0 if not defined $config->{scrubPrivate};
+$config->{reportProblems} = $config->{user} if not defined $config->{reportProblems};
+
+DieLog("$CONFIG_FILE doesn't specify an output directory via outputDir setting")
+  unless defined $config->{outputDir} and -d $config->{outputDir};
+
+DieLog("$CONFIG_FILE doesn't specify a readable public nor a private diary file")
+  unless (defined $config->{publicDiary} and -r $config->{publicDiary}) or
+    (defined $config->{privateyDiary} and -r $config->{privateDiary});
+
+
+FilterEmacsToICal($config->{publicDiary}, $config->{privateDiary},
+                  $config->{outputDir}, $config, $config->{user});
+
+__END__
+# Local variables:
+# compile-command: "perl -c calendar-export.plx"
+# End:
