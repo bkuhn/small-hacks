@@ -507,6 +507,7 @@ sub ReadConfig($) {
   my %config;
 
   while (my $line = <CONFIG_FILE>) {
+    chomp $line;
     DieLog("Unable to parse $line in config file, $configFile")
       unless $line =~ /^\s*([^:]+)\s*:\s*([^:]+)\s*$/;
     $config{$1} = $2;
