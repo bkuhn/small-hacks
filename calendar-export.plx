@@ -117,8 +117,15 @@ my $LOCK_CLEANUP_CODE = sub {
       print $fh "Calendar Export Failure: $message\n";
       $fh->close();
       system('/home/bkuhn/bin/myosd', $fname);
-      system("/usr/bin/espeak",  '-p', '45', '-s', '130', '-f', $fname)
-        unless -f "$ENV{HOME}/.silent-running";
+      unless (-f "$ENV{HOME}/.silent-running") {
+        open(ESPEAK, "-|", "/usr/bin/espeak",  '-p', '45', '-s', '130', '-f', $fname, "--stdout");
+        open(PAPLAY, "|-", "/usr/bin/paplay");
+        my $data;
+        while (read(ESPEAK, $data, 8) == 8) {
+          print PAPLAY  $data;
+        }
+        close PAPLAY; close ESPEAK;
+      }
       system('/usr/bin/notify-send', '-u', 'critical', '-t', '300000',
              'Failure', "Calendar export failure: $message");
       $messageHistory{$message} = $NOW;
