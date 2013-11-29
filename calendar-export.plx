@@ -23,7 +23,7 @@
 # "GPLv3".  If not, see <http://www.gnu.org/licenses/>.
 
 # The functions PrivatizeMergeAndTZIcalFile, BuildTZList,
-# PrivacyFilterICalFile, and FilterEmacsToICal material copyrighted and
+# PrivacyFilterICalFiles, and FilterEmacsToICal material copyrighted and
 # licensed as below:
 
 # Copyright © 2006 Software Freedom Law Center, Inc.
@@ -152,75 +152,81 @@ ELISP_END
     unless unlink($icsPublicFile, $icsWillBePrivatizedFile, $icsFullFile) == 3;
 }
 ###############################################################################
-sub PrivacyFilterICalFile ($$) {
-  my($inputFile, $outputFile) = @_;
+sub PrivacyFilterICalFiles ($$) {
+  my($icsDirectory) = @_;
 
-  my $oldCalendar = Data::ICal->new(filename => $inputFile);
-  my $newCalendar = Data::ICal->new(data => <<END_ICAL
-BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//Mozilla.org/NONSGML Mozilla Calendar V1.0//EN
-END:VCALENDAR
-END_ICAL
-);
-  my $entries = (defined $oldCalendar) ? $oldCalendar->entries : [];
-  my $x =0;
-  foreach my $entry (@{$entries}) {
-    my @newSubEntries;
-    foreach my $subEntry (@{$entry->{entries}}) {
-      my $refVal = ref $subEntry;
-      if (defined $refVal and $refVal =~ /Alarm/i) {
-        # Don't put it in the list in the public version if is an alarm
-      } else {
-        push(@newSubEntries, $subEntry);
-      }
-    }
-    $entry->{entries} = \@newSubEntries;
+  chdir $icsDirectory or die "unable to change to $icsDirectory: $!";
 
-    my $classes = $entry->property('class');
-    my $class;
-    foreach my $classProp (@{$classes}) {
-      $class = $classProp->value;
-      last if defined $class and
-        $class =~ /^\s*(?:PUBLIC|PRIVATE|CONFIDENTIAL)\s*/i;
-    }
-    if (defined $class and $class  =~ /CONFIDENTIAL/i) {
-      foreach my $prop (qw/location summary description/) {
-        my $propList = $entry->property($prop);
-        $entry->add_property($prop => "Private")
-          if (defined $propList and @{$propList} > 0);
-      }
-    } elsif (defined $class and $class =~ /PRIVATE/i){
-      # do not put this event in the output at all
-      next;
-    }
-    $newCalendar->add_entry($entry);
-  }
-  open(SCRUBBED_CAL, ">$outputFile") or
-    DieLog("Unable to overwrite $outputFile: $!", $LOCK_CLEANUP_CODE);
-  print SCRUBBED_CAL $newCalendar->as_string;
-  close SCRUBBED_CAL;
-  DieLog("Error when writing $outputFile: $!", $LOCK_CLEANUP_CODE)
-    unless $? == 0;
-}
-######################################################################
-sub PrivatizeMergeAndTZIcalFile ($$$$$$) {
-  my($icsPrivate, $icsPublic, $icsFull, $tzList, $user, $errorUser) = @_;
-
-  my %calendar;
-  $calendar{private} = Data::ICal->new(filename => $icsPrivate);
-  $calendar{public} = Data::ICal->new(filename => $icsPublic);
-  my $newCalendar = Data::ICal->new(data => <<END_ICAL
+  foreach my $file (<*.ics>) {
+    my $newCalendar = Data::ICal->new(data => <<END_ICAL
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Emacs//NONSGML icalendar.el//EN
 END:VCALENDAR
 END_ICAL
 );
+    my $oldCalendar = Data::ICal->new(filename => $file);
+    my $entries = (defined $oldCalendar) ? $oldCalendar->entries : [];
+    my $x =0;
+    foreach my $entry (@{$entries}) {
+      my @newSubEntries;
+      foreach my $subEntry (@{$entry->{entries}}) {
+        my $refVal = ref $subEntry;
+        if (defined $refVal and $refVal =~ /Alarm/i) {
+          # Don't put it in the list in the public version if is an alarm
+        } else {
+          push(@newSubEntries, $subEntry);
+        }
+      }
+      $entry->{entries} = \@newSubEntries;
+      
+      my $classes = $entry->property('class');
+      my $class;
+      foreach my $classProp (@{$classes}) {
+        $class = $classProp->value;
+        last if defined $class and
+          $class =~ /^\s*(?:PUBLIC|PRIVATE|CONFIDENTIAL)\s*/i;
+      }
+      if (defined $class and $class  =~ /CONFIDENTIAL/i) {
+        foreach my $prop (qw/location summary description/) {
+          my $propList = $entry->property($prop);
+          $entry->add_property($prop => "Private")
+            if (defined $propList and @{$propList} > 0);
+        }
+      } elsif (defined $class and $class =~ /PRIVATE/i){
+        # do not put this event in the output at all
+        die "unable to scrub $file in $icsDirectory: $!"
+          unless unlink($file) == 1;
+      }
+      $newCalendar->add_entry($entry);
+    }
+  }
+  open(SCRUBBED_CAL, ">$file") or
+    DieLog("Unable to overwrite $file: $!", $LOCK_CLEANUP_CODE);
+  print SCRUBBED_CAL $newCalendar->as_string;
+  close SCRUBBED_CAL;
+  DieLog("Error when writing $file: $!", $LOCK_CLEANUP_CODE)
+    unless $? == 0;
+  undef $newCalendar;
+}
+######################################################################
+sub PrivatizeMergeAndTZIcalFile ($$$$$$) {
+  my($icsPrivate, $icsPublic, $icsOutputDir, $tzList, $user, $errorUser) = @_;
+
+  my %calendar;
+  $calendar{private} = Data::ICal->new(filename => $icsPrivate);
+  $calendar{public} = Data::ICal->new(filename => $icsPublic);
   my $type = "public";
-  while (1) {
+  foreach my $type (qw/public private/) {
     my $entries = (defined $calendar{$type}) ? $calendar{$type}->entries : [];
     foreach my $entry (@{$entries}) {
+      my $newCalendar = Data::ICal->new(data => <<END_ICAL
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Emacs//NONSGML icalendar.el//EN
+END:VCALENDAR
+END_ICAL
+      );
       $entry->add_property(class => "CONFIDENTIAL") if ($type eq "private");
 
       # Let's shift some timezones around.
@@ -228,7 +234,7 @@ END_ICAL
         my $datePropList = $entry->property($dateType);
         next unless @$datePropList > 0;
 
-        WarnLog($errorUser, "Strange that the entry below for $icsFull had more " .
+        WarnLog($errorUser, "Strange that the entry below for $icsOutputDir had more " .
                       "than one $dateType:\n" . Data::Dumper->Dumper($entry) )
           unless @$datePropList == 1;
 
@@ -257,10 +263,24 @@ END_ICAL
 
       }
       $newCalendar->add_entry($entry);
+
+      # Now, write out each event into a single ics file in $icsOutputDir.
+      # This will overwrite existing events of the same name.
+
+      my $uidList = $entry->property('UID');
+      DieLog("This entry has multiple UIDs: @{$uidList}") unless @$uidList == 1;
+      my $uid = $uidList[0];
+      my $outputFile = File::Spec->catpath("", $icsOutputDir, "${uid}.ics");
+      open(SINGLE_EVENT_ICAL, ">", $outputFile) or
+        DieLog("Unable to overwrite $outputFile: $!", $LOCK_CLEANUP_CODE);
+      print SINGLE_EVENT_ICAL $newCalendar->as_string;
+      close SINGLE_EVENT_ICAL;
+      DieLog("Error ($?) while writing $outputFile ($?): $!", $LOCK_CLEANUP_CODE) unless $? == 0;
+      undef $newCalendar;
     }
-    last if ($type eq "private");
-    $type = "private";
   }
+
+  # Create specialized "Time Zone change" events to indicate the user's travel.
   foreach my $tzEntry (@$tzList) { $tzEntry->{date}->set_time_zone("floating"); }
   for (my $ii = 0; $ii < @$tzList; $ii++) {
     my $tzEntry = $tzList->[$ii];
@@ -283,13 +303,24 @@ END_ICAL
                                 description => $tzEntry->{location},
                                 dtstart     => [ $startDate, { VALUE => 'DATE' } ],
                                 dtend       => [ $nextDate,{ VALUE => 'DATE' } ],
-                                uid         => $uid;
+                                uid         => $uid);
+      my $newCalendar = Data::ICal->new(data => <<END_ICAL
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Emacs//NONSGML icalendar.el//EN
+END:VCALENDAR
+END_ICAL
+      );
     $newCalendar->add_entry($whereEvent);
+
+    my $outputFile = File::Spec->catpath("", $icsOutputDir, "${uid}.ics");
+    open(SINGLE_EVENT_ICAL, ">", $outputFile) or
+      DieLog("Unable to overwrite $outputFile: $!", $LOCK_CLEANUP_CODE);
+    print SINGLE_EVENT_ICAL $newCalendar->as_string;
+    close SINGLE_EVENT_ICAL;
+    DieLog("Error ($?) while writing $outputFile ($?): $!", $LOCK_CLEANUP_CODE) unless $? == 0;
+    undef $newCalendar;
   }
-  open(MERGED_CAL, ">$icsFull") or
-    DieLog("Unable to overwrite $icsFull: $!", $LOCK_CLEANUP_CODE);
-  print MERGED_CAL $newCalendar->as_string;
-  close MERGED_CAL;
-  DieLog("Error when writing $icsFull: $!", $LOCK_CLEANUP_CODE)
-    unless $? == 0;
+  return \%calendar;
 }
+
