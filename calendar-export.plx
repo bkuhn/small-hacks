@@ -70,7 +70,6 @@ my $LOCK_CLEANUP_CODE = sub {
 
     use Date::Manip;
     my $NOW = ParseDate("now");
-    syslog LOG_INFO, $message;
 
     my $lastTime = $messageHistory{$message};
 
