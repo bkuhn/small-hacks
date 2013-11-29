@@ -304,7 +304,7 @@ ELISP_END
     if defined $publicCalendarFile;
 
   $elispFH->close();
-  my @emacsOutput = read_from_process($EMACS, '--no-windows',
+  my @emacsOutput = read_from_process($emacsSettings->{emacsBinary}, '--no-windows',
                  '--batch', '--no-site-file', '-l', $elispFile);
   DieLog("Emacs process for exporting $privateCalendarFile and " .
          "$publicCalendarFile exited with non-zero exit status of " .
@@ -520,8 +520,11 @@ my $config = ReadConfig($CONFIG_FILE);
 
 $config->{scrubPrivate} = 0 if not defined $config->{scrubPrivate};
 $config->{reportProblems} = $config->{user} if not defined $config->{reportProblems};
+$config->{emacsBinary} = "/usr/bin/emacs" if not defined $config->{emacsBinary};
 
-DieLog("$CONFIG_FILE doesn't specify an output directory via outputDir setting")
+DieLog("$config->{emacsBinary} doesn't appear to be executable") unless -x $config->{emacsBinary};
+
+DieLog("$CONFIG_FILE doesn't specify a (readable) output directory via outputDir setting: $!")
   unless defined $config->{outputDir} and -d $config->{outputDir};
 
 DieLog("$CONFIG_FILE doesn't specify a readable public nor a private diary file")
