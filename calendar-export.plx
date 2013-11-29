@@ -5,6 +5,35 @@
 # Freedom Law Center copyrights (see below).  Kuhn's personal copyrights are
 # licensed GPLv3-or-later.
 
+# The sub's "safe_read_from_pipe" and read_from_process are:
+# ====================================================================
+# Copyright (c) 2000-2004 CollabNet.  All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution.  The terms
+# are also available at http://subversion.tigris.org/license-1.html.
+# If newer versions of this license are posted there, you may use a
+# newer version instead, at your option.
+#
+# This software consists of voluntary contributions made by many
+# individuals.  For exact contribution history, see the revision
+# history and logs, available at http://subversion.tigris.org/.
+
+
+#  Note: bkuhn downloaded the license from
+#  http://subversion.tigris.org/license-1.html on 2013-12-29 which said:
+
+# The license of Subversion 1.7 and later is at
+# http://svn.apache.org/repos/asf/subversion/trunk/LICENSE.
+
+# The license of Subversion 1.6 and earlier can be found at
+# http://svn.apache.org/repos/asf/subversion/tags/1.6.0/www/license-1.html.
+
+# Both license texts are now included, in APACHE-LICENSE and OLD-SVN-LICENSE,
+# respectively.
+# ====================================================================
+#
+
 # Copyright © 2013 Bradley M. Kuhn <bkuhn@ebb.org>
 #
 # This software's license gives you freedom; you can copy, convey,
@@ -106,6 +135,71 @@ my $LOCK_CLEANUP_CODE = sub {
   sub WarnLog ($$) {
     DoLog("warn", $_[0], $_[1]);
   }
+}
+###############################################################################
+# Start a child process safely without using /bin/sh.
+sub safe_read_from_pipe
+{
+  unless (@_)
+    {
+      DieLog("$0: safe_read_from_pipe passed no arguments.");
+    }
+
+  my $pid = open(SAFE_READ, '-|');
+  unless (defined $pid)
+    {
+      DieLog("$0: cannot fork: $!");
+    }
+  unless ($pid)
+    {
+      open(STDERR, ">&STDOUT")
+        or DieLog("$0: cannot dup STDOUT: $!");
+      exec(@_)
+        or DieLog("$0: cannot exec `@_': $!\n");
+    }
+  my @output;
+  while (<SAFE_READ>)
+    {
+      s/[\r\n]+$//;
+      push(@output, $_);
+    }
+  close(SAFE_READ);
+  my $result = $?;
+  my $exit   = $result >> 8;
+  my $signal = $result & 127;
+  my $cd     = $result & 128 ? "with core dump" : "";
+  if ($signal or $cd)
+    {
+      DieLog("$0: pipe from `@_' failed $cd: exit=$exit signal=$signal\n");
+    }
+  if (wantarray)
+    {
+      return ($result, @output);
+    }
+  else
+    {
+      return $result;
+    }
+}
+###############################################################################
+# Use safe_read_from_pipe to start a child process safely and return
+# the output if it succeeded or an error message followed by the output
+# if it failed.
+sub read_from_process
+{
+  unless (@_)
+    {
+      DieLog("$0: read_from_process passed no arguments.");
+    }
+  my ($status, @output) = &safe_read_from_pipe(@_);
+  if ($status)
+    {
+      return ("$0: `@_' failed with this output:", @output);
+    }
+  else
+    {
+      return @output;
+    }
 }
 ###############################################################################
 sub BinarySearchForTZEntry {
