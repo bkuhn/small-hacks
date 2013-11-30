@@ -299,6 +299,22 @@ sub GenerateDiaryFromNewEvents ($) {
   }
 }
 ###############################################################################
+sub ReadConfig($) {
+  my($configFile) = @_;
+  open (CONFIG_FILE, "<", $configFile) or DieLog("unable to read $configFile ($?): $!");
+
+  my %config;
+
+  while (my $line = <CONFIG_FILE>) {
+    chomp $line;
+    DieLog("Unable to parse $line in config file, $configFile")
+      unless $line =~ /^\s*([^:]+)\s*:\s*([^:]+)\s*$/;
+    $config{$1} = $2;
+  }
+  close CONFIG_FILE;  DieLog("Error reading $configFile ($?): $!") if $? != 0;
+  return \%config;
+}
+###############################################################################
 
 system("/usr/bin/lockfile -r 8 $CALENDAR_LOCK_FILE");
 DieLog("Failure to acquire calendar lock on $CALENDAR_LOCK_FILE") unless ($? == 0);
@@ -314,6 +330,7 @@ DieLog("$CONFIG_FILE doesn't specify a (readable) Git directory via gitDir setti
   unless defined $config->{gitDir} and -d $config->{gitDir};
 
 
+GenerateDiaryFromNewEvents($config);
 
 &$LOCK_CLEANUP_CODE();
 __END__
