@@ -541,6 +541,9 @@ sub ReadConfig($) {
 }
 ######################################################################
 
+system("/usr/bin/lockfile -r 8 $CALENDAR_LOCK_FILE");
+DieLog("Failure to acquire calendar lock on $CALENDAR_LOCK_FILE") unless ($? == 0);
+
 my $config = ReadConfig($CONFIG_FILE);
 
 $config->{scrubPrivate} = 0 if not defined $config->{scrubPrivate};
@@ -551,7 +554,7 @@ DieLog("$config->{emacsBinary} doesn't appear to be executable") unless -x $conf
 
 if (defined $config->{cleanOutputDirFirst} and $config->{cleanOutputDirFirst}) {
   chdir $config->{outputDir} or die "unable to change directory to $config->{outputDir} $? $!";
-  system("/bin/rm", '-f', "*.ics");
+  system("/bin/rm -f *.ics");
 }
 
 DieLog("$CONFIG_FILE doesn't specify a (readable) output directory via outputDir setting: $!")
@@ -562,9 +565,10 @@ DieLog("$CONFIG_FILE doesn't specify a readable public nor a private diary file"
   unless (defined $config->{publicDiary} and -r $config->{publicDiary}) or
     (defined $config->{privateyDiary} and -r $config->{privateDiary});
 
-
 FilterEmacsToICal($config->{publicDiary}, $config->{privateDiary},
                   $config->{outputDir}, $config, $config->{user});
+
+&$LOCK_CLEANUP_CODE();
 
 __END__
 # Local variables:
