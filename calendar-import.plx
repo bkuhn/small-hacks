@@ -265,7 +265,7 @@ ELISP_END
   open(REAL_DIARY, '>>', $config->{proposedDiary})
     or DieLog("unable to append to config->{proposedDiary}: $!");
 
-  while (my $line = <NEW_DIARY>) { print REAL_DIARY $line; }
+  while (my $line = <NEW_DIARY>) { print $line; print REAL_DIARY $line; }
   close NEW_DIARY;  DieLog("error reading $newDiaryTempFile: $!") unless ($? == 0);
   close REAL_DIARY;  DieLog("error appending to $config->{proposedDiary}: $!") unless ($? == 0);
 
