@@ -1,9 +1,13 @@
 #!/usr/bin/perl -w
 # calendar-import.plx                                         -*- Perl -*-
 # ====================================================================
+# NOTE: Overall license of this file is GPLv3-only, due (in part) to Software
+# Freedom Law Center copyrights (see below).  Kuhn's personal copyrights are
+# licensed GPLv3-or-later.
 #
-# The sub's "safe_read_from_pipe" and read_from_process are:
 # ====================================================================
+# The sub's "safe_read_from_pipe" and read_from_process are:
+
 # Copyright (c) 2000-2004 CollabNet.  All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -48,6 +52,24 @@
 # along with this program in a file in the toplevel directory called
 # "GPLv3".  If not, see <http://www.gnu.org/licenses/>.
 
+# ====================================================================
+# The functions DoLog, BinarySearchForTZEntry, PrivatizeMergeAndTZIcalFile,
+# BuildTZList, MergeLists, PrivacyFilterICalFiles, and FilterEmacsToICal material
+# copyrighted and licensed as below:
+
+# Copyright © 2006 Software Freedom Law Center, Inc.
+#
+# This software gives you freedom; it is licensed to you under version 3
+# of the GNU General Public License.
+#
+# This software is distributed WITHOUT ANY WARRANTY, without even the
+# implied warranties of MERCHANTABILITY and FITNESS FOR A PARTICULAR
+# PURPOSE.  See the GNU General Public License for further details.
+#
+# You should have received a copy of the GNU General Public License,
+# version 3.  If not, see <http://www.gnu.org/licenses/>
+
+
 use strict;
 use warnings;
 
@@ -56,6 +78,67 @@ my($CONFIG_FILE) = (@ARGV);
 if (@ARGV != 1) {
   print STDERR "usage: $0 <CONFIG_FILE>\n";
   exit 1;
+}
+###############################################################################
+my $CALENDAR_LOCK_FILE = "$ENV{HOME}/.emacs-calendar-to-ics-lock";
+
+my $LOCK_CLEANUP_CODE = sub {
+  return (unlink($CALENDAR_LOCK_FILE) != 1) ?
+    "Failed unlink of $CALENDAR_LOCK_FILE.  Could cause trouble." :
+    "";
+};
+###############################################################################
+{
+  my %messageHistory;
+
+  sub DoLog ($$$;$) {
+    my($type, $user, $message, $cleanupCode) = @_;
+
+    use Date::Manip;
+    my $NOW = ParseDate("now");
+
+    my $lastTime = $messageHistory{$message};
+
+    my $sendIt = 0;
+    if (not defined $lastTime) {
+      $sendIt = 1;
+    } else {
+      my $err;
+      my $sinceLast = DateCalc($lastTime,"+ 10 minutes",\$err);
+      $sendIt = 1 if ($NOW gt $sinceLast);
+    }
+    if ($sendIt) {
+      my  $fh = File::Temp->new();
+      $fh->unlink_on_destroy( 1 );
+      my  $fname = $fh->filename;
+      print $fh "Calendar Export Failure: $message\n";
+      $fh->close();
+      system('/home/bkuhn/bin/myosd', $fname);
+      unless (-f "$ENV{HOME}/.silent-running") {
+        open(ESPEAK, "-|", "/usr/bin/espeak",  '-p', '45', '-s', '130', '-f', $fname, "--stdout");
+        open(PAPLAY, "|-", "/usr/bin/paplay");
+        my $data;
+        while (read(ESPEAK, $data, 8) == 8) {
+          print PAPLAY  $data;
+        }
+        close PAPLAY; close ESPEAK;
+      }
+      system('/usr/bin/notify-send', '-u', 'critical', '-t', '300000',
+             'Failure', "Calendar export failure: $message");
+      $messageHistory{$message} = $NOW;
+    }
+    my $more;
+    $more = &$cleanupCode if defined $cleanupCode and ref $cleanupCode;
+    $message .= "  $more" if (defined $more and $more !~ /^\s*$/);
+    croak $message if $type eq "die";
+    warn $message;
+  }
+  sub DieLog ($;$) {
+    DoLog("die", undef, $_[0], $_[1]);
+  }
+  sub WarnLog ($$) {
+    DoLog("warn", $_[0], $_[1]);
+  }
 }
 ###############################################################################
 # Start a child process safely without using /bin/sh.
