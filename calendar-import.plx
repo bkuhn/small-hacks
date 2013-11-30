@@ -229,7 +229,7 @@ END_ICAL
     my $summary = $entry->property("summary");
     if (defined $summary) {
       die("Multiple summary found in $veventFile") unless @{$summary} == 1;
-      $summary->[0]->value($modString . ": " .  $summary->[0]->value);
+      $summary->[0]->value($modString . ": " .  $summary->[0]->value . " (from $veventFile)");
     }
     $newCalendar->add_entry($entry);
   }
