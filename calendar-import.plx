@@ -73,6 +73,10 @@
 use strict;
 use warnings;
 
+use Carp;
+use Data::ICal;
+use File::Temp qw/:POSIX tempfile/;
+
 my($CONFIG_FILE) = (@ARGV);
 
 if (@ARGV != 1) {
