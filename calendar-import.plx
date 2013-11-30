@@ -282,14 +282,14 @@ sub HandleProposedEvent ($$$) {
     ParseEventAndAddProposed($config, $file, "PROPOSED CHANGE");
   } elsif ($operation eq 'D') {
     chdir $config->{gitDir} or DieLog("Unable to change directory to $config->{gitDir}");
-    system($config->{gitBinary}, 'checkout', $config->{myBranch});
+    system($config->{gitBinary}, 'checkout', '-q', $config->{myBranch});
     DieLog("Unable to checkout $config->{myBranch} branch in git") unless ($? == 0);
 
     ParseEventAndAddProposed($config, $file, "PROPOSED DELETE");
 
     # Now, reset back to incoming branch, as GenerateDiaryFromNewEvents assumes that.
     chdir $config->{gitDir} or DieLog("Unable to change directory to $config->{gitDir}");
-    system($config->{gitBinary}, 'checkout', $config->{incomingBranch});
+    system($config->{gitBinary}, 'checkout', '-q', $config->{incomingBranch});
     DieLog("Unable to checkout $config->{incomingBranch} branch in git") unless ($? == 0);
   } else {
     DieLog("Invalid operation of $operation for $file");
@@ -301,13 +301,13 @@ sub GenerateDiaryFromNewEvents ($) {
 
   chdir $config->{gitDir} or DieLog("Unable to change directory to $config->{gitDir}");
 
-  system($config->{gitBinary}, 'checkout', $config->{incomingBranch});
+  system($config->{gitBinary}, 'checkout', '-q', $config->{incomingBranch});
   DieLog("Unable to checkout $config->{incomingBranch} branch in git") unless ($? == 0);
   my @gitDiffSummaryOutput =
     read_from_process($config->{gitBinary}, 'diff-index', $config->{myBranch});
 
   foreach my $line (@gitDiffSummaryOutput) {
-    next if $line =~ /$ENV{USER}/;   # Ignore lines that aren't for my calendar.
+    next unless $line =~ /$ENV{USER}/;   # Ignore lines that aren't for my calendar.
     DieLog("odd line in diff-index output: $line") unless
       $line =~ /(A|D|M)\s+(\S+)$/;
     my($operation, $file) = ($1, $2);
