@@ -123,6 +123,30 @@ sub read_from_process
     }
 }
 ###############################################################################
+sub GenerateDiaryFromNewEvents ($) {
+  my($config)  = @_;
+
+  chdir $config->{gitDir} or DieLog("Unable to change directory to $config->{gitDir}");
+
+  system($emacsSettings->{gitBinary}, 'checkout', $config->{incomingBranch});
+  DieLog("Unable to checkout $config->{incomingBranch} branch in git") unless ($? == 0);
+  my @gitDiffSummaryOutput =
+    read_from_process($emacsSettings->{gitBinary}, 'diff-index', $config->{myBranch});
+
+  my %operations;
+  foreach my $line (@gitDiffSummaryOutput) {
+    next if $line ~= /$ENV{USER}/;   # Ignore lines that aren't for my calendar.
+    DieLog("odd line in diff-index output: $line") unless
+      $line =~ /(A|D|M)\s+(\S+)$/;
+    my($operation, $file) = ($1, $2);
+    $operations{$file} = $operation;
+  }
+
+  foreach my $file (keys %operations) {
+    HandleProposedEvent($config, $file, $operations{$file});
+  }
+}
+###############################################################################
 
 system("/usr/bin/lockfile -r 8 $CALENDAR_LOCK_FILE");
 DieLog("Failure to acquire calendar lock on $CALENDAR_LOCK_FILE") unless ($? == 0);
