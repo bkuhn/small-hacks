@@ -136,7 +136,7 @@ my $LOCK_CLEANUP_CODE = sub {
   sub DieLog ($;$) {
     DoLog("die", undef, $_[0], $_[1]);
   }
-  sub WarnLog ($$) {
+  sub WarnLog ($;$) {
     DoLog("warn", $_[0], $_[1]);
   }
 }
