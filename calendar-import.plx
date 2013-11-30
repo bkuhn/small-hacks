@@ -214,6 +214,7 @@ sub  ParseEventAndAddProposed ($$$) {
   my($config, $veventFile, $modString) = @_;
 
   my $icsImportFile = tmpnam();
+  my $newDiaryTempFile = tmpnam();
 
   my $newCalendar = Data::ICal->new(data => <<END_ICAL
 BEGIN:VCALENDAR
@@ -243,7 +244,7 @@ END_ICAL
     if $config->{calendarStyle} =~  /european/i;
   print $elispFH <<ELISP_END
 (setq icalendar-uid-format "emacs-%u-%h-%s")
-(icalendar-import-file "$icsImportFile" "$config->{proposedDiary}")
+(icalendar-import-file "$icsImportFile" "$newDiaryTempFile")
 ELISP_END
 ;
   $elispFH->close();
@@ -254,11 +255,22 @@ ELISP_END
          "$? ($!), and output of:\n    " . join("\n   ", @emacsOutput))
     if ($? != 0);
   my $goodCount =0;
-  foreach my $line (@emacsOutput) { $goodCount++;  }
+  foreach my $line (@emacsOutput) {
+    $goodCount++ if $line =~ /^((Saving.*file|Wrote)\s*$newDiaryTempFile)/;  }
   DieLog("Unexpected Emacs output: " . join("\n   ", @emacsOutput))
-    if ($goodCount > 1);
-  WarnLog("unable to remove temporary file: $icsImportFile: $!")
-          unless unlink($icsImportFile) == 1;
+    if ($goodCount != 2);
+
+  open(NEW_DIARY, "<", $newDiaryTempFile)
+    or DieLog("unable to read temp file: $newDiaryTempFile: $!");
+  open(REAL_DIARY, '>>', $config->{proposedDiary})
+    or DieLog("unable to append to config->{proposedDiary}: $!");
+
+  while (my $line = <NEW_DIARY>) { print REAL_DIARY $line; }
+  close NEW_DIARY;  DieLog("error reading $newDiaryTempFile: $!") unless ($? == 0);
+  close REAL_DIARY;  DieLog("error appending to $config->{proposedDiary}: $!") unless ($? == 0);
+
+  WarnLog("unable to remove temporary files, $icsImportFile and $newDiaryTempFile: $!")
+          unless unlink($icsImportFile, $newDiaryTempFile) == 2;
 }
 ###############################################################################
 sub HandleProposedEvent ($$$) {
