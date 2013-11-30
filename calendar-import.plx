@@ -123,19 +123,70 @@ sub read_from_process
     }
 }
 ###############################################################################
+sub  ParseEventAndAddProposed ($$$) {
+  my($config, $veventFile, $modString) = @_;
+
+  my $icsImportFile = tmpnam();
+
+  my $newCalendar = Data::ICal->new(data => <<END_ICAL
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Emacs//NONSGML icalendar.el//EN
+END:VCALENDAR
+END_ICAL
+);
+  my $oldCalendar = Data::ICal->new(filename => $veventFile);
+  my $entries = (defined $oldCalendar) ? $oldCalendar->entries : [];
+  foreach my $entry (@{$entries}) {
+    my $summary = $entry->property("summary");
+    if (defined $summary) {
+      die("Multiple summary found in $veventFile") unless @{$summary} == 1;
+      $summary->[0]->value($modString . ": " .  $summary->[0]->value);
+    }
+    $newCalendar->add_entry($entry);
+  }
+  open(SINGLE_EVENT_ICAL, ">", $icsImportFile) or DieLog("Unable to overwrite $icsImportFile: $!");
+  print SINGLE_EVENT_ICAL $newCalendar->as_string;
+  close SINGLE_EVENT_ICAL;
+  DieLog("Error ($?) while writing $icsImportFile ($?): $!") unless $? == 0;
+  undef $newCalendar;
+
+  my($elispFH, $elispFile) = tempfile();
+  print $elispFH "(setq-default european-calendar-style t)\n"
+    if $config->{calendarStyle} =~  /european/i;
+  print $elispFH <<ELISP_END
+(setq icalendar-uid-format "emacs-%u-%h-%s")
+(icalendar-import-file "$icsImportFile" "$config->{proposedDiary}")
+ELISP_END
+;
+  $elispFH->close();
+  my @emacsOutput = read_from_process($emacsBinary, '--no-windows',
+                 '--batch', '--no-site-file', '-l', $elispFile);
+  DieLog("Emacs process for exporting $privateCalendarFile and " .
+         "$publicCalendarFile exited with non-zero exit status of " .
+         "$? ($!), and output of:\n    " . join("\n   ", @emacsOutput))
+    if ($? != 0);
+  my $goodCount =0;
+  foreach my $line (@emacsOutput) { $goodCount++;  }
+  DieLog("Unexpected Emacs output: " . join("\n   ", @emacsOutput))
+    if ($goodCount > 1);
+  WarnLog("unable to remove temporary file: $icsImportFile: $!")
+          unless unlink($icsImportFile) == 1;
+}
+###############################################################################
 sub HandleProposal ($$$) {
   my($config, $operation, $file) = @_;
 
   if ($operation eq 'A') {
-    ParseEventAndAddProposed($config->{proposedDiary}, $file, "PROPOSED ADDITION");
+    ParseEventAndAddProposed($config, $file, "PROPOSED ADDITION");
   } elsif ($operation eq 'M') {
-    ParseEventAndAddProposed($config->{proposedDiary}, $file, "PROPOSED CHANGE");
+    ParseEventAndAddProposed($config, $file, "PROPOSED CHANGE");
   } elsif ($operation eq 'D') {
     chdir $config->{gitDir} or DieLog("Unable to change directory to $config->{gitDir}");
     system($emacsSettings->{gitBinary}, 'checkout', $config->{myBranch});
     DieLog("Unable to checkout $config->{myBranch} branch in git") unless ($? == 0);
 
-    ParseEventAndAddProposed($config->{proposedDiary}, $file, "PROPOSED DELETE:");
+    ParseEventAndAddProposed($config, $file, "PROPOSED DELETE");
 
     # Now, reset back to incoming branch, as GenerateDiaryFromNewEvents assumes that.
     chdir $config->{gitDir} or DieLog("Unable to change directory to $config->{gitDir}");
