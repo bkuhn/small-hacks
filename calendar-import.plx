@@ -265,7 +265,11 @@ ELISP_END
   open(REAL_DIARY, '>>', $config->{proposedDiary})
     or DieLog("unable to append to config->{proposedDiary}: $!");
 
-  while (my $line = <NEW_DIARY>) { print $line; print REAL_DIARY $line; }
+  while (my $line = <NEW_DIARY>) {
+    print $line;
+    chomp $line;
+    print REAL_DIARY "$line\n" unless defined $config->{__knownLines}{$line};
+  }
   close NEW_DIARY;  DieLog("error reading $newDiaryTempFile: $!") unless ($? == 0);
   close REAL_DIARY;  DieLog("error appending to $config->{proposedDiary}: $!") unless ($? == 0);
 
@@ -296,8 +300,20 @@ sub HandleProposedEvent ($$$) {
   }
 }
 ###############################################################################
+sub KnownLines ($) {
+  my($file) = @_;
+
+  open(DATA, "<", $file) or DieLog("Unable to open $file for reading: $!");
+
+  my %lines;
+  while (my $line = <DATA>) { chomp $line; $lines{$line} = $line; }
+  return \%lines;
+}
+###############################################################################
 sub GenerateDiaryFromNewEvents ($) {
   my($config)  = @_;
+
+  $config->{__knownLines} = KnownLines($config->{proposedDiary});
 
   chdir $config->{gitDir} or DieLog("Unable to change directory to $config->{gitDir}");
 
@@ -313,6 +329,7 @@ sub GenerateDiaryFromNewEvents ($) {
     my($operation, $file) = ($1, $2);
     HandleProposedEvent($config, $operation, $file);
   }
+  delete $config->{__knownLines};
 }
 ###############################################################################
 sub ReadConfig($) {
