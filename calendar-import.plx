@@ -123,6 +123,29 @@ sub read_from_process
     }
 }
 ###############################################################################
+sub HandleProposal ($$$) {
+  my($config, $operation, $file) = @_;
+
+  if ($operation eq 'A') {
+    ParseEventAndAddProposed($config->{proposedDiary}, $file, "PROPOSED ADDITION");
+  } elsif ($operation eq 'M') {
+    ParseEventAndAddProposed($config->{proposedDiary}, $file, "PROPOSED CHANGE");
+  } elsif ($operation eq 'D') {
+    chdir $config->{gitDir} or DieLog("Unable to change directory to $config->{gitDir}");
+    system($emacsSettings->{gitBinary}, 'checkout', $config->{myBranch});
+    DieLog("Unable to checkout $config->{myBranch} branch in git") unless ($? == 0);
+
+    ParseEventAndAddProposed($config->{proposedDiary}, $file, "PROPOSED DELETE:");
+
+    # Now, reset back to incoming branch, as GenerateDiaryFromNewEvents assumes that.
+    chdir $config->{gitDir} or DieLog("Unable to change directory to $config->{gitDir}");
+    system($emacsSettings->{gitBinary}, 'checkout', $config->{incomingBranch});
+    DieLog("Unable to checkout $config->{incomingBranch} branch in git") unless ($? == 0);
+  } else {
+    DieLog("Invalid operation of $operation for $file");
+  }
+}
+###############################################################################
 sub GenerateDiaryFromNewEvents ($) {
   my($config)  = @_;
 
@@ -133,17 +156,12 @@ sub GenerateDiaryFromNewEvents ($) {
   my @gitDiffSummaryOutput =
     read_from_process($emacsSettings->{gitBinary}, 'diff-index', $config->{myBranch});
 
-  my %operations;
   foreach my $line (@gitDiffSummaryOutput) {
     next if $line ~= /$ENV{USER}/;   # Ignore lines that aren't for my calendar.
     DieLog("odd line in diff-index output: $line") unless
       $line =~ /(A|D|M)\s+(\S+)$/;
     my($operation, $file) = ($1, $2);
-    $operations{$file} = $operation;
-  }
-
-  foreach my $file (keys %operations) {
-    HandleProposedEvent($config, $file, $operations{$file});
+    HandleProposedEvent($config, $operation, $file);
   }
 }
 ###############################################################################
