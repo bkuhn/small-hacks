@@ -261,7 +261,7 @@ ELISP_END
           unless unlink($icsImportFile) == 1;
 }
 ###############################################################################
-sub HandleProposal ($$$) {
+sub HandleProposedEvent ($$$) {
   my($config, $operation, $file) = @_;
 
   if ($operation eq 'A') {
