@@ -551,7 +551,8 @@ $config->{scrubPrivate} = 0 if not defined $config->{scrubPrivate};
 $config->{reportProblems} = $config->{user} if not defined $config->{reportProblems};
 $config->{emacsBinary} = "/usr/bin/emacs" if not defined $config->{emacsBinary};
 $config->{calendarStyle} = 'plain' if not defined $config->{calendarStyle};
-DieLog("$config->{emacsBinary} doesn't appear to be executable") unless -x $config->{emacsBinary};
+DieLog("$config->{emacsBinary} doesn't appear to be executable for $bin")
+    unless defined $config->{emacsBinary} and -x $config->{emacsBinary};
 
 if (defined $config->{cleanOutputDirFirst} and $config->{cleanOutputDirFirst}) {
   chdir $config->{outputDir} or die "unable to change directory to $config->{outputDir} $? $!";

@@ -329,7 +329,8 @@ $config->{reportProblems} = $config->{user} if not defined $config->{reportProbl
 $config->{emacsBinary} = "/usr/bin/emacs" if not defined $config->{emacsBinary};
 $config->{calendarStyle} = 'plain' if not defined $config->{calendarStyle};
 foreach my $bin (qw/emacsBinary gitBinary/) {
-  DieLog("$config->{$bin} doesn't appear to be executable") unless -x $config->{$bin};
+  DieLog("$config->{$bin} doesn't appear to be executable for $bin")
+    unless defined $config->{$bin} and -x $config->{$bin};
 }
 
 DieLog("$CONFIG_FILE doesn't specify a (readable) Git directory via gitDir setting: $!")
