@@ -5,8 +5,8 @@
 # Freedom Law Center copyrights (see below).  Kuhn's personal copyrights are
 # licensed GPLv3-or-later.
 
-# The sub's "safe_read_from_pipe" and read_from_process are:
 # ====================================================================
+# The sub's "safe_read_from_pipe" and read_from_process are:
 # Copyright (c) 2000-2004 CollabNet.  All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -51,6 +51,7 @@
 # along with this program in a file in the toplevel directory called
 # "GPLv3".  If not, see <http://www.gnu.org/licenses/>.
 
+# ====================================================================
 # The functions DoLog, BinarySearchForTZEntry, PrivatizeMergeAndTZIcalFile,
 # BuildTZList, MergeLists, PrivacyFilterICalFiles, and FilterEmacsToICal material
 # copyrighted and licensed as below:
