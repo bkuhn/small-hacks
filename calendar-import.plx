@@ -209,6 +209,7 @@ sub read_from_process
       return @output;
     }
 }
+my $PRINTED_CONKY_HEADER;
 ###############################################################################
 sub  ParseEventAndAddProposed ($$$) {
   my($config, $veventFile, $modString) = @_;
@@ -266,7 +267,10 @@ ELISP_END
     or DieLog("unable to append to config->{proposedDiary}: $!");
 
   while (my $line = <NEW_DIARY>) {
-    print $line;
+    print "\$hr\n\${font :size=17}Calendar Proposals:\n"
+      unless defined $PRINTED_CONKY_HEADER;
+    $PRINTED_CONKY_HEADER = 1;
+    print "\${font Inconsolata:size=13}$line";
     chomp $line;
     print REAL_DIARY "$line\n" unless defined $config->{__knownLines}{$line};
   }
@@ -281,15 +285,15 @@ sub HandleProposedEvent ($$$) {
   my($config, $operation, $file) = @_;
 
   if ($operation eq 'A') {
-    ParseEventAndAddProposed($config, $file, "PROPOSED ADDITION");
+    ParseEventAndAddProposed($config, $file, "ADDITION");
   } elsif ($operation eq 'M') {
-    ParseEventAndAddProposed($config, $file, "PROPOSED CHANGE");
+    ParseEventAndAddProposed($config, $file, "CHANGE");
   } elsif ($operation eq 'D') {
     chdir $config->{gitDir} or DieLog("Unable to change directory to $config->{gitDir}");
     system($config->{gitBinary}, 'checkout', '-q', $config->{myBranch});
     DieLog("Unable to checkout $config->{myBranch} branch in git") unless ($? == 0);
 
-    ParseEventAndAddProposed($config, $file, "PROPOSED DELETE");
+    ParseEventAndAddProposed($config, $file, "DELETE");
 
     # Now, reset back to incoming branch, as GenerateDiaryFromNewEvents assumes that.
     chdir $config->{gitDir} or DieLog("Unable to change directory to $config->{gitDir}");
@@ -367,7 +371,7 @@ DieLog("$CONFIG_FILE doesn't specify a (readable) Git directory via gitDir setti
 
 
 GenerateDiaryFromNewEvents($config);
-
+print "\$hr\n" if ($PRINTED_CONKY_HEADER);
 &$LOCK_CLEANUP_CODE();
 __END__
 # Local variables:
