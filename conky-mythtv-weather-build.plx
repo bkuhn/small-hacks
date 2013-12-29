@@ -85,8 +85,13 @@ foreach my $type (keys %commands) {
   die "error($?) running: $commands{$type} -u $UNITS $LOCATION: $!"
     unless $? == 0;
 }
-
-if (not defined $data{forecast}{updatetime}) {
+if (not defined $data{current}{observation_time}) {
+  foreach my $key (%{$data{accuweather}}) {
+    $data{current}{$key} = $data{accuweather}{$key};
+  }
+}
+if (not defined $data{forecast}{updatetime}
+    and defined $data{accuweather}{'time-1'}) {
   foreach my $key (%{$data{accuweather}}) {
     $data{forecast}{$key} = $data{accuweather}{$key};
   }
@@ -127,21 +132,15 @@ foreach my $ii (qw/0 1 2 3 4 5/) {
 }
 my $f = $FONT_SIZE + 5;
 print '${voffset ', $VOFFSET_TEXT , '} ${font :size=', $f, '}${alignc}Weather:${font}', " $data{current}{'cclocation'}\n";
-
-if (not defined $data{current}{observation_time}) {
-  foreach my $key (%{$data{accuweather}}) {
-    $data{current}{$key} = $data{accuweather}{$key};
-  }
-}
 if (not defined $data{current}{observation_time_rfc822}) {
   $data{current}{observation_time_rfc822} = $data{current}{observation_time};
   $data{current}{observation_time_rfc822} =~ s/^\s*(?:Observation\s*of\s*:?|Last\s*Updated\s*(?:on)?)\s*//;
 }
-my($temp, $feelsLike, $humidity, $windSpeed, $windGust, $icon, $datetime) =
+my($temp, $feelsLike, $humidity, $windSpeed, $windGust, $icon, $datetime, $weatherConditions) =
   ($data{current}{temp}, $data{current}{heat_index},
    $data{current}{relative_humidity}, $data{current}{wind_speed},
    $data{current}{wind_gust}, $data{current}{weather_icon},
-   $data{current}{observation_time_rfc822});
+   $data{current}{observation_time_rfc822}, $data{current}{weather});
 
 my $date = ParseDate($datetime);
 
