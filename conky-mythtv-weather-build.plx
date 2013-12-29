@@ -133,8 +133,8 @@ if (not defined $data{current}{observation_time}) {
   }
 }
 if (not defined $data{current}{observation_time_rfc822}) {
-  $data{current}{observation_time} =  $data{current}{observation_time_rfc822};
-  $data{current}{observation_time} =~ s/^\s*(?:Observation\s*of\s*:?|Last\s*Updated\s*(?:on)?)\s*//;
+  $data{current}{observation_time_rfc822} = $data{current}{observation_time};
+  $data{current}{observation_time_rfc822} =~ s/^\s*(?:Observation\s*of\s*:?|Last\s*Updated\s*(?:on)?)\s*//;
 }
 my($temp, $feelsLike, $humidity, $windSpeed, $windGust, $icon, $datetime) =
   ($data{current}{temp}, $data{current}{heat_index},
