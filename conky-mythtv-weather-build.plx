@@ -102,10 +102,12 @@ if (not defined $data{extended}{updatetime}) {
   }
 }
 
-$data{forecast}{updatetime} =~ s/\s*Last\s+Updated\s+(?:on|:)?\s*//
-  if defined $data{forecast}{updatetime};
+my $updateTime = $data{forecast}{updatetime};
+$updateTime = $data{extended}{updatetime} if not defined $updateTime;
+
+$updateTime =~ s/\s*(?:Last\s*)?Updated\s*(?:on|:)?\s*//;
 my $now =  ParseDate("now");
-my $updateTime = ParseDate($data{forecast}{updatetime});
+$updateTime = ParseDate($updateTime);
 my $x = Delta_Format(DateCalc($updateTime, $now), 0, "%mt minutes ago");
 
 $data{forecast}{updatetime} = $x if defined $x;
