@@ -163,6 +163,8 @@ $feelsLike = $data{current}{windchill}
 undef $feelsLike if defined $feelsLike and $feelsLike =~ /^\s*(N[\s\/]*A)?\s*$/i;
 undef $windGust if defined $windGust   and $windGust =~ /^\s*(N[\s\/]*A)?\s*$/i;
 undef $windSpeed if defined $windSpeed and $windSpeed =~ /^\s*(N[\s\/]*A)?\s*$/i;
+undef $weatherConditions
+  if defined $weatherConditions and $weatherConditions =~ /^\s*(N[\s\/]*A|unknown)?\s*$/i;
 
 $icon = $data{extended}{"icon-0"}
   if ($icon =~ /unknown/i and $data{extended}{"date-0"} eq UnixDate($now, "%A"));
@@ -177,14 +179,19 @@ print "\${font :size=${FONT_SIZE}px} Current: $temp $degree";
 print " (feels like: $feelsLike $degree)" if defined $feelsLike;
 print "\${image $mythIconPath/$icon -p $xpos,$vpos  -s 50x37}"
   unless $icon =~ /unknown/i;
-print "\n\${goto 82}Humidity: $humidity\%     Wind: $windSpeed kph";
+print "\n\${goto 82}Humidity: $humidity\%";
+print "     Wind: " if defined $windSpeed or defined $windGust;
+print "$windSpeed kph" if defined $windSpeed;
 print "  ($windGust kph)" if defined $windGust;
+print "\n\${goto 82}Conditions: $weatherConditions\n" if defined $weatherConditions;
 print "\n";
 ($xpos, $vpos) = ($FONT_SIZE * (5 + $data{forecast}{maxLength}),
                   $VOFFSET_IMAGE + 78);
 
+my $cnt = 0;
 foreach my $ii (qw/0 1 2 3 4 5/) {
   next if not defined $data{forecast}{"time-${ii}"};
+  $cnt++;
   my($time, $temp, $pop, $icon) =
     ($data{forecast}{"time-${ii}"}, $data{forecast}{"temp-${ii}"},
      $data{forecast}{"pop-${ii}"}, $data{forecast}{"18icon-${ii}"});
