@@ -128,8 +128,9 @@ $ago = Delta_Format(DateCalc($date, $now), 0, "%st sec ago")
   if ($ago =~ /0 min ago/);
 $feelsLike = $data{current}{windchill}
   if (not defined $feelsLike) or $feelsLike =~ /^\s*N[\s\/]*A\s*$/i;
-undef $feelsLike if defined $feelsLike and $feelsLike =~ /^\s*N[\s\/]*A\s*$/i;
-undef $windGust if defined $windGust   and $windGust =~ /^\s*N[\s\/]*A\s*$/i;
+undef $feelsLike if defined $feelsLike and $feelsLike =~ /^\s*(N[\s\/]*A)?\s*$/i;
+undef $windGust if defined $windGust   and $windGust =~ /^\s*(N[\s\/]*A)?\s*$/i;
+undef $windSpeed if defined $windSpeed and $windSpeed =~ /^\s*(N[\s\/]*A)?\s*$/i;
 
 $icon = $data{extended}{"icon-0"}
   if ($icon =~ /unknown/i and $data{extended}{"date-0"} eq UnixDate($now, "%A"));
