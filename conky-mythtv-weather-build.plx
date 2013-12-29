@@ -57,16 +57,29 @@ my(%commands) = ('forecast' => $MYTH_PATH .
                  'extended' => $MYTH_PATH .
                  "/mythplugins/mythweather/mythweather/scripts/us_nws/ndfd.pl",
                  'current' => $MYTH_PATH .
-                 "/mythplugins/mythweather/mythweather/scripts/us_nws/nwsxml.pl");
+                 "/mythplugins/mythweather/mythweather/scripts/us_nws/nwsxml.pl",
+                'accuweather' => $MYTH_PATH .
+                "/mythplugins/mythweather/mythweather/scripts/accuweather/accuweather.pl");
 
 my %data;
+
+my($location1) = $LOCATION;
+my($location2) = $LOCATION;
+if ($LOCATION =~ /^([^|]+)\|([^|]+)/) {
+  ($location1, $location2) = ($1, $2);
+}
+if ($location1 eq "FORCE_ACCUWEATHER") {
+  foreach my $key (qw/forecast extended current/) { delete $commands{$key}; }
+}
 foreach my $type (keys %commands) {
-  open(DATA, "-|", $commands{$type}, '-u', $UNITS, $LOCATION)
+  my $location = $location1;
+  $location = $location2 if $type eq "accuweather";
+  open(DATA, "-|", $commands{$type}, '-u', $UNITS, $location)
     or die "unable to run: $commands{$type} -u $UNITS $LOCATION: $!";
 
   while (my $line = <DATA>) {
     die "bad line output in data: $line"
-      unless $line =~ /^\s*(\S+)\s*:\s*:\s*(.+)$/;
+      unless $line =~ /^\s*(\S+)\s*:\s*:\s*(.*)$/;
     $data{$type}{$1} = $2;
   }
   close DATA;
@@ -74,7 +87,18 @@ foreach my $type (keys %commands) {
     unless $? == 0;
 }
 
-$data{forecast}{updatetime} =~ s/\s*Last\s+Updated\s+on\s*//;
+if (not defined $data{forecast}{updatetime}) {
+  foreach my $key (%{$data{accuweather}}) {
+    $data{forecast}{$key} = $data{accuweather}{$key};
+  }
+}
+if (not defined $data{extended}{updatetime}) {
+  foreach my $key (%{$data{accuweather}}) {
+    $data{extended}{$key} = $data{accuweather}{$key};
+  }
+}
+
+$data{forecast}{updatetime} =~ s/\s*Last\s+Updated\s+(?:on|:)?\s*//;
 my $now =  ParseDate("now");
 my $updateTime = ParseDate($data{forecast}{updatetime});
 my $x = Delta_Format(DateCalc($updateTime, $now), 0, "%mt minutes ago");
@@ -104,6 +128,15 @@ foreach my $ii (qw/0 1 2 3 4 5/) {
 my $f = $FONT_SIZE + 5;
 print '${voffset ', $VOFFSET_TEXT , '} ${font :size=', $f, '}${alignc}Weather:${font}', " $data{current}{'cclocation'}\n";
 
+if (not defined $data{current}{observation_time}) {
+  foreach my $key (%{$data{accuweather}}) {
+    $data{current}{$key} = $data{accuweather}{$key};
+  }
+}
+if (not defined $data{current}{observation_time_rfc822}) {
+  $data{current}{observation_time} =  $data{current}{observation_time_rfc822};
+  $data{current}{observation_time} =~ s/^\s*(?:Observation\s*of\s*:?|Last\s*Updated\s*(?:on)?)\s*//;
+}
 my($temp, $feelsLike, $humidity, $windSpeed, $windGust, $icon, $datetime) =
   ($data{current}{temp}, $data{current}{heat_index},
    $data{current}{relative_humidity}, $data{current}{wind_speed},
