@@ -32,7 +32,6 @@ use Encode qw(encode decode);
 
 use File::Temp qw/tempdir/;
 
-
 chdir("$ENV{HOME}/tmp/.conky-mythtv-weather")
   or die "unable to go to $ENV{HOME}/tmp/.conky-mythtv-weather";
 
