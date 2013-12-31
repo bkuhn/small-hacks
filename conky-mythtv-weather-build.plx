@@ -171,6 +171,11 @@ my($temp, $feelsLike, $humidity, $windSpeed, $windGust, $icon, $datetime, $weath
    $data{current}{wind_gust}, $data{current}{weather_icon},
    $data{current}{observation_time_rfc822}, $data{current}{weather});
 
+if (defined $data{current}{wind_spdgst} and
+    (not defined $data{current}{wind_speed})) {
+  $data{current}{wind_spdgst} =~ /^\s*([\d\.]+)\s*\(?\s*([\d\.]+)\s*\)?\s*$/;
+  ($data{current}{wind_speed}, $data{current}{wind_gust}) = ($1, $2);
+}
 my $date = ParseDate($datetime);
 
 my $howOld = DateCalc($date, $now);
