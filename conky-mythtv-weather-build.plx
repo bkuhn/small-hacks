@@ -31,9 +31,12 @@ use feature 'unicode_strings';
 use Encode qw(encode decode);
 
 use File::Temp qw/tempdir/;
+use File::Spec;
 
-chdir("$ENV{HOME}/tmp/.conky-mythtv-weather")
-  or die "unable to go to $ENV{HOME}/tmp/.conky-mythtv-weather";
+my $DIR = File::Spec->catdir("$ENV{HOME}", 'tmp', '.conky-mythtv-weather');
+my $VOFFSET_FILE = File::Spec->catfile($DIR, 'conky-weather-voffset-last');
+
+chdir($DIR) or die "unable to go to $DIR";
 
 if (@ARGV != 6 and @ARGV != 7) {
   print STDERR "usage: $0 /path/to/mythtv/git/checkout <units> <location> <text_voffset> <img_voffset> <fontsize_pixels> [hour-format]\n";
@@ -41,6 +44,21 @@ if (@ARGV != 6 and @ARGV != 7) {
 }
 my($MYTH_PATH, $UNITS, $LOCATION, $VOFFSET_TEXT, $VOFFSET_IMAGE, $FONT_SIZE, $HOUR_FORMAT) = @ARGV;
 $HOUR_FORMAT = "%a %H:%M" unless defined $HOUR_FORMAT;
+my $TEXT_LINE_OFFSET_VPOS_AMOUNT = 1.59;
+my $VOFFSET_TOP_DEFAULT_OFFSET = 11;
+
+if ($VOFFSET_IMAGE eq 'READ') {
+  open(VOFFSET, "<", $VOFFSET_FILE) or die "unable to read $VOFFSET_FILE: $!";
+  while (my $line = <VOFFSET>) {
+    chomp $line;
+    $VOFFSET_IMAGE = $line if $line =~ /^\s*[\d\.]+\s*$/;
+  }
+  close VOFFSET;
+  die "unable to read voffset from $VOFFSET_FILE: $!"
+    if ($VOFFSET_IMAGE eq 'READ');
+}
+$VOFFSET_IMAGE += $VOFFSET_TOP_DEFAULT_OFFSET;
+
 my $degree;
 if ($UNITS eq "SI") {
   $degree = encode('utf8', "°C");
@@ -133,7 +151,16 @@ foreach my $ii (qw/0 1 2 3 4 5/) {
   }
 }
 my $f = $FONT_SIZE + 5;
-print '${voffset ', $VOFFSET_TEXT , '} ${font :size=', $f, '}${alignc}Weather:${font}', " $data{current}{'cclocation'}\n";
+
+my($xpos, $vpos) = (340, $VOFFSET_IMAGE);
+
+my $place = $data{current}{'cclocation'};
+$place .= " $location2" if ($location1 eq "FORCE_ACCUWEATHER");
+
+print '${voffset ', $VOFFSET_TEXT , '} ${font :size=', $f, '}${alignc}Weather:${font}', " $place\n";
+
+$vpos += ($TEXT_LINE_OFFSET_VPOS_AMOUNT * $f);
+
 if (not defined $data{current}{observation_time_rfc822}) {
   $data{current}{observation_time_rfc822} = $data{current}{observation_time};
   $data{current}{observation_time_rfc822} =~ s/^\s*(?:Observation\s*of\s*:?|Last\s*Updated\s*(?:on)?)\s*//;
@@ -171,29 +198,33 @@ undef $weatherConditions
 $icon = $data{extended}{"icon-0"}
   if ($icon =~ /unknown/i and $data{extended}{"date-0"} eq UnixDate($now, "%A"));
 
-my($xpos, $vpos) = (350, $VOFFSET_IMAGE + 40);
 my $smallFontSize = $FONT_SIZE - 5;
 $smallFontSize = 7 if $smallFontSize < 7;
 (defined $ago) ?
   print "\${alignr}\${font :size=${smallFontSize}px}(as of $ago)\n" :
    print "\n";
+$vpos += ($TEXT_LINE_OFFSET_VPOS_AMOUNT * $smallFontSize);
 print "\${font :size=${FONT_SIZE}px} Current: $temp $degree";
 print " (feels like: $feelsLike $degree)" if defined $feelsLike;
 print "\${image $mythIconPath/$icon -p $xpos,$vpos  -s 50x37}"
   unless $icon =~ /unknown/i;
+$vpos += ($TEXT_LINE_OFFSET_VPOS_AMOUNT * $FONT_SIZE);
 print "\n\${goto 82}Humidity: $humidity\%";
 print "     Wind: " if defined $windSpeed or defined $windGust;
 print "$windSpeed kph" if defined $windSpeed;
 print "  ($windGust kph)" if defined $windGust;
-print "\n\${goto 82}Conditions: $weatherConditions\n" if defined $weatherConditions;
+$vpos += ($TEXT_LINE_OFFSET_VPOS_AMOUNT * $FONT_SIZE);
+if (defined $weatherConditions) {
+  print "\n\${goto 82}Conditions: $weatherConditions\n";
+    $vpos += ($TEXT_LINE_OFFSET_VPOS_AMOUNT * $FONT_SIZE);
+}
+$vpos += ($TEXT_LINE_OFFSET_VPOS_AMOUNT * $FONT_SIZE);
 print "\n";
-($xpos, $vpos) = ($FONT_SIZE * (5 + $data{forecast}{maxLength}),
-                  $VOFFSET_IMAGE + 78);
 
-my $cnt = 0;
+$xpos = $FONT_SIZE * (4 + $data{forecast}{maxLength});
+
 foreach my $ii (qw/0 1 2 3 4 5/) {
   next if not defined $data{forecast}{"time-${ii}"};
-  $cnt++;
   my($time, $temp, $pop, $icon) =
     ($data{forecast}{"time-${ii}"}, $data{forecast}{"temp-${ii}"},
      $data{forecast}{"pop-${ii}"}, $data{forecast}{"18icon-${ii}"});
@@ -201,10 +232,10 @@ foreach my $ii (qw/0 1 2 3 4 5/) {
   $pop = "  $pop" if length($pop) eq 2;
   $pop = " $pop" if length($pop) eq 3;
   print "\${font :size=${FONT_SIZE}px} $time:\${goto 120}$temp $degree \${image $mythIconPath/$icon -p $xpos,$vpos  -s 20x15}     $pop chance\n";
-  $vpos += $FONT_SIZE + 7;
+  $vpos += ($TEXT_LINE_OFFSET_VPOS_AMOUNT * $FONT_SIZE);
 }
-($xpos, $vpos) = ($FONT_SIZE * 26,
-                    $VOFFSET_IMAGE + 173);
+$xpos = $FONT_SIZE * 26;
+
 foreach my $ii (qw/0 1 2 3 4 5/) {
   # You can also use "%doneDays" here, as in:
   #      next if defined $doneDays{$data{extended}{"date-${ii}"}};
@@ -214,9 +245,14 @@ foreach my $ii (qw/0 1 2 3 4 5/) {
     ($data{extended}{"date-${ii}"}, $data{extended}{"high-${ii}"},
      $data{extended}{"low-${ii}"}, $data{extended}{"icon-${ii}"});
   print "\${font :size=${FONT_SIZE}px} $day:\${goto 120}High: $high $degree   Low: $low $degree \${image $mythIconPath/$icon -p $xpos,$vpos  -s 20x15}\n";
-  $vpos += $FONT_SIZE + 8;
+  $vpos += ($TEXT_LINE_OFFSET_VPOS_AMOUNT * $FONT_SIZE);
 }
-
+print "\$hr\n";
+$vpos += ($TEXT_LINE_OFFSET_VPOS_AMOUNT * $FONT_SIZE);
+$vpos -= $VOFFSET_TOP_DEFAULT_OFFSET;
+open(VOFFSET, ">", $VOFFSET_FILE);
+print VOFFSET "$vpos\n";
+close VOFFSET;
 ###############################################################################
 #
 # Local variables:
