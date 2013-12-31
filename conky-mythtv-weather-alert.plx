@@ -33,7 +33,6 @@ use File::Temp ();
 sub ReadRecentWeatherAlerts ($) {
   my($dir) = @_;
 
-  print "DIR: $dir\n";;
   my %info;
   my $file = File::Spec->catfile($dir, 'conky-weather-alert-recent');
   open(RECENT_ALERTS, "<", $file) or die "unable to open $file for reading: $!";
