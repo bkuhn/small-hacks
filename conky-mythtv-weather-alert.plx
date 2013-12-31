@@ -27,13 +27,64 @@ use utf8;
 use feature 'unicode_strings';
 use Encode qw(encode decode);
 use Text::Autoformat qw(autoformat);
+use File::Temp ();
+
+######################################################################
+sub ReadRecentWeatherAlerts ($) {
+  my($dir) = @_;
+
+  print "DIR: $dir\n";;
+  my %info;
+  my $file = File::Spec->catfile($dir, 'conky-weather-alert-recent');
+  open(RECENT_ALERTS, "<", $file) or die "unable to open $file for reading: $!";
+  my $key;
+  my $data = "";
+  foreach my $line (<RECENT_ALERTS>) {
+    chomp $line;
+    next if $line =~ /^\s*$/;
+    if ($line =~ /^\s*([\d\:\-]+)/) {
+      my $newKey = $1;
+      $info{$key} = $data if defined $key;
+      $key = $newKey;
+      $data = "";
+    } else {
+      $data .= $line;
+    }
+  }
+  close RECENT_ALERTS; die "error($?) reading $file: $!" unless $? == 0;
+
+  $info{$key} = $data if (defined $key);  # Grab last one.
+
+  return \%info;
+}
+######################################################################
+sub WriteRecentWeatherAlerts ($$) {
+  my($dir, $info) = @_;
+
+  my $file = File::Spec->catfile($dir, 'conky-weather-alert-recent');
+  open(RECENT_ALERTS, ">", $file) or die "unable to open $file for reading: $!";
+
+  foreach my $key (sort keys %$info) {
+    print RECENT_ALERTS "$key\n$info->{$key}\n";
+  }
+  close RECENT_ALERTS; die "error($?) writing $file: $!" unless $? == 0;
+}
+######################################################################
+
+my $TEXT_LINE_OFFSET_VPOS_AMOUNT = 1.59;
 
 my $now =  ParseDate("now");
+
+my $DIR = File::Spec->catdir("$ENV{HOME}", 'tmp', '.conky-mythtv-weather');
+chdir($DIR) or die "unable to go to $DIR";
+my $VOFFSET_FILE = File::Spec->catfile($DIR, 'conky-weather-voffset-last');
 
 my $MYTH_PATH = shift @ARGV;
 my($command) = $MYTH_PATH .
              "/mythplugins/mythweather/mythweather/scripts/us_nws/nws-alert.pl";
 my %data;
+
+my $vpos = 0;
 
 foreach my $location (@ARGV) {
   open(DATA, "-|", $command, $location)
@@ -47,13 +98,17 @@ foreach my $location (@ARGV) {
   close DATA;
   die "error($?) running: $command $location: $!" unless $? == 0;
 }
-my $warned = 0;
+
+my $output = "";
+my $record = "";
+my $info = ReadRecentWeatherAlerts($DIR);
 foreach my $location (keys %data) {
   die "Missing $location!" if (not defined $data{$location}{alerts});
   next if $data{$location}{alerts} =~ /no\s*warning/i;
   print "\${color5}\${font :size=20}WEATHER ALERT:\n";
   $data{$location}{updatetime} =~ s/\s*last\s*updated?\s*(at|on)\s*//i;
   my $datetime = ParseDate($data{$location}{updatetime});
+
   my $ago = Delta_Format(DateCalc($datetime, $now), 0, "%mt min");
   if (defined $ago) {
     $ago = Delta_Format(DateCalc($datetime, $now), 0, "%st sec")
@@ -63,10 +118,42 @@ foreach my $location (keys %data) {
   }
   my $data = autoformat $data{$location}{alerts}, { justify => 'left',
                                                     fill => 70};
-  print "\${font}For $data{$location}{swlocation},",
+  my $numLines = $data =~ tr/\n/\n/;
+  print "\${font :size=10}For $data{$location}{swlocation}, ",
     "as of $ago ago:\n$data\${color}\$hr\n";
+  $output .= "For $data{$location}{swlocation}, as of $ago ago: $data\n";
+  $record .= "For $data{$location}{swlocation}: $data";
+  $vpos += (20 * $TEXT_LINE_OFFSET_VPOS_AMOUNT)
+    + (10 * $TEXT_LINE_OFFSET_VPOS_AMOUNT * ($numLines + 2));
 }
+$record =~ s/\n/ /gm;
 
+if (keys(%data) > 0 and length($output) > 0) {
+  my $alreadyDone = 0;
+  foreach my $key (keys %$info) {
+    $alreadyDone = (($info->{$key} eq $record) and
+                    (Delta_Format(DateCalc($key, $now), 0, "%mt") < 1440));
+    last if $alreadyDone;
+  }
+  unless ($alreadyDone) {
+    $info->{$now} = $record;
+    my $fh = File::Temp->new();
+    $fh->unlink_on_destroy( 1 );
+    my $fname = $fh->filename;
+    print $fh $output;
+    $fh->close();
+    system("$ENV{HOME}/bin/myosd", $fname);
+    system('/usr/bin/notify-send', '-u', 'critical', '-t', '300000',
+           'Weather Alert', $output);
+    system("$ENV{HOME}/bin/myspeakbyfile", $fname)
+      unless -f "$ENV{HOME}/.silent-running";
+  }
+}
+WriteRecentWeatherAlerts($DIR, $info);
+$vpos = 9 if $vpos == 0;
+open(VOFFSET, ">", $VOFFSET_FILE);
+print VOFFSET "$vpos\n";
+close VOFFSET;
 ###############################################################################
 #
 # Local variables:
