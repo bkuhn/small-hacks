@@ -99,7 +99,7 @@ while (my $line = <ORG_MODE_AGENDA>) {
           print $fh "You have an appointment at $start: $rest\n";
           $fh->close();
           system('/home/bkuhn/bin/myosd', $fname);
-          system("/usr/bin/espeak",  '-p', '45', '-s', '130', '-f', $fname)
+          system("/home/bkuhn/bin/myspeakbyfile", $fname)
             unless -f "$ENV{HOME}/.silent-running";
           system('/usr/bin/notify-send', '-u', 'critical', '-t', '300000',
                  'Appointment', "You have an appointment at $start: $rest");
