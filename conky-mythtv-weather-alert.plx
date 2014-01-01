@@ -101,6 +101,7 @@ foreach my $location (@ARGV) {
 my $output = "";
 my $record = "";
 my $info = ReadRecentWeatherAlerts($DIR);
+my %equivalentLines;
 foreach my $location (keys %data) {
   die "Missing $location!" if (not defined $data{$location}{alerts});
   next if $data{$location}{alerts} =~ /no\s*warning/i;
@@ -119,6 +120,8 @@ foreach my $location (keys %data) {
     $ago = $data{$location}{updatetime};
   }
   my $data = $data{$location}{alerts};
+  next if defined $equivalentLines{$data};
+  $equivalentLines{$data} = 1;
   my $conkyOut = autoformat(
     "\${font :size=10}For $data{$location}{swlocation}, as of $ago ago:\n$data",
                        { justify => 'left', fill => 1, right => 60 });
