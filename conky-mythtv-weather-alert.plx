@@ -104,8 +104,11 @@ my $info = ReadRecentWeatherAlerts($DIR);
 foreach my $location (keys %data) {
   die "Missing $location!" if (not defined $data{$location}{alerts});
   next if $data{$location}{alerts} =~ /no\s*warning/i;
-  print "\${color5}\${font :size=20}WEATHER ALERT:\n";
-  $data{$location}{updatetime} =~ s/\s*last\s*updated?\s*(at|on)\s*//i;
+  if ($output eq "") {
+    print "\${color5}\${font :size=20}WEATHER ALERT:\n";
+    $vpos += 20 * $TEXT_LINE_OFFSET_VPOS_AMOUNT;
+  }
+    $data{$location}{updatetime} =~ s/\s*last\s*updated?\s*(at|on)\s*//i;
   my $datetime = ParseDate($data{$location}{updatetime});
 
   my $ago = Delta_Format(DateCalc($datetime, $now), 0, "%mt min");
@@ -115,18 +118,21 @@ foreach my $location (keys %data) {
   } else {
     $ago = $data{$location}{updatetime};
   }
-  my $data = autoformat $data{$location}{alerts}, { justify => 'left',
-                                                    fill => 70};
-  my $numLines = $data =~ tr/\n/\n/;
-  print "\${font :size=10}For $data{$location}{swlocation}, ",
-    "as of $ago ago:\n$data\${color}\$hr\n";
+  my $data = $data{$location}{alerts};
+  my $conkyOut = autoformat(
+    "\${font :size=10}For $data{$location}{swlocation}, as of $ago ago:\n$data",
+                       { justify => 'left', fill => 1, right => 60 });
+  my $numLines = $conkyOut =~ tr/\n/\n/;
+  print $conkyOut;
   $output .= "For $data{$location}{swlocation}, as of $ago ago: $data\n";
   $record .= "For $data{$location}{swlocation}: $data";
-  $vpos += (20 * $TEXT_LINE_OFFSET_VPOS_AMOUNT)
-    + (10 * $TEXT_LINE_OFFSET_VPOS_AMOUNT * ($numLines + 2));
+  $vpos += 10 * $TEXT_LINE_OFFSET_VPOS_AMOUNT * ($numLines);
+}
+if ($output ne "") {
+  print "\${color}\$hr\n";
+  $vpos += 10 * $TEXT_LINE_OFFSET_VPOS_AMOUNT;
 }
 $record =~ s/\n/ /gm;
-
 if (keys(%data) > 0 and length($output) > 0) {
   my $alreadyDone = 0;
   foreach my $key (keys %$info) {
