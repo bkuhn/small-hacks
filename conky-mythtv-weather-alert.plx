@@ -133,7 +133,7 @@ foreach my $location (keys %data) {
 }
 if ($output ne "") {
   print "\${color}\$hr\n";
-  $vpos += 10 * $TEXT_LINE_OFFSET_VPOS_AMOUNT;
+  $vpos += 7 * $TEXT_LINE_OFFSET_VPOS_AMOUNT;
 }
 $record =~ s/\n/ /gm;
 if (keys(%data) > 0 and length($output) > 0) {
