@@ -570,11 +570,14 @@ if (defined $config->{cleanOutputDirFirst} and $config->{cleanOutputDirFirst}) {
 DieLog("$CONFIG_FILE doesn't specify a (readable) output directory via outputDir setting: $!")
   unless defined $config->{outputDir} and -d $config->{outputDir};
 
-
-DieLog("$CONFIG_FILE doesn't specify a readable public nor a private diary file")
-  unless (defined $config->{publicDiary} and -r $config->{publicDiary}) or
-    (defined $config->{privateyDiary} and -r $config->{privateDiary});
-
+unless ((defined $config->{publicDiary} and -r $config->{publicDiary}) or
+    (defined $config->{privateyDiary} and -r $config->{privateDiary})) {
+  foreach my $key (qw/publicDiary privateDiary/) {
+    print "\${color5}$key file, $config->{$key} does not exist\n"
+      if defined $config->{$key}
+  }
+  exit 0;
+}
 FilterEmacsToICal($config->{publicDiary}, $config->{privateDiary},
                   $config->{outputDir}, $config, $config->{user});
 
