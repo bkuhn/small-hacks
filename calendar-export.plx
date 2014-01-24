@@ -545,6 +545,10 @@ sub ReadConfig($) {
 system("/usr/bin/lockfile -r 8 $CALENDAR_LOCK_FILE");
 DieLog("Failure to acquire calendar lock on $CALENDAR_LOCK_FILE") unless ($? == 0);
 
+if (not -r $CONFIG_FILE) {
+  print "\${color5}$CONFIG_FILE does not exist\n";
+  exit 0;
+}
 my $config = ReadConfig($CONFIG_FILE);
 
 $config->{scrubPrivate} = 0 if not defined $config->{scrubPrivate};
