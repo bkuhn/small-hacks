@@ -348,7 +348,7 @@ ELISP_END
                             $outputDir, \@tzList, $user);
 
   PrivacyFilterICalFile($outputDir) if $emacsSettings->{privacyScrub};
-  DieLog("Unable to remove temporary files")
+  DieLog("Unable to remove temporary files", $LOCK_CLEANUP_CODE)
     unless unlink($icsPublicFile, $icsWillBePrivatizedFile) == 2;
 }
 ###############################################################################
@@ -468,7 +468,8 @@ END_ICAL
       # This will overwrite existing events of the same name.
 
       my $uidList = $entry->property('UID');
-      DieLog("This entry has multiple UIDs: @{$uidList}") unless @$uidList == 1;
+      DieLog("This entry has multiple UIDs: @{$uidList}", $LOCK_CLEANUP_CODE)
+        unless @$uidList == 1;
       my $uid = $uidList->[0]->value;
 
       my $outputFile = File::Spec->catpath("", $icsOutputDir, "${uid}.ics");
@@ -533,18 +534,21 @@ sub ReadConfig($) {
 
   while (my $line = <CONFIG_FILE>) {
     chomp $line;
-    DieLog("Unable to parse $line in config file, $configFile")
+    DieLog("Unable to parse $line in config file, $configFile",
+           $LOCK_CLEANUP_CODE)
       unless $line =~ /^\s*([^:]+)\s*:\s*([^:]+)\s*$/;
     $config{$1} = $2;
   }
-  close CONFIG_FILE;  DieLog("Error reading $configFile ($?): $!") if $? != 0;
+  close CONFIG_FILE;  DieLog("Error reading $configFile ($?): $!",
+                             $LOCK_CLEANUP_CODE) if $? != 0;
   return \%config;
 }
 ######################################################################
-
 system("/usr/bin/lockfile -r 8 $CALENDAR_LOCK_FILE");
-DieLog("Failure to acquire calendar lock on $CALENDAR_LOCK_FILE") unless ($? == 0);
-
+unless ($? == 0) {
+  print "\${color5}Calendar export failure: Cannot aquire lock on $CALENDAR_LOCK_FILE\n";
+  exit 0;
+}
 if (not -r $CONFIG_FILE) {
   print "\${color5}$CONFIG_FILE does not exist\n";
   exit 0;
