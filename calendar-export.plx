@@ -562,13 +562,13 @@ $config->{calendarStyle} = 'plain' if not defined $config->{calendarStyle};
 DieLog("$config->{emacsBinary} doesn't appear to be executable for $config->{emacsBinary}")
     unless defined $config->{emacsBinary} and -x $config->{emacsBinary};
 
+DieLog("$CONFIG_FILE doesn't specify a (readable) output directory via outputDir setting: $!")
+  unless defined $config->{outputDir} and -d $config->{outputDir};
+
 if (defined $config->{cleanOutputDirFirst} and $config->{cleanOutputDirFirst}) {
   chdir $config->{outputDir} or die "unable to change directory to $config->{outputDir} $? $!";
   system("/bin/rm -f *.ics");
 }
-
-DieLog("$CONFIG_FILE doesn't specify a (readable) output directory via outputDir setting: $!")
-  unless defined $config->{outputDir} and -d $config->{outputDir};
 
 unless ((defined $config->{publicDiary} and -r $config->{publicDiary}) or
     (defined $config->{privateyDiary} and -r $config->{privateDiary})) {
