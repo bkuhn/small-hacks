@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 # Copyright (C) 2013 Bradley M. Kuhn
 #
 # The copyright holders wish that this script could be placed into the public
@@ -23,8 +23,11 @@ set -e
 HOME_MACHINE=baptist.ebb.org
 
 ~/hacks/Small-Hacks/calendar-export.plx ~/Public-Configuration/calendar-export-home.config
-
-cd ~/calendars
+if [ $? -ne 0 ]; then
+    echo '${color5} Failure in $0: Aborting after export'
+    remove_lock
+    exit 1
+fi
 
 cd ~/calendars/personal/private/bkuhn
 
