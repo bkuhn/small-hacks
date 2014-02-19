@@ -551,7 +551,7 @@ unless ($? == 0) {
 }
 if (not -r $CONFIG_FILE) {
   print "\${color5}$CONFIG_FILE does not exist\n";
-  exit 0;
+  exit 1;
 }
 my $config = ReadConfig($CONFIG_FILE);
 
@@ -576,7 +576,7 @@ unless ((defined $config->{publicDiary} and -r $config->{publicDiary}) or
     print "\${color5}$key file, $config->{$key} does not exist\n"
       if defined $config->{$key}
   }
-  exit 0;
+  exit 1;
 }
 FilterEmacsToICal($config->{publicDiary}, $config->{privateDiary},
                   $config->{outputDir}, $config, $config->{user});
