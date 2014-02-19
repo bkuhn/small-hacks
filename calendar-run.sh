@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 # Copyright (C) 2013 Bradley M. Kuhn
 #
 # The copyright holders wish that this script could be placed into the public
