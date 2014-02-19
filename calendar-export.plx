@@ -570,13 +570,11 @@ if (defined $config->{cleanOutputDirFirst} and $config->{cleanOutputDirFirst}) {
   system("/bin/rm -f *.ics");
 }
 
-unless ((defined $config->{publicDiary} and -r $config->{publicDiary}) or
-    (defined $config->{privateyDiary} and -r $config->{privateDiary})) {
-  foreach my $key (qw/publicDiary privateDiary/) {
-    print "\${color5}$key file, $config->{$key} does not exist\n"
-      if defined $config->{$key}
+foreach my $key (qw/publicDiary privateDiary/) {
+  unless (defined $config->{$key} and -r $config->{$key}) {
+    print "\${color5}$key file, $config->{$key} does not exist\n";
+    exit 1;
   }
-  exit 1;
 }
 FilterEmacsToICal($config->{publicDiary}, $config->{privateDiary},
                   $config->{outputDir}, $config, $config->{user});
