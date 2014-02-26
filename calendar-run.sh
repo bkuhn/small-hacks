@@ -13,21 +13,23 @@
 /usr/bin/lockfile -r 8 ~/.running-calendar
 
 remove_lock() {
+    set +e
+    /bin/rm -f ~/.running-calendar
+    trap - INT TERM EXIT
+    exit 0
+}
+remove_lock_and_fail() {
+    echo '${color5}' $! $# 'Failure in' $0 ': Aborting!'
     /bin/rm -f ~/.running-calendar
 }
 # It's a TRAP!!!
-trap remove_lock INT TERM EXIT
+trap remove_lock_and_fail INT TERM EXIT
 
 set -e
 
 HOME_MACHINE=baptist.ebb.org
 
 ~/hacks/Small-Hacks/calendar-export.plx ~/Public-Configuration/calendar-export-home.config
-if [ $? -ne 0 ]; then
-    echo '${color5} Failure in $0: Aborting after export'
-    remove_lock
-    exit 1
-fi
 
 cd ~/calendars/personal/private/bkuhn
 
