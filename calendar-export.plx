@@ -547,7 +547,7 @@ sub ReadConfig($) {
 system("/usr/bin/lockfile -r 8 $CALENDAR_LOCK_FILE");
 unless ($? == 0) {
   print "\${color5}Calendar export failure: Cannot aquire lock on $CALENDAR_LOCK_FILE\n";
-  exit 0;
+  exit 1;
 }
 if (not -r $CONFIG_FILE) {
   print "\${color5}$CONFIG_FILE does not exist\n";
