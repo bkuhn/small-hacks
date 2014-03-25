@@ -34,7 +34,7 @@ if (@ARGV < 4 or @ARGV > 5) {
 
 my($MAILDIR_FOLDER, $DSPAM_PROB_MIN, $DSPAM_CONF_MIN, $DAYS, $COUNT_ONLY) = @ARGV;
 
-my($total, $countDeleted) = (0, 0);
+my($total, $countDeleted, $totalInDate) = (0, 0, 0);
 
 my $nDaysAgo = ParseDate("$DAYS days ago");
 
@@ -80,6 +80,7 @@ MAIL:  while (my $file = readdir MAILDIR) {
     print "\nDate: $parsedDate" if ($VERBOSE > 2);
 
     next MAIL if ($parsedDate gt $nDaysAgo);
+    $totalInDate++;
 
     print "    Not skipping over date, $nDaysAgo\n" if ($VERBOSE > 2);
     my %dspamVal;
@@ -122,6 +123,13 @@ print sprintf("%.2f", $percent), "% ($countDeleted/$total) ",
    " would be deleted.\n" :
    sprintf("were deleted.\nThis leaves %d in the folder.\n",
           $total - $countDeleted));
+
+print sprintf("Of those matching the date range, %.2f", $percent), "% ($countDeleted/$totalInDate) ",
+  ((defined $COUNT_ONLY and $COUNT_ONLY) ?
+   " would be deleted.\n" :
+   sprintf("were deleted.\n"));
+print sprintf("%d in the folder don't match that date range.\n",
+          $total - $totalInDate);
 ###############################################################################
 #
 # Local variables:
