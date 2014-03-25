@@ -75,6 +75,7 @@ MAIL:  while (my $file = readdir MAILDIR) {
       print STDERR "File $file has Unparsable Date header $mailDate";
       next MAIL;
     }
+    $total++;
 
     print "\nDate: $parsedDate" if ($VERBOSE > 2);
 
@@ -96,7 +97,6 @@ MAIL:  while (my $file = readdir MAILDIR) {
         next MAIL;
       }
     }
-    $total++;
 
     print " Confidence: $dspamVal{Confidence}, Probability: $dspamVal{Probability}\n"
       if ($VERBOSE > 2);
