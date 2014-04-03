@@ -124,7 +124,9 @@ print sprintf("%.2f", $percent), "% ($countDeleted/$total) ",
    sprintf("were deleted.\nThis leaves %d in the folder.\n",
           $total - $countDeleted));
 
-print sprintf("Of those matching the date range, %.2f", $percent), "% ($countDeleted/$totalInDate) ",
+my $percentInDate = ($totalInDate / $total) * 100.00;
+
+print sprintf("Of those matching the date range, %.2f", $percentInDate), "% ($countDeleted/$totalInDate) ",
   ((defined $COUNT_ONLY and $COUNT_ONLY) ?
    " would be deleted.\n" :
    sprintf("were deleted.\n"));
