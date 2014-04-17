@@ -19,7 +19,7 @@ remove_lock() {
     exit 0
 }
 remove_lock_and_fail() {
-    echo '${color5}' $! $# 'Failure in' $0 ': Aborting!'
+    echo '${color5}' $! $# 'Fail in' $0 ': Aborting!'
     /bin/rm -f ~/.running-calendar
 }
 # It's a TRAP!!!
