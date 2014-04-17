@@ -71,3 +71,5 @@ if [ ! -z "$WORK_MACHINE" ]; then
 fi
 
 remove_lock
+trap - INT TERM EXIT
+exit 0
