@@ -21,13 +21,14 @@
 [ "$debug" ] && set -x
 
 PROGRAM=$(basename $0)
-prg=diff
+prg="/home/bkuhn/hacks/Small-Hacks/cwdiff --diff --ab"
 
 if [ -x /opt/csw/bin/gdiff ]; then 			# SUN/OS Solaris
     prg=/opt/csw/bin/gdiff
 fi
 
 DIFF_PROGRAM=${DIFF_PROGRAM:-$prg}
+diff_prg_name=`basename $DIFF_PROGRAM`
 
 Warn ()
 {
