@@ -41,7 +41,7 @@ if ($? != 0) {
   exit 0;
 }
 my $now =  ParseDate("now");
-open(ORG_MODE_AGENDA, "-|", "/usr/bin/emacs -batch -l ~/.emacs -eval '(org-batch-agenda \"a\" org-agenda-files (mapcar (lambda (arg) (replace-regexp-in-string \"~/Crypt/Orgs/\" \"~/Crypt/.org-backup/\" arg)) org-agenda-files) org-agenda-span (quote 10)  org-agenda-overriding-header \"\" org-agenda-repeating-timestamp-show-all t org-agenda-time-grid nil org-agenda-repeating-timestamp-show-all t org-agenda-entry-types (quote (:sexp :scheduled)))' 2>/dev/null") or
+open(ORG_MODE_AGENDA, "-|", "$EMACS -batch -l ~/.emacs -eval '(org-batch-agenda \"a\" org-agenda-files (mapcar (lambda (arg) (replace-regexp-in-string \"~/Crypt/Orgs/\" \"~/Crypt/.org-backup/\" arg)) org-agenda-files) org-agenda-span (quote 10)  org-agenda-overriding-header \"\" org-agenda-repeating-timestamp-show-all t org-agenda-time-grid nil org-agenda-repeating-timestamp-show-all t org-agenda-entry-types (quote (:sexp :scheduled)))' 2>/dev/null") or
 die "Unable to run emacs: $!";
 
 my $firstDay;
