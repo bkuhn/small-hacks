@@ -26,6 +26,11 @@ use warnings;
 use Date::Manip;
 use File::Temp ();
 
+my $EMACS = $ENV{EMACS};
+$EMACS = "/home/bkuhn/hacks/emacs/src/emacs";
+
+$EMACS = "/usr/bin/emacs" unless defined $EMACS;
+
 if (not -d "$ENV{HOME}/Crypt/Orgs") {
   print "\${color5}Crypt Directory Not Mounted!\n";
   exit 0;
