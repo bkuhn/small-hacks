@@ -162,7 +162,11 @@ Main ()
 	   odt2txt "$file2" > "$ft2" 2>/dev/null
 	then
 
-	    if $DIFF_PROGRAM -L "$file1" -L "$file2" $opts "$ft1" "$ft2"
+            diffopts="-L \"$file1\" -L \"$file2\""
+            if [ "$diff_prg_name" == "cwdiff" ]; then
+                diffopts="--diff-opts \"--new-file --unified --show-c-function --recursive -L \"$file1\" -L \"$file2\""
+            fi
+	    if $DIFF_PROGRAM  $opts "$ft1" "$ft2"
 	    then
 		# no text change
 		if diff -q "$file1" "$file2"; then
