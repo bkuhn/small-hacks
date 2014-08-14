@@ -74,10 +74,34 @@ close PASSWORDS;
 die "error reading $passfile: $!" unless $? == 0;
 
 $mech->get("http://www.deucescracked.com/dashboard");
-my $x = $mech->submit_form(form_number => 1,
+$mech->submit_form(form_number => 1,
                    fields => { login => $login, password => $password});
 use Data::Dumper;
-print $x->decoded_content();
+$mech->get("http://www.deucescracked.com/videos");
+my $page= $mech->submit_form(form_number => 1,
+                          fields => { stakes => $stakes, game_type => $gameType });
+
+open(TITLE_LOG, ">>", "log/title.log") or die "unable to open title.log for writing: $!";
+select(TITLE_LOG); $| = 1; select(STDOUT);
+
+my $count = 0;
+my @allVideoLinks;
+my $nextLink;
+do {
+  $mech->get($nextLink) if defined $nextLink;
+
+  open(OUTPUT, ">", sprintf("html/%.4d.html", $count)) or die "unable to open ${count}.html for writing: $!";
+  print OUTPUT encode('UTF-8', $page->decoded_content());
+  close OUTPUT;
+
+  my @videoLinks = $mech->find_all_links( class => 'video_title' );
+  push(@allVideoLinks, @videoLinks);
+  $count++;
+} while ($nextLink = $mech->find_link(class => 'next_page'));
+
+foreach my $videoURL (@allVideoLinks) {
+  print TITLE_LOG encode('UTF-8', $videoURL->text()), "\n     ", $videoURL->url_abs(), "\n";
+}
 
 ###############################################################################
 #
