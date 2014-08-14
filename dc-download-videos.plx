@@ -24,9 +24,38 @@ use warnings;
 use WWW::Mechanize;
 use HTTP::Cookies;
 
+use Encode qw(encode decode);
+
 my $mech = WWW::Mechanize->new(autocheck => 1);
 
+foreach my $dir ("html", "videos", "log") {
+  unless (-d $dir) {
+    mkdir $dir or die "unable to create subdir for $dir: $!";
+  }
+}
+
+die "usage: $0 PASSWORD STAKES GAME_TYPE" unless @ARGV == 3;
+
 my $passfile = $ARGV[0];
+
+#   <select name="stakes" id="stakes_sort" class="col1">
+#    <option value="any" selected="selected">Stakes</option>
+#    <option value="3">Mid Stakes</option>
+#<option value="4">High Stakes</option>
+# <option value="5" selected="selected">Micro/Small Stakes</option>  </select>
+
+my $stakes = $ARGV[1];
+
+# <option value="2" selected="selected">No Limit Hold&#x27;Em</option>
+# <option value="3">Omaha/Omaha 8</option>
+# <option value="4">Pot-Limit Omaha</option>
+#<option value="5">Stud/Stud 8</option>
+# <option value="6">Razz</option>
+# <option value="7">MTT</option>
+# <option value="8">Misc/Other</option>
+# <option value="11">SNG</option>
+
+my $gameType = $ARGV[2];
 
 open(PASSWORDS, "<", $passfile) or die "unable to read $passfile $!";
 
