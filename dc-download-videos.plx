@@ -131,7 +131,7 @@ foreach my $videoURL (@allVideoLinks) {
     print STDERR ".... already have.\n";
     next;
   }
-  if ( ($startCount % 10) == 0) {
+  if ( ($count % 10) == 0) {
     print STDERR " ... redoing login ...";
     &redo_login;
   }
