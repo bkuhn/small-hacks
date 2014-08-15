@@ -76,13 +76,13 @@ die "error reading $passfile: $!" unless $? == 0;
 $mech->get("http://www.deucescracked.com/dashboard");
 $mech->submit_form(form_number => 1,
                    fields => { login => $login, password => $password});
-use Data::Dumper;
+
 $mech->get("http://www.deucescracked.com/videos");
 my $page= $mech->submit_form(form_number => 1,
                           fields => { stakes => $stakes, game_type => $gameType });
 
 open(TITLE_LOG, ">>", "log/title.log") or die "unable to open title.log for writing: $!";
-select(TITLE_LOG); $| = 1; select(STDOUT);
+select(TITLE_LOG); $| = 1; select(STDERR); $| = 1; select(STDOUT);
 
 my $count = 0;
 my @allVideoLinks;
@@ -99,8 +99,22 @@ do {
   $count++;
 } while ($nextLink = $mech->find_link(class => 'next_page'));
 
+$count = 0;
 foreach my $videoURL (@allVideoLinks) {
-  print TITLE_LOG encode('UTF-8', $videoURL->text()), "\n     ", $videoURL->url_abs(), "\n";
+  my $v = sprintf("%.4d", $count);
+  $mech->get($videoURL->url_abs());
+  print STDERR "Downloading $v: ",  encode('UTF-8', $videoURL->text());
+  my $videoResponse = $mech->follow_link(text_regex => qr/Download full/i);
+  my $filename = $videoResponse->filename();
+  $filename =~ s/-/_/g;
+  $filename =~ s/ /-/g;
+  $filename =~ s/-_-/_/g;
+  $mech->save_content("videos/$filename");
+  print TITLE_LOG "${v}-Title:    ", encode('UTF-8', $videoURL->text()),
+                  "\n${v}-URL:      ", encode('UTF-8', $videoURL->url_abs()),
+                  "\n${v}-Filename: ", encode('UTF-8', $filename), "\n";
+  print STDERR " .... done.\n";
+  $count++;
 }
 
 ###############################################################################
