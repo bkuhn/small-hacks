@@ -121,11 +121,20 @@ do {
   $count++;
 } while ($nextLink = $mech->find_link(class => 'next_page'));
 
-$count = 0;
+$count = $startCount;
 foreach my $videoURL (@allVideoLinks) {
   my $v = sprintf("%.4d", $count);
-  $mech->get($videoURL->url_abs());
   print STDERR "Downloading $v: ",  encode('UTF-8', $videoURL->text());
+  if (defined $haveURL{$videoURL->url_abs()}) {
+    print STDERR ".... already have.\n";
+    next;
+  }
+  if ( ($startCount % 50) == 0) {
+    print STDERR " ... redoing login ...";
+    &redo_login;
+  }
+  $mech->get($videoURL->url_abs());
+  
   my $videoResponse = $mech->follow_link(text_regex => qr/Download full/i);
   my $filename = $videoResponse->filename();
   $filename =~ s/-/_/g;
@@ -138,7 +147,6 @@ foreach my $videoURL (@allVideoLinks) {
   print STDERR " .... done.\n";
   $count++;
 }
-
 ###############################################################################
 #
 # Local variables:
