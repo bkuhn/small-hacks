@@ -26,8 +26,6 @@ use HTTP::Cookies;
 
 use Encode qw(encode decode);
 
-my $mech = WWW::Mechanize->new(autocheck => 1);
-
 foreach my $dir ("html", "videos", "log") {
   unless (-d $dir) {
     mkdir $dir or die "unable to create subdir for $dir: $!";
@@ -70,12 +68,36 @@ while (my $line = <PASSWORDS>) {
     exit 1;
   }
 }
-close PASSWORDS;
-die "error reading $passfile: $!" unless $? == 0;
+close PASSWORDS;  die "error reading $passfile: $!" unless $? == 0;
 
-$mech->get("http://www.deucescracked.com/dashboard");
-$mech->submit_form(form_number => 1,
-                   fields => { login => $login, password => $password});
+open(OLD_TITLE_LOG, "<", "log/title.log") or die "unable to open title.log for writing: $!";
+
+my %haveFull;
+my %haveURL;
+my $startCount = 0;
+while (my $line = <OLD_TITLE_LOG>) {
+  if ($line =~ /^\s*(\d+)\s*\-(\S+)\s*:(.+)$/) {
+    my($num, $type, $val) = ($1, $2, $3);
+    my $curCount = $num;
+    $curCount =~ s/^0*//g;
+    $startCount = $curCount + 1 if ($curCount >= $startCount);
+    $haveFull{$num}{$type} = $val;
+    $haveURL{$val} = 1 if ($type eq "URL");
+  }
+}
+print STDERR "Begining donwload at video $startCount\n";
+close OLD_TITLE_LOG;  die "error reading old title log: $!" unless $? == 0;
+
+my $mech;
+sub redo_login {
+  $mech = undef;
+
+  $mech = WWW::Mechanize->new(autocheck => 1);
+  $mech->get("http://www.deucescracked.com/dashboard");
+  $mech->submit_form(form_number => 1,
+                     fields => { login => $login, password => $password});
+}
+&redo_login();
 
 $mech->get("http://www.deucescracked.com/videos");
 my $page= $mech->submit_form(form_number => 1,
