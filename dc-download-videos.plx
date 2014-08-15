@@ -73,16 +73,17 @@ close PASSWORDS;  die "error reading $passfile: $!" unless $? == 0;
 open(OLD_TITLE_LOG, "<", "log/title.log") or die "unable to open title.log for writing: $!";
 
 my %haveFull;
-my %haveURL;
+my %haveTitle;
 my $startCount = 0;
 while (my $line = <OLD_TITLE_LOG>) {
-  if ($line =~ /^\s*(\d+)\s*\-(\S+)\s*:(.+)$/) {
+  if ($line =~ /^\s*(\d+)\s*\-(\S+)\s*:\s*(.+)$/) {
     my($num, $type, $val) = ($1, $2, $3);
+    $val =~ s/^\s+//; $val =~ s/\s+$//;
     my $curCount = $num;
-    $curCount =~ s/^0*//g;
+    $curCount =~ s/^0*//g;  $curCount = 0 if $curCount =~ /^\s*$/;
     $startCount = $curCount + 1 if ($curCount >= $startCount);
     $haveFull{$num}{$type} = $val;
-    $haveURL{$val} = 1 if ($type eq "URL");
+    $haveTitle{$val} = 1 if ($type eq "Title");
   }
 }
 print STDERR "Begining donwload at video $startCount\n";
@@ -124,12 +125,13 @@ do {
 $count = $startCount;
 foreach my $videoURL (@allVideoLinks) {
   my $v = sprintf("%.4d", $count);
-  print STDERR "Downloading $v: ",  encode('UTF-8', $videoURL->text());
-  if (defined $haveURL{$videoURL->url_abs()}) {
+  my $title = encode('UTF-8', $videoURL->text());
+  print STDERR "Downloading $v: ",  $title, " .... ";
+  if (defined $haveTitle{$title}) {
     print STDERR ".... already have.\n";
     next;
   }
-  if ( ($startCount % 50) == 0) {
+  if ( ($startCount % 10) == 0) {
     print STDERR " ... redoing login ...";
     &redo_login;
   }
@@ -141,7 +143,7 @@ foreach my $videoURL (@allVideoLinks) {
   $filename =~ s/ /-/g;
   $filename =~ s/-_-/_/g;
   $mech->save_content("videos/$filename");
-  print TITLE_LOG "${v}-Title:    ", encode('UTF-8', $videoURL->text()),
+  print TITLE_LOG "${v}-Title:    ",  $title,
                   "\n${v}-URL:      ", encode('UTF-8', $videoURL->url_abs()),
                   "\n${v}-Filename: ", encode('UTF-8', $filename), "\n";
   print STDERR " .... done.\n";
