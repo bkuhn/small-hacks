@@ -5,6 +5,23 @@
 #  https://help.libreoffice.org/Common/About_Converting_Microsoft_Office_Documents
 #  http://wiki.openoffice.org/wiki/Documentation/DevGuide/Spreadsheets/Filter_Options
 #  http://linuxsleuthing.blogspot.com/2012/01/unoconv-is-number-one.html
+#
+# Copyright © 2013, Tom Marble.
+#
+# This software's license gives you freedom; you can copy, convey,
+# propogate, redistribute and/or modify this program under the terms of
+# the GNU  Lesser General Public License (LGPL) as published by the Free
+# Software Foundation (FSF), either version 2.1 of the License, or (at your
+# option) any later version of the LGPL published by the FSF.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program in a file in the toplevel directory called
+# "LGPLv2.1".  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import ooutils
