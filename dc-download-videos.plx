@@ -32,7 +32,7 @@ foreach my $dir ("html", "videos", "log") {
   }
 }
 
-die "usage: $0 PASSWORD STAKES GAME_TYPE" unless @ARGV == 3;
+die "usage: $0 PASSWORD [STAKES] [GAME_TYPE]" if @ARGV < 1 or @ARGV > 3;
 
 my $passfile = $ARGV[0];
 
@@ -100,10 +100,17 @@ sub redo_login {
 }
 &redo_login();
 
-$mech->get("http://www.deucescracked.com/videos");
-my $page= $mech->submit_form(form_number => 1,
-                          fields => { stakes => $stakes, game_type => $gameType });
-
+my $page = $mech->get("http://www.deucescracked.com/videos");
+if (defined $stakes and defined $gameType) {
+  $page = $mech->submit_form(form_number => 1,
+                             fields => { stakes => $stakes, game_type => $gameType });
+} elsif (defined $stakes) {
+  $page = $mech->submit_form(form_number => 1,
+                          fields => { stakes => $stakes });
+} elsif (defined $gameType) {
+  $page = $mech->submit_form(form_number => 1,
+                             fields => { stakes => $stakes, game_type => $gameType });
+}
 open(TITLE_LOG, ">>", "log/title.log") or die "unable to open title.log for writing: $!";
 select(TITLE_LOG); $| = 1; select(STDERR); $| = 1; select(STDOUT);
 
@@ -127,16 +134,15 @@ foreach my $videoURL (@allVideoLinks) {
   my $v = sprintf("%.4d", $count);
   my $title = encode('UTF-8', $videoURL->text());
   print STDERR "Downloading $v: ",  $title, " .... ";
-  if (defined $haveTitle{$title}) {
-    print STDERR ".... already have.\n";
-    next;
-  }
   if ( ($count % 10) == 0) {
     print STDERR " ... redoing login ...";
     &redo_login;
   }
+  if (defined $haveTitle{$title}) {
+    print STDERR ".... already have.\n";
+    next;
+  }
   $mech->get($videoURL->url_abs());
-  
   my $videoResponse = $mech->follow_link(text_regex => qr/Download full/i);
   my $filename = $videoResponse->filename();
   $filename =~ s/-/_/g;
