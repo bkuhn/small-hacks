@@ -22,8 +22,9 @@ my %data;
 
 while (<>) {
   chomp;
-  die "invalid line: $_"
-    unless /^(\S+)\s+[^"]+"\s*(HEAD|GET|POST|OPTIONS|PUT|CONNECT|PROPFIND)\s+(\S+)[\s"]/;
+  next unless /^(\S+)\s+[^"]+"\s*(GET)\s+(\S+)[\s"]/;
+#  die "invalid line: $_"
+#    unless /^(\S+)\s+[^"]+"\s*(LOCK|HEAD|GET|POST|OPTIONS|PUT|CONNECT|PROPFIND)\s+(\S+)[\s"]/;
   my($ip, $method, $url) = ($1, $2, $3);
   next unless $method =~ /^\s*GET\s*$/i;
 
