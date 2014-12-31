@@ -31,6 +31,8 @@ while (<>) {
   $url =~ s/\s*\.(ogg|mp3)\s*$/.audio/i;   # Treat ogg and mp3 downloads same.
   $url =~ s/\s*\/$$//;   # Always remove trailing slash 
 
+  next unless $url =~ /feed/;
+
   $data{$url}{__TOTAL__} = 0 unless defined $data{$url}{__TOTAL__};
   $data{$url}{__TOTAL__}++;
 
