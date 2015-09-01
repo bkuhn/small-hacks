@@ -36,10 +36,18 @@ foreach my $folder (@dupFolders) {
 
       my $id = $fields->{'Message-ID'}[0];
       chomp $id;
-      die "weirdly formatted message ID, $id in $dir/$file"
-        unless $id =~ s/^\s*\<?\s*(\S+)\s*\>?.*$/$1/;
-
-      die "$dir/$file has no message ID" if not defined $id;
+      if ($id !~ s/^\s*\<?\s*(\S+)\s*\>?.*$/$1/) {
+        $id = $fields->{'Resent-Message-ID'}[0];
+        chomp $id;
+        unless ($id =~ s/^\s*\<?\s*(\S+)\s*\>?.*$/$1/) {
+          warn "weirdly formatted, or missing Message-ID (or Resent-Message-ID), \"$id\" in $dir/$file";
+          next;
+        }
+      }
+      if (not defined $id or $id =~ /^\s*$/) {
+        warn "$dir/$file has no message ID";
+        next;
+      }
 
 #      die "Duplicate message ID's $id\n" if defined $msgs{$id};
 
@@ -70,11 +78,18 @@ foreach my $dir (@msgDirs) {
 
     my $id = $fields->{'Message-ID'}[0];
     chomp $id;
-    die "weirdly formatted message ID, $id in $dir/$file"
-      unless $id =~ s/^\s*\<?\s*([\S\n\s]+)\s*\>?.*$/$1/m;
-
-    die "$dir/$file has no message ID" if not defined $id;
-
+    if ($id !~ s/^\s*\<?\s*(\S+)\s*\>?.*$/$1/) {
+      $id = $fields->{'Resent-Message-ID'}[0];
+      chomp $id;
+      unless ($id =~ s/^\s*\<?\s*(\S+)\s*\>?.*$/$1/) {
+        warn "weirdly formatted, or missing Message-ID (or Resent-Message-ID), \"$id\" in $dir/$file";
+        next;
+      }
+    }
+    if (not defined $id or $id =~ /^\s*$/) {
+      warn "$dir/$file has no message ID";
+      next;
+    }
     # If we already have this message elsehwere, then we simply remove it
     # from this folder here.  Otherwise, we note that we have it by adding
     # it to %msgs.
