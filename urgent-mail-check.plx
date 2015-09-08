@@ -80,7 +80,15 @@ sub WriteRecentUrgentEmailAnnouncements ($$) {
 # Test if network is up
 system('/bin/ping -q -w 20 -c 5 pine.sfconservancy.org > /dev/null 2>&1');
 
-exit 1 if ($? != 0);
+if ($? != 0) {
+  print "\${color5}Network not up!\n";
+  exit 0;
+}
+
+if (not -f $ARGV[1]) {
+  print "\${color5}File $ARGV[1] not readable!\n";
+  exit 0;
+}
 
 my $output = "";
 my $record = "";
