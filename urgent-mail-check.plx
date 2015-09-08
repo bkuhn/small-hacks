@@ -141,14 +141,13 @@ foreach my $summary (@{$summaries}) {
   $ago = "" if not defined $ago;
 
   $subject =~ s/^\s*Re\s*:\s*//i;
-  my $record =  "$ago ago from $who about $subject";
-  $output .= "\${font Inconsolata:size=13}$record\n";
+  my $record =  "$who about $subject";
+  $output .= "\${font Inconsolata:size=13}$ago ago from $record\n";
 
   my $alreadyDone = 0;
   foreach my $key (keys %$info) {
-    print "Testing: \"$key\": \"$info->{$key}\" vs \"$record\"\n";
     $alreadyDone = (($info->{$key} eq $record) and
-                    (Delta_Format(DateCalc($key, $now), 0, "%mt") < 7200));
+                    (Delta_Format(DateCalc($key, $now), 0, "%mt") < 14400));
     last if $alreadyDone;
   }
   unless ($alreadyDone) {
