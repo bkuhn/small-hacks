@@ -61,7 +61,6 @@ sub ReadRecentUrgentEmailAnnouncements ($) {
 
   $info{$key} = $data if (defined $key);  # Grab last one.
 
-  print Data::Dumper->Dump([ \%info ]);
   return \%info;
 }
 ######################################################################
