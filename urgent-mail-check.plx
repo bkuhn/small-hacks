@@ -166,7 +166,7 @@ foreach my $summary (@{$summaries}) {
 }
 WriteRecentUrgentEmailAnnouncements($DIR, $info);
 
-print "\$hr\n\${font :size=17}Urgent Emails:\n$output" if ($output ne "");
+print "\$hr\n\${font :size=17}Urgent Emails:\n$output\$hr" if ($output ne "");
 
 ###############################################################################
 #
