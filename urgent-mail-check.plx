@@ -25,7 +25,12 @@ use warnings;
 use Date::Manip;
 use Net::IMAP::Client;
 use File::Spec;
+use File::Temp;
 
+if (@ARGV != 2) {
+  print STDERR "usage: <username> <password_file>\n";
+  exit 1;
+}
 
 my $DIR = File::Spec->catdir("$ENV{HOME}", 'tmp', '.urgent-email-displayed');
 
@@ -43,7 +48,7 @@ sub ReadRecentUrgentEmailAnnouncements ($) {
   foreach my $line (<RECENT_ALERTS>) {
     chomp $line;
     next if $line =~ /^\s*$/;
-    if ($line =~ /^\s*([\d\:\-]+)/) {
+    if ($line =~ /^\s*([\d\:\-]+)\s*$/) {
       my $newKey = $1;
       $info{$key} = $data if defined $key;
       $key = $newKey;
@@ -56,6 +61,7 @@ sub ReadRecentUrgentEmailAnnouncements ($) {
 
   $info{$key} = $data if (defined $key);  # Grab last one.
 
+  print Data::Dumper->Dump([ \%info ]);
   return \%info;
 }
 ######################################################################
@@ -86,6 +92,8 @@ open(PW, "<", $ARGV[1]) or die "unable to open $ARGV[0] to find password!";
 
 my %passwords;
 while (my $line = <PW>) {
+  die "invalid line in password file: $ARGV[1]"
+    unless $line =~ /^\s*(\S+)\s+(\S+)\s*$/;
   $passwords{$1} = $2;
 }
 close PW;
@@ -105,15 +113,55 @@ $imap->login or
   die('Login failed: ' . $imap->last_error);
 
 $imap->select('URGENT');
-my $messages = $imap->search('ALL');
 
-print Data::Dumper->Dump([$messages]);
+my $messages  = $imap->search('ALL', [ 'DATE' ]);
+my $summaries = $imap->get_summaries($messages);
 
+use Data::Dumper;
 
+foreach my $summary (@{$summaries}) {
+  my $now =  ParseDate("now");
+  my($who, $subject) = ($summary->{from}->[0]->name, $summary->subject);
+  my $datetime = ParseDate($summary->date);
+  my $ago = Delta_Format(DateCalc($datetime, $now), 0, "%dt days");
+  $ago = Delta_Format(DateCalc($datetime, $now), 0, "%ht hours")
+    if (defined $ago and $ago =~ /0 days/);
+  $ago = Delta_Format(DateCalc($datetime, $now), 0, "%mt minutes")
+    if (defined $ago and $ago =~ /0 hours/);
+  $ago = Delta_Format(DateCalc($datetime, $now), 0, "%st seconds")
+    if (defined $ago and $ago =~ /0 minutes/);
+  $ago = "" if not defined $ago;
 
-if ($output eq "") {
-    print "\$hr\n\${font :size=17}Urgent Emails:\n";
+  $subject =~ s/^\s*Re\s*:\s*//i;
+  my $record =  "$ago ago from $who about $subject";
+  $output .= "\${font Inconsolata:size=13}$record\n";
+
+  my $alreadyDone = 0;
+  foreach my $key (keys %$info) {
+    print "Testing: \"$key\": \"$info->{$key}\" vs \"$record\"\n";
+    $alreadyDone = (($info->{$key} eq $record) and
+                    (Delta_Format(DateCalc($key, $now), 0, "%mt") < 7200));
+    last if $alreadyDone;
+  }
+  unless ($alreadyDone) {
+    $info->{$now} = $record;
+    my $fh = File::Temp->new();
+    $fh->unlink_on_destroy( 1 );
+    my $fname = $fh->filename;
+    print $fh "Urgent email: ";
+    print $fh $record;
+    $fh->close();
+    system("$ENV{HOME}/bin/myosd", $fname);
+    system('/usr/bin/notify-send', '-u', 'critical', '-t', '300000',
+           'Urgent Email', $record);
+    system("$ENV{HOME}/bin/myspeakbyfile", $fname)
+      unless -f "$ENV{HOME}/.silent-running";
+  }
 }
+WriteRecentUrgentEmailAnnouncements($DIR, $info);
+
+print "\$hr\n\${font :size=17}Urgent Emails:\n$output" if ($output ne "");
+
 ###############################################################################
 #
 # Local variables:
