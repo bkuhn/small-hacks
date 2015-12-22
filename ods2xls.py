@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # ods2xls.py
 # adapted from ssconv.py
 # see also
@@ -6,7 +6,7 @@
 #  http://wiki.openoffice.org/wiki/Documentation/DevGuide/Spreadsheets/Filter_Options
 #  http://linuxsleuthing.blogspot.com/2012/01/unoconv-is-number-one.html
 #
-# Copyright © 2013, Tom Marble.
+# Copyright (C) 2013, Tom Marble.
 #
 # This software's license gives you freedom; you can copy, convey,
 # propogate, redistribute and/or modify this program under the terms of
@@ -86,13 +86,13 @@ if __name__ == "__main__":
         ooutils.oo_shutdown_if_running()
     else:
         if len(argv) < 2:
-            print "USAGE:"
-            print "  python %s INPUT-FILE [INPUT-FILE ...]" % argv[0]
-            print "OR"
-            print "  python %s --shutdown" % argv[0]
+            print("USAGE:")
+            print("  python %s INPUT-FILE [INPUT-FILE ...]" % argv[0])
+            print("OR")
+            print("  python %s --shutdown" % argv[0])
             exit(255)
         if not isfile(argv[1]):
-            print "File not found: %s" % argv[1]
+            print("File not found: %s" % argv[1])
             exit(1)
 
         try:
@@ -101,10 +101,10 @@ if __name__ == "__main__":
             while i < len(argv):
                 odsname = argv[i]
                 xlsname = odsname.replace('.ods', '.xls')
-                print '%s => %s' % (odsname, xlsname)
+                print('%s => %s' % (odsname, xlsname))
                 converter.convert(odsname, xlsname)
                 i += 1
 
-        except ErrorCodeIOException, exception:
-            print "ERROR! ErrorCodeIOException %d" % exception.ErrCode
+        except ErrorCodeIOException as exception:
+            print("ERROR! ErrorCodeIOException %d" % exception.ErrCode)
             exit(1)

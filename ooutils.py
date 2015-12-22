@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # ooutils.py
 # from http://www.linuxjournal.com/node/1007788
 
@@ -83,12 +83,12 @@ class OORunner:
             n += 1
 
         if not context:
-            raise Exception, "Failed to connect to OpenOffice on port %d" % self.port
+            raise Exception("Failed to connect to OpenOffice on port %d" % self.port)
 
         desktop = context.ServiceManager.createInstanceWithContext("com.sun.star.frame.Desktop", context)
 
         if not desktop:
-            raise Exception, "Failed to create OpenOffice desktop on port %d" % self.port
+            raise Exception("Failed to create OpenOffice desktop on port %d" % self.port)
 
         if did_start:
             _started_desktops[self.port] = desktop
@@ -113,11 +113,11 @@ class OORunner:
 
         try:
             pid = os.spawnve(os.P_NOWAIT, args[0], args, env)
-        except Exception, e:
-            raise Exception, "Failed to start OpenOffice on port %d: %s" % (self.port, e.message)
+        except Exception as e:
+            raise Exception("Failed to start OpenOffice on port %d: %s" % (self.port, e.message))
 
         if pid <= 0:
-            raise Exception, "Failed to start OpenOffice on port %d" % self.port
+            raise Exception("Failed to start OpenOffice on port %d" % self.port)
 
 
     def shutdown(self):
@@ -128,7 +128,7 @@ class OORunner:
             if _started_desktops.get(self.port):
                 _started_desktops[self.port].terminate()
                 del _started_desktops[self.port]
-        except Exception, e:
+        except Exception as e:
             pass
 
 
@@ -142,7 +142,7 @@ def _shutdown_desktops():
         try:
             if desktop:
                 desktop.terminate()
-        except Exception, e:
+        except Exception as e:
             pass
 
 
@@ -155,7 +155,7 @@ def oo_shutdown_if_running(port=OPENOFFICE_PORT):
     try:
         desktop = oorunner.connect(no_startup=True)
         desktop.terminate()
-    except Exception, e:
+    except Exception as e:
         pass
 
 
