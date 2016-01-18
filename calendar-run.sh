@@ -22,6 +22,12 @@ remove_lock_and_fail() {
     echo '${color5}' $! $# 'Fail in' $0 ': Aborting!'
     /bin/rm -f ~/.running-calendar
 }
+if [ -f $HOME/.gnupg/.gnupg-and-ssh-agent-information ]; then
+    . $HOME/.gnupg/.gnupg-and-ssh-agent-information
+else
+    echo "Unable to configure GnuPG and SSH agent, $HOME/.gnupg/.gnupg-and-ssh-agent-information does not exist"
+fi
+
 # It's a TRAP!!!
 trap remove_lock_and_fail INT TERM EXIT
 
