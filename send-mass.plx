@@ -19,6 +19,9 @@
 use strict;
 use warnings;
 
+use Encode;
+use utf8;
+
 if (@ARGV != 3) {
   print "usage: $0 <LIST_OF_ADDRESSES_FILE> <MESSAGE_FILE> <FRM_ADDR>\n";
   exit 1;
@@ -46,14 +49,16 @@ my @message;
 close MESSAGE;
 
 foreach my $fullEmailLine (@sendTo) {
-
+  $fullEmailLine =~ s/\s*#.*$//;   $fullEmailLine =~ s/\s*$//;   $fullEmailLine =~ s/^\s*//;
+  $fullEmailLine = Encode::encode("MIME-Header", $fullEmailLine);
+  # 
   my $emailTo = $fullEmailLine;
   $emailTo =~ s/^[^<]+\<\s*([^\>]+)\s*\>\s*$/$1/;
 
-  open(SENDMAIL, "|/usr/lib/sendmail -f \"$FROM_ADDRESS\" -oi -oem -- $emailTo") or
+  open(SENDMAIL, "|/usr/lib/sendmail -f \"$FROM_ADDRESS\" -oi -oem -- $emailTo $FROM_ADDRESS") or
     die "unable to run sendmail: $!";
 
-  print SENDMAIL "To: $emailTo\n"; # X-Precedence: bulk\n";
+  print SENDMAIL "To: $fullEmailLine\n"; # X-Precedence: bulk\n";
   print SENDMAIL @message;
 
   close SENDMAIL;
