@@ -456,7 +456,7 @@ END_ICAL
           if $nyTime->time_zone->name =~ /floating/;
         my $val = BinarySearchForTZEntry($tzList, $nyTime);
         $newDate->set_time_zone($val->{newTZ});
-        $newDate->set_time_zone("America/New_York");
+        $newDate->set_time_zone("America/Los_Angeles");
         $newDate->set_time_zone("floating");
         my $newICalDate = DateTime::Format::ICal->format_datetime($newDate);
         $dateProp->value($newICalDate);
