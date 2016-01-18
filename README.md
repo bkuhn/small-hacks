@@ -6,8 +6,7 @@ His rule is: “If it took more than 3 minutes to write, it’s worth releasing.
 
 ## Contributing
 
-The
-[canonical repository for this code is on Gitorious](https://gitorious.org/bkuhn/small-hacks/source/master:).
-Please
-[submit merge requests there](https://gitorious.org/bkuhn/small-hacks/merge_requests).
+There is currently no central place for contributing to this project.  If you
+have patches, email them to bkuhn.
+
 The copy on other sites (such as GitHub) is merely a backup.
