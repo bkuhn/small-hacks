@@ -35,7 +35,12 @@ sub ReadRecentWeatherAlerts ($) {
 
   my %info;
   my $file = File::Spec->catfile($dir, 'conky-weather-alert-recent');
-  open(RECENT_ALERTS, "<", $file) or die "unable to open $file for reading: $!";
+  unless (open(RECENT_ALERTS, "<", $file)) {
+    # If the file doesn't exist, create it empty.
+    warn "unable to open $file for reading: $!  (will recreate)";
+    WriteRecentWeatherAlerts($dir, {});
+    return {};
+  }
   my $key;
   my $data = "";
   foreach my $line (<RECENT_ALERTS>) {
